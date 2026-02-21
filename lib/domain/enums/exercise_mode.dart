@@ -1,0 +1,1 @@
+enum ExerciseMode { practice, drill }

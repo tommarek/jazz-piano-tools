@@ -1,0 +1,124 @@
+[
+  {
+    "id": "interval-build",
+    "title": "Build Interval",
+    "mode": "practice",
+    "inputType": "piano",
+    "generatorId": "interval_build",
+    "config": {
+      "rootRange": "all",
+      "intervals": "all"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["intervals", "fundamentals"],
+    "level": 1,
+    "estimatedMinutes": 5
+  },
+  {
+    "id": "interval-identify",
+    "title": "Identify Interval",
+    "mode": "practice",
+    "inputType": "multipleChoice",
+    "generatorId": "interval_identify",
+    "config": {
+      "intervals": "all"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["intervals", "fundamentals"],
+    "level": 1,
+    "estimatedMinutes": 5
+  },
+  {
+    "id": "chord-build",
+    "title": "Build Chord",
+    "mode": "practice",
+    "inputType": "piano",
+    "generatorId": "chord_build",
+    "config": {
+      "qualities": ["major", "minor", "dominant7", "major7", "minor7"],
+      "keys": "all"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["chords"],
+    "level": 1,
+    "estimatedMinutes": 5
+  },
+  {
+    "id": "chord-identify",
+    "title": "Identify Chord Quality",
+    "mode": "practice",
+    "inputType": "multipleChoice",
+    "generatorId": "chord_identify",
+    "config": {
+      "qualities": ["major", "minor", "dominant7", "major7", "minor7"]
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["chords"],
+    "level": 1,
+    "estimatedMinutes": 5
+  },
+  {
+    "id": "circle-next-key",
+    "title": "Circle of 4ths: Next Key",
+    "mode": "drill",
+    "inputType": "multipleChoice",
+    "generatorId": "circle_of_fourths_next",
+    "config": {
+      "timeLimit": 60
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["circle-of-fourths", "drill"],
+    "level": 1,
+    "estimatedMinutes": 3
+  },
+  {
+    "id": "circle-play-chord",
+    "title": "Circle of 4ths: Play Chord",
+    "mode": "drill",
+    "inputType": "piano",
+    "generatorId": "circle_of_fourths_chord",
+    "config": {
+      "chordQuality": "dominant7"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["circle-of-fourths", "chords", "drill"],
+    "level": 2,
+    "estimatedMinutes": 5
+  },
+  {
+    "id": "ii-v-i-shells",
+    "title": "ii-V-I Shell Voicings",
+    "mode": "practice",
+    "inputType": "piano",
+    "generatorId": "ii_v_i_shells",
+    "config": {
+      "keys": "all"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["voicings", "jazz", "progressions"],
+    "level": 2,
+    "estimatedMinutes": 10
+  },
+  {
+    "id": "guide-tone-id",
+    "title": "Guide Tone Identification",
+    "mode": "drill",
+    "inputType": "multipleChoice",
+    "generatorId": "guide_tone_identify",
+    "config": {
+      "chordTypes": ["ii", "V", "I"]
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["voicings", "harmony", "drill"],
+    "level": 2,
+    "estimatedMinutes": 5
+  }
+]

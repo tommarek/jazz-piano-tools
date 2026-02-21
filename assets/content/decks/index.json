@@ -1,0 +1,810 @@
+[
+  {
+    "id": "intervals-deck",
+    "title": "Intervals",
+    "tags": ["intervals"],
+    "sourceConceptId": "intervals-basic",
+    "cards": [
+      {
+        "id": "intervals-p1",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a perfect unison (P1)?",
+        "expectedAnswer": "0",
+        "answerType": "text",
+        "metadata": { "interval": "P1", "semitones": 0 }
+      },
+      {
+        "id": "intervals-m2",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a minor 2nd?",
+        "expectedAnswer": "1",
+        "answerType": "text",
+        "metadata": { "interval": "m2", "semitones": 1 }
+      },
+      {
+        "id": "intervals-M2",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a major 2nd?",
+        "expectedAnswer": "2",
+        "answerType": "text",
+        "metadata": { "interval": "M2", "semitones": 2 }
+      },
+      {
+        "id": "intervals-m3",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a minor 3rd?",
+        "expectedAnswer": "3",
+        "answerType": "text",
+        "metadata": { "interval": "m3", "semitones": 3 }
+      },
+      {
+        "id": "intervals-M3",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a major 3rd?",
+        "expectedAnswer": "4",
+        "answerType": "text",
+        "metadata": { "interval": "M3", "semitones": 4 }
+      },
+      {
+        "id": "intervals-P4",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a perfect 4th?",
+        "expectedAnswer": "5",
+        "answerType": "text",
+        "metadata": { "interval": "P4", "semitones": 5 }
+      },
+      {
+        "id": "intervals-TT",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a tritone?",
+        "expectedAnswer": "6",
+        "answerType": "text",
+        "metadata": { "interval": "TT", "semitones": 6 }
+      },
+      {
+        "id": "intervals-P5",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a perfect 5th?",
+        "expectedAnswer": "7",
+        "answerType": "text",
+        "metadata": { "interval": "P5", "semitones": 7 }
+      },
+      {
+        "id": "intervals-m6",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a minor 6th?",
+        "expectedAnswer": "8",
+        "answerType": "text",
+        "metadata": { "interval": "m6", "semitones": 8 }
+      },
+      {
+        "id": "intervals-M6",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a major 6th?",
+        "expectedAnswer": "9",
+        "answerType": "text",
+        "metadata": { "interval": "M6", "semitones": 9 }
+      },
+      {
+        "id": "intervals-m7",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a minor 7th?",
+        "expectedAnswer": "10",
+        "answerType": "text",
+        "metadata": { "interval": "m7", "semitones": 10 }
+      },
+      {
+        "id": "intervals-M7",
+        "deckId": "intervals-deck",
+        "prompt": "How many semitones in a major 7th?",
+        "expectedAnswer": "11",
+        "answerType": "text",
+        "metadata": { "interval": "M7", "semitones": 11 }
+      }
+    ]
+  },
+  {
+    "id": "major-triads-deck",
+    "title": "Major Triads in All Keys",
+    "tags": ["triads", "chords"],
+    "sourceConceptId": "triads",
+    "cards": [
+      {
+        "id": "major-triad-c",
+        "deckId": "major-triads-deck",
+        "prompt": "Play C major triad",
+        "expectedAnswer": "C,E,G",
+        "answerType": "pitch",
+        "metadata": { "root": "C", "quality": "major" }
+      },
+      {
+        "id": "major-triad-db",
+        "deckId": "major-triads-deck",
+        "prompt": "Play Db major triad",
+        "expectedAnswer": "C#,F,G#",
+        "answerType": "pitch",
+        "metadata": { "root": "Db", "quality": "major" }
+      },
+      {
+        "id": "major-triad-d",
+        "deckId": "major-triads-deck",
+        "prompt": "Play D major triad",
+        "expectedAnswer": "D,F#,A",
+        "answerType": "pitch",
+        "metadata": { "root": "D", "quality": "major" }
+      },
+      {
+        "id": "major-triad-eb",
+        "deckId": "major-triads-deck",
+        "prompt": "Play Eb major triad",
+        "expectedAnswer": "D#,G,A#",
+        "answerType": "pitch",
+        "metadata": { "root": "Eb", "quality": "major" }
+      },
+      {
+        "id": "major-triad-e",
+        "deckId": "major-triads-deck",
+        "prompt": "Play E major triad",
+        "expectedAnswer": "E,G#,B",
+        "answerType": "pitch",
+        "metadata": { "root": "E", "quality": "major" }
+      },
+      {
+        "id": "major-triad-f",
+        "deckId": "major-triads-deck",
+        "prompt": "Play F major triad",
+        "expectedAnswer": "F,A,C",
+        "answerType": "pitch",
+        "metadata": { "root": "F", "quality": "major" }
+      },
+      {
+        "id": "major-triad-fsharp",
+        "deckId": "major-triads-deck",
+        "prompt": "Play F# major triad",
+        "expectedAnswer": "F#,A#,C#",
+        "answerType": "pitch",
+        "metadata": { "root": "F#", "quality": "major" }
+      },
+      {
+        "id": "major-triad-g",
+        "deckId": "major-triads-deck",
+        "prompt": "Play G major triad",
+        "expectedAnswer": "G,B,D",
+        "answerType": "pitch",
+        "metadata": { "root": "G", "quality": "major" }
+      },
+      {
+        "id": "major-triad-ab",
+        "deckId": "major-triads-deck",
+        "prompt": "Play Ab major triad",
+        "expectedAnswer": "G#,C,D#",
+        "answerType": "pitch",
+        "metadata": { "root": "Ab", "quality": "major" }
+      },
+      {
+        "id": "major-triad-a",
+        "deckId": "major-triads-deck",
+        "prompt": "Play A major triad",
+        "expectedAnswer": "A,C#,E",
+        "answerType": "pitch",
+        "metadata": { "root": "A", "quality": "major" }
+      },
+      {
+        "id": "major-triad-bb",
+        "deckId": "major-triads-deck",
+        "prompt": "Play Bb major triad",
+        "expectedAnswer": "A#,D,F",
+        "answerType": "pitch",
+        "metadata": { "root": "Bb", "quality": "major" }
+      },
+      {
+        "id": "major-triad-b",
+        "deckId": "major-triads-deck",
+        "prompt": "Play B major triad",
+        "expectedAnswer": "B,D#,F#",
+        "answerType": "pitch",
+        "metadata": { "root": "B", "quality": "major" }
+      }
+    ]
+  },
+  {
+    "id": "seventh-chords-deck",
+    "title": "7th Chords",
+    "tags": ["chords", "harmony"],
+    "sourceConceptId": "seventh-chords",
+    "cards": [
+      {
+        "id": "seventh-cmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Cmaj7",
+        "expectedAnswer": "C,E,G,B",
+        "answerType": "pitch",
+        "metadata": { "root": "C", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-cm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Cm7",
+        "expectedAnswer": "C,D#,G,A#",
+        "answerType": "pitch",
+        "metadata": { "root": "C", "quality": "m7" }
+      },
+      {
+        "id": "seventh-c7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play C7",
+        "expectedAnswer": "C,E,G,A#",
+        "answerType": "pitch",
+        "metadata": { "root": "C", "quality": "7" }
+      },
+      {
+        "id": "seventh-cm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Cm7b5",
+        "expectedAnswer": "C,D#,F#,A#",
+        "answerType": "pitch",
+        "metadata": { "root": "C", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-csharpmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play C#maj7",
+        "expectedAnswer": "C#,F,G#,C",
+        "answerType": "pitch",
+        "metadata": { "root": "C#", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-csharpm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play C#m7",
+        "expectedAnswer": "C#,E,G#,B",
+        "answerType": "pitch",
+        "metadata": { "root": "C#", "quality": "m7" }
+      },
+      {
+        "id": "seventh-csharp7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play C#7",
+        "expectedAnswer": "C#,F,G#,B",
+        "answerType": "pitch",
+        "metadata": { "root": "C#", "quality": "7" }
+      },
+      {
+        "id": "seventh-csharpm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play C#m7b5",
+        "expectedAnswer": "C#,E,G,B",
+        "answerType": "pitch",
+        "metadata": { "root": "C#", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-dmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Dmaj7",
+        "expectedAnswer": "D,F#,A,C#",
+        "answerType": "pitch",
+        "metadata": { "root": "D", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-dm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Dm7",
+        "expectedAnswer": "D,F,A,C",
+        "answerType": "pitch",
+        "metadata": { "root": "D", "quality": "m7" }
+      },
+      {
+        "id": "seventh-d7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play D7",
+        "expectedAnswer": "D,F#,A,C",
+        "answerType": "pitch",
+        "metadata": { "root": "D", "quality": "7" }
+      },
+      {
+        "id": "seventh-dm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Dm7b5",
+        "expectedAnswer": "D,F,G#,C",
+        "answerType": "pitch",
+        "metadata": { "root": "D", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-dsharpmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play D#maj7",
+        "expectedAnswer": "D#,G,A#,D",
+        "answerType": "pitch",
+        "metadata": { "root": "D#", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-dsharpm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play D#m7",
+        "expectedAnswer": "D#,F#,A#,C#",
+        "answerType": "pitch",
+        "metadata": { "root": "D#", "quality": "m7" }
+      },
+      {
+        "id": "seventh-dsharp7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play D#7",
+        "expectedAnswer": "D#,G,A#,C#",
+        "answerType": "pitch",
+        "metadata": { "root": "D#", "quality": "7" }
+      },
+      {
+        "id": "seventh-dsharpm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play D#m7b5",
+        "expectedAnswer": "D#,F#,A,C#",
+        "answerType": "pitch",
+        "metadata": { "root": "D#", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-emaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Emaj7",
+        "expectedAnswer": "E,G#,B,D#",
+        "answerType": "pitch",
+        "metadata": { "root": "E", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-em7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Em7",
+        "expectedAnswer": "E,G,B,D",
+        "answerType": "pitch",
+        "metadata": { "root": "E", "quality": "m7" }
+      },
+      {
+        "id": "seventh-e7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play E7",
+        "expectedAnswer": "E,G#,B,D",
+        "answerType": "pitch",
+        "metadata": { "root": "E", "quality": "7" }
+      },
+      {
+        "id": "seventh-em7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Em7b5",
+        "expectedAnswer": "E,G,A#,D",
+        "answerType": "pitch",
+        "metadata": { "root": "E", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-fmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Fmaj7",
+        "expectedAnswer": "F,A,C,E",
+        "answerType": "pitch",
+        "metadata": { "root": "F", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-fm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Fm7",
+        "expectedAnswer": "F,G#,C,D#",
+        "answerType": "pitch",
+        "metadata": { "root": "F", "quality": "m7" }
+      },
+      {
+        "id": "seventh-f7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play F7",
+        "expectedAnswer": "F,A,C,D#",
+        "answerType": "pitch",
+        "metadata": { "root": "F", "quality": "7" }
+      },
+      {
+        "id": "seventh-fm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Fm7b5",
+        "expectedAnswer": "F,G#,B,D#",
+        "answerType": "pitch",
+        "metadata": { "root": "F", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-fsharpmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play F#maj7",
+        "expectedAnswer": "F#,A#,C#,F",
+        "answerType": "pitch",
+        "metadata": { "root": "F#", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-fsharpm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play F#m7",
+        "expectedAnswer": "F#,A,C#,E",
+        "answerType": "pitch",
+        "metadata": { "root": "F#", "quality": "m7" }
+      },
+      {
+        "id": "seventh-fsharp7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play F#7",
+        "expectedAnswer": "F#,A#,C#,E",
+        "answerType": "pitch",
+        "metadata": { "root": "F#", "quality": "7" }
+      },
+      {
+        "id": "seventh-fsharpm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play F#m7b5",
+        "expectedAnswer": "F#,A,C,E",
+        "answerType": "pitch",
+        "metadata": { "root": "F#", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-gmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Gmaj7",
+        "expectedAnswer": "G,B,D,F#",
+        "answerType": "pitch",
+        "metadata": { "root": "G", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-gm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Gm7",
+        "expectedAnswer": "G,A#,D,F",
+        "answerType": "pitch",
+        "metadata": { "root": "G", "quality": "m7" }
+      },
+      {
+        "id": "seventh-g7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play G7",
+        "expectedAnswer": "G,B,D,F",
+        "answerType": "pitch",
+        "metadata": { "root": "G", "quality": "7" }
+      },
+      {
+        "id": "seventh-gm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Gm7b5",
+        "expectedAnswer": "G,A#,C#,F",
+        "answerType": "pitch",
+        "metadata": { "root": "G", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-gsharpmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play G#maj7",
+        "expectedAnswer": "G#,C,D#,G",
+        "answerType": "pitch",
+        "metadata": { "root": "G#", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-gsharpm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play G#m7",
+        "expectedAnswer": "G#,B,D#,F#",
+        "answerType": "pitch",
+        "metadata": { "root": "G#", "quality": "m7" }
+      },
+      {
+        "id": "seventh-gsharp7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play G#7",
+        "expectedAnswer": "G#,C,D#,F#",
+        "answerType": "pitch",
+        "metadata": { "root": "G#", "quality": "7" }
+      },
+      {
+        "id": "seventh-gsharpm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play G#m7b5",
+        "expectedAnswer": "G#,B,D,F#",
+        "answerType": "pitch",
+        "metadata": { "root": "G#", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-amaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Amaj7",
+        "expectedAnswer": "A,C#,E,G#",
+        "answerType": "pitch",
+        "metadata": { "root": "A", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-am7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Am7",
+        "expectedAnswer": "A,C,E,G",
+        "answerType": "pitch",
+        "metadata": { "root": "A", "quality": "m7" }
+      },
+      {
+        "id": "seventh-a7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play A7",
+        "expectedAnswer": "A,C#,E,G",
+        "answerType": "pitch",
+        "metadata": { "root": "A", "quality": "7" }
+      },
+      {
+        "id": "seventh-am7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Am7b5",
+        "expectedAnswer": "A,C,D#,G",
+        "answerType": "pitch",
+        "metadata": { "root": "A", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-asharpmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play A#maj7",
+        "expectedAnswer": "A#,D,F,A",
+        "answerType": "pitch",
+        "metadata": { "root": "A#", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-asharpm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play A#m7",
+        "expectedAnswer": "A#,C#,F,G#",
+        "answerType": "pitch",
+        "metadata": { "root": "A#", "quality": "m7" }
+      },
+      {
+        "id": "seventh-asharp7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play A#7",
+        "expectedAnswer": "A#,D,F,G#",
+        "answerType": "pitch",
+        "metadata": { "root": "A#", "quality": "7" }
+      },
+      {
+        "id": "seventh-asharpm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play A#m7b5",
+        "expectedAnswer": "A#,C#,E,G#",
+        "answerType": "pitch",
+        "metadata": { "root": "A#", "quality": "m7b5" }
+      },
+      {
+        "id": "seventh-bmaj7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Bmaj7",
+        "expectedAnswer": "B,D#,F#,A#",
+        "answerType": "pitch",
+        "metadata": { "root": "B", "quality": "maj7" }
+      },
+      {
+        "id": "seventh-bm7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Bm7",
+        "expectedAnswer": "B,D,F#,A",
+        "answerType": "pitch",
+        "metadata": { "root": "B", "quality": "m7" }
+      },
+      {
+        "id": "seventh-b7",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play B7",
+        "expectedAnswer": "B,D#,F#,A",
+        "answerType": "pitch",
+        "metadata": { "root": "B", "quality": "7" }
+      },
+      {
+        "id": "seventh-bm7b5",
+        "deckId": "seventh-chords-deck",
+        "prompt": "Play Bm7b5",
+        "expectedAnswer": "B,D,F,A",
+        "answerType": "pitch",
+        "metadata": { "root": "B", "quality": "m7b5" }
+      }
+    ]
+  },
+  {
+    "id": "shell-voicings-deck",
+    "title": "Shell Voicings ii-V-I",
+    "tags": ["voicings", "jazz"],
+    "sourceConceptId": "shell-voicings",
+    "cards": [
+      {
+        "id": "shells-c",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in C major",
+        "expectedAnswer": "D,F,C;G,B,F;C,E,B",
+        "answerType": "text",
+        "metadata": { "key": "C" }
+      },
+      {
+        "id": "shells-csharp",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in C# major",
+        "expectedAnswer": "D#,F#,C#;G#,C,F#;C#,F,C",
+        "answerType": "text",
+        "metadata": { "key": "C#" }
+      },
+      {
+        "id": "shells-d",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in D major",
+        "expectedAnswer": "E,G,D;A,C#,G;D,F#,C#",
+        "answerType": "text",
+        "metadata": { "key": "D" }
+      },
+      {
+        "id": "shells-dsharp",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in D# major",
+        "expectedAnswer": "F,G#,D#;A#,D,G#;D#,G,D",
+        "answerType": "text",
+        "metadata": { "key": "D#" }
+      },
+      {
+        "id": "shells-e",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in E major",
+        "expectedAnswer": "F#,A,E;B,D#,A;E,G#,D#",
+        "answerType": "text",
+        "metadata": { "key": "E" }
+      },
+      {
+        "id": "shells-f",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in F major",
+        "expectedAnswer": "G,A#,F;C,E,A#;F,A,E",
+        "answerType": "text",
+        "metadata": { "key": "F" }
+      },
+      {
+        "id": "shells-fsharp",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in F# major",
+        "expectedAnswer": "G#,B,F#;C#,F,B;F#,A#,F",
+        "answerType": "text",
+        "metadata": { "key": "F#" }
+      },
+      {
+        "id": "shells-g",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in G major",
+        "expectedAnswer": "A,C,G;D,F#,C;G,B,F#",
+        "answerType": "text",
+        "metadata": { "key": "G" }
+      },
+      {
+        "id": "shells-gsharp",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in G# major",
+        "expectedAnswer": "A#,C#,G#;D#,G,C#;G#,C,G",
+        "answerType": "text",
+        "metadata": { "key": "G#" }
+      },
+      {
+        "id": "shells-a",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in A major",
+        "expectedAnswer": "B,D,A;E,G#,D;A,C#,G#",
+        "answerType": "text",
+        "metadata": { "key": "A" }
+      },
+      {
+        "id": "shells-asharp",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in A# major",
+        "expectedAnswer": "C,D#,A#;F,A,D#;A#,D,A",
+        "answerType": "text",
+        "metadata": { "key": "A#" }
+      },
+      {
+        "id": "shells-b",
+        "deckId": "shell-voicings-deck",
+        "prompt": "Play ii-V-I shells in B major",
+        "expectedAnswer": "C#,E,B;F#,A#,E;B,D#,A#",
+        "answerType": "text",
+        "metadata": { "key": "B" }
+      }
+    ]
+  },
+  {
+    "id": "circle-of-fourths-deck",
+    "title": "Circle of 4ths",
+    "tags": ["circle-of-fourths"],
+    "sourceConceptId": "circle-of-fourths",
+    "cards": [
+      {
+        "id": "cof-c",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after C in the circle of 4ths?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": { "current": "C", "next": "F" }
+      },
+      {
+        "id": "cof-f",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after F in the circle of 4ths?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": { "current": "F", "next": "Bb" }
+      },
+      {
+        "id": "cof-bb",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after Bb in the circle of 4ths?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": { "current": "Bb", "next": "Eb" }
+      },
+      {
+        "id": "cof-eb",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after Eb in the circle of 4ths?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": { "current": "Eb", "next": "Ab" }
+      },
+      {
+        "id": "cof-ab",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after Ab in the circle of 4ths?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": { "current": "Ab", "next": "Db" }
+      },
+      {
+        "id": "cof-db",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after Db in the circle of 4ths?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": { "current": "Db", "next": "Gb" }
+      },
+      {
+        "id": "cof-gb",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after Gb in the circle of 4ths?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": { "current": "Gb", "next": "B" }
+      },
+      {
+        "id": "cof-b",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after B in the circle of 4ths?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": { "current": "B", "next": "E" }
+      },
+      {
+        "id": "cof-e",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after E in the circle of 4ths?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": { "current": "E", "next": "A" }
+      },
+      {
+        "id": "cof-a",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after A in the circle of 4ths?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": { "current": "A", "next": "D" }
+      },
+      {
+        "id": "cof-d",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after D in the circle of 4ths?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": { "current": "D", "next": "G" }
+      },
+      {
+        "id": "cof-g",
+        "deckId": "circle-of-fourths-deck",
+        "prompt": "What key comes after G in the circle of 4ths?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": { "current": "G", "next": "C" }
+      }
+    ]
+  }
+]
