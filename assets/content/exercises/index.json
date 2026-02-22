@@ -1,7 +1,7 @@
 [
   {
     "id": "interval-build",
-    "title": "Build Interval",
+    "title": "Intervals",
     "mode": "practice",
     "inputType": "piano",
     "generatorId": "interval_build",
@@ -16,11 +16,11 @@
     "estimatedMinutes": 5
   },
   {
-    "id": "interval-identify",
-    "title": "Identify Interval",
+    "id": "interval-find",
+    "title": "Find the Note",
     "mode": "practice",
     "inputType": "multipleChoice",
-    "generatorId": "interval_identify",
+    "generatorId": "interval_find",
     "config": {
       "intervals": "all"
     },
@@ -31,14 +31,29 @@
     "estimatedMinutes": 5
   },
   {
+    "id": "interval-ear-training",
+    "title": "Interval Ear Training",
+    "mode": "practice",
+    "inputType": "multipleChoice",
+    "generatorId": "interval_ear_training",
+    "config": {
+      "intervals": "all"
+    },
+    "acceptanceRules": {},
+    "scoringRules": {},
+    "tags": ["intervals", "ear-training"],
+    "level": 1,
+    "estimatedMinutes": 5
+  },
+  {
     "id": "chord-build",
-    "title": "Build Chord",
+    "title": "Chords",
     "mode": "practice",
     "inputType": "piano",
     "generatorId": "chord_build",
     "config": {
-      "qualities": ["major", "minor", "dominant7", "major7", "minor7"],
-      "keys": "all"
+      "qualities": ["Major", "Minor", "Dominant 7th", "Major 7th", "Minor 7th"],
+      "roots": "all"
     },
     "acceptanceRules": {},
     "scoringRules": {},
@@ -47,24 +62,24 @@
     "estimatedMinutes": 5
   },
   {
-    "id": "chord-identify",
-    "title": "Identify Chord Quality",
+    "id": "chord-ear-training",
+    "title": "Chord Ear Training",
     "mode": "practice",
     "inputType": "multipleChoice",
-    "generatorId": "chord_identify",
+    "generatorId": "chord_ear_training",
     "config": {
-      "qualities": ["major", "minor", "dominant7", "major7", "minor7"]
+      "qualities": ["Major", "Minor", "Dominant 7th", "Major 7th", "Minor 7th"]
     },
     "acceptanceRules": {},
     "scoringRules": {},
-    "tags": ["chords"],
+    "tags": ["chords", "ear-training"],
     "level": 1,
     "estimatedMinutes": 5
   },
   {
     "id": "circle-next-key",
     "title": "Circle of 4ths: Next Key",
-    "mode": "drill",
+    "mode": "test",
     "inputType": "multipleChoice",
     "generatorId": "circle_of_fourths_next",
     "config": {
@@ -79,11 +94,12 @@
   {
     "id": "circle-play-chord",
     "title": "Circle of 4ths: Play Chord",
-    "mode": "drill",
+    "mode": "test",
     "inputType": "piano",
     "generatorId": "circle_of_fourths_chord",
     "config": {
-      "chordQuality": "dominant7"
+      "subMode": "playChord",
+      "chordQuality": "Dominant 7th"
     },
     "acceptanceRules": {},
     "scoringRules": {},
@@ -109,11 +125,11 @@
   {
     "id": "guide-tone-id",
     "title": "Guide Tone Identification",
-    "mode": "drill",
+    "mode": "test",
     "inputType": "multipleChoice",
     "generatorId": "guide_tone_identify",
     "config": {
-      "chordTypes": ["ii", "V", "I"]
+      "qualities": ["Dominant 7th", "Major 7th", "Minor 7th"]
     },
     "acceptanceRules": {},
     "scoringRules": {},

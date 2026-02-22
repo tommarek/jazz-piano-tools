@@ -28,6 +28,16 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
   /// so we can correctly remove notes on pointer-up.
   final Map<int, PitchClass> _pointerNotes = {};
 
+  @override
+  void didUpdateWidget(FlutterPianoProAdapter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Clear toggle state when the question changes (new callback identity).
+    if (widget.onNotesChanged != oldWidget.onNotesChanged) {
+      _activeNotes.clear();
+      _pointerNotes.clear();
+    }
+  }
+
   PitchClass _noteModelToPitchClass(NoteModel note) {
     return PitchClass(note.midiNoteNumber % 12);
   }
@@ -59,12 +69,13 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
       }
 
       // Check the flat/sharp variant above this white key if applicable.
-      // Black keys sit at noteIndex 1,2,4,5,6 (Db, Eb, Gb, Ab, Bb).
-      if (noteIndex != 0 && noteIndex != 3) {
+      // White keys with a black key above: C(0), D(1), F(3), G(4), A(5).
+      // E(2) and B(6) have no sharp/black key above them.
+      if (noteIndex != 2 && noteIndex != 6) {
         final blackNote = NoteModel(
           name: '',
           octave: octave,
-          noteIndex: noteIndex,
+          noteIndex: noteIndex + 1,
           isFlat: true,
         );
         final blackMidi = blackNote.midiNoteNumber;
@@ -85,45 +96,25 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
     if (note == null) return;
     final pc = _noteModelToPitchClass(note);
     setState(() {
-      _activeNotes.add(pc);
+      if (_activeNotes.contains(pc)) {
+        _activeNotes.remove(pc);
+      } else {
+        _activeNotes.add(pc);
+      }
       _pointerNotes[pointer] = pc;
     });
     widget.onNotesChanged?.call(Set.unmodifiable(_activeNotes));
   }
 
   void _onTapUpdate(NoteModel? note, int pointer) {
+    // No-op for toggle mode — don't change selection on drag
     if (note == null) return;
-    final pc = _noteModelToPitchClass(note);
-    final previousPc = _pointerNotes[pointer];
-    if (previousPc == pc) return;
-
-    setState(() {
-      // Remove the previous note for this pointer if no other pointer holds it.
-      if (previousPc != null) {
-        final stillHeld =
-            _pointerNotes.entries.any((e) => e.key != pointer && e.value == previousPc);
-        if (!stillHeld) {
-          _activeNotes.remove(previousPc);
-        }
-      }
-      _activeNotes.add(pc);
-      _pointerNotes[pointer] = pc;
-    });
-    widget.onNotesChanged?.call(Set.unmodifiable(_activeNotes));
+    _pointerNotes[pointer] = _noteModelToPitchClass(note);
   }
 
   void _onTapUp(int pointer) {
-    final pc = _pointerNotes.remove(pointer);
-    if (pc == null) return;
-
-    setState(() {
-      // Only remove the note if no other pointer is still holding it.
-      final stillHeld = _pointerNotes.values.contains(pc);
-      if (!stillHeld) {
-        _activeNotes.remove(pc);
-      }
-    });
-    widget.onNotesChanged?.call(Set.unmodifiable(_activeNotes));
+    _pointerNotes.remove(pointer);
+    // Don't remove notes — they stay toggled
   }
 
   @override

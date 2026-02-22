@@ -44,7 +44,12 @@ class ExerciseRunner {
 
   // ── Getters ────────────────────────────────────────────────────
 
-  ExerciseQuestion get currentQuestion => _questions[_currentIndex];
+  ExerciseQuestion get currentQuestion {
+    if (_questions.isEmpty || _currentIndex >= _questions.length) {
+      throw StateError('No current question available');
+    }
+    return _questions[_currentIndex];
+  }
 
   int get currentIndex => _currentIndex;
 

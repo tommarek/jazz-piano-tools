@@ -11,6 +11,8 @@ class CardStates extends Table {
   IntColumn get lapses => integer()();
   IntColumn get reps => integer()();
   TextColumn get state => text()();
+  DateTimeColumn get lastReview => dateTime().nullable()();
+  IntColumn get step => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {cardId};

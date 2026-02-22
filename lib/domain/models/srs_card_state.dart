@@ -14,6 +14,8 @@ abstract class SrsCardState with _$SrsCardState {
     @Default(0) int lapses,
     @Default(0) int reps,
     @Default('new') String state,
+    DateTime? lastReview,
+    int? step,
   }) = _SrsCardState;
 
   factory SrsCardState.fromJson(Map<String, dynamic> json) =>

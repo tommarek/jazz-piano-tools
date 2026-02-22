@@ -1,36 +1,50 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../app/providers.dart';
+import '../../../content/providers/content_providers.dart';
+import '../../../domain/models/exercise.dart';
+import '../../drill/generators/generator_registry.dart';
 import '../../srs/providers/srs_provider.dart';
 
 part 'today_session_provider.g.dart';
 
+class ExerciseWithCounts {
+  final Exercise exercise;
+  final int reviewCount;
+  final int newCount;
+
+  const ExerciseWithCounts({
+    required this.exercise,
+    this.reviewCount = 0,
+    this.newCount = 0,
+  });
+
+  int get totalDue => reviewCount + newCount;
+}
+
 class TodaySessionState {
   final int dueCardCount;
   final int completedReviews;
-  final List<String> suggestedDrillIds;
-  final List<String> suggestedPracticeIds;
+  final List<ExerciseWithCounts> exercises;
   final int sessionEstimateMinutes;
 
   const TodaySessionState({
     this.dueCardCount = 0,
     this.completedReviews = 0,
-    this.suggestedDrillIds = const [],
-    this.suggestedPracticeIds = const [],
+    this.exercises = const [],
     this.sessionEstimateMinutes = 0,
   });
 
   TodaySessionState copyWith({
     int? dueCardCount,
     int? completedReviews,
-    List<String>? suggestedDrillIds,
-    List<String>? suggestedPracticeIds,
+    List<ExerciseWithCounts>? exercises,
     int? sessionEstimateMinutes,
   }) {
     return TodaySessionState(
       dueCardCount: dueCardCount ?? this.dueCardCount,
       completedReviews: completedReviews ?? this.completedReviews,
-      suggestedDrillIds: suggestedDrillIds ?? this.suggestedDrillIds,
-      suggestedPracticeIds: suggestedPracticeIds ?? this.suggestedPracticeIds,
+      exercises: exercises ?? this.exercises,
       sessionEstimateMinutes:
           sessionEstimateMinutes ?? this.sessionEstimateMinutes,
     );
@@ -40,18 +54,82 @@ class TodaySessionState {
 @riverpod
 Future<TodaySessionState> todaySession(TodaySessionRef ref) async {
   final dueCount = await ref.watch(dueCardCountProvider.future);
+  final allExercises = await ref.watch(allExercisesProvider.future);
+  final db = ref.watch(appDatabaseProvider);
 
-  // Estimate: ~30 seconds per card review, plus suggested drill/practice time
+  final now = DateTime.now();
+  final settings = await db.settingsDao.getSettings();
+  final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+
+  // Cache per-topic data to avoid duplicate queries for exercises sharing a topic
+  final topicScheduledIds = <String, Set<String>>{};
+  final topicDueIds = <String, List<String>>{};
+
+  Future<Set<String>> getScheduledIds(String topic) async {
+    return topicScheduledIds[topic] ??=
+        await db.itemSchedulesDao.getScheduledItemIds(topic);
+  }
+
+  Future<List<String>> getDueIds(String topic) async {
+    return topicDueIds[topic] ??=
+        await db.itemSchedulesDao.getDueItemIds(topic, now);
+  }
+
+  // Global new-card budget shared across all topics
+  final globalNewIntroducedToday =
+      await db.itemSchedulesDao.getNewItemsIntroducedTodayGlobal();
+  var remainingNewSlots = (newCardsPerDay - globalNewIntroducedToday).clamp(0, newCardsPerDay);
+
+  // Build exercise list with counts
+  final exercisesWithCounts = <ExerciseWithCounts>[];
+
+  for (final exercise in allExercises) {
+    final topic = topicForGenerator(exercise.generatorId);
+    if (topic == null) {
+      exercisesWithCounts.add(ExerciseWithCounts(exercise: exercise));
+      continue;
+    }
+
+    final generator = resolveGenerator(exercise.generatorId);
+    final allIds = generator.allItemIds(exercise);
+    final allIdSet = allIds.toSet();
+
+    final scheduledIds = await getScheduledIds(topic);
+    final dueIds = await getDueIds(topic);
+
+    final reviewCount =
+        dueIds.where((id) => allIdSet.contains(id)).length;
+    final availableNew =
+        allIds.where((id) => !scheduledIds.contains(id)).length;
+    final newSlots = remainingNewSlots.clamp(0, availableNew);
+    remainingNewSlots = (remainingNewSlots - newSlots).clamp(0, newCardsPerDay);
+
+    exercisesWithCounts.add(ExerciseWithCounts(
+      exercise: exercise,
+      reviewCount: reviewCount,
+      newCount: newSlots,
+    ));
+  }
+
+  // Sort: exercises with work first, then alphabetically
+  exercisesWithCounts.sort((a, b) {
+    if (a.totalDue > 0 && b.totalDue == 0) return -1;
+    if (a.totalDue == 0 && b.totalDue > 0) return 1;
+    return a.exercise.title.compareTo(b.exercise.title);
+  });
+
+  // Estimate time
   final reviewMinutes = (dueCount * 0.5).ceil();
-  final drillMinutes = 5;
-  final practiceMinutes = 5;
-  final totalEstimate = reviewMinutes + drillMinutes + practiceMinutes;
+  final exerciseMinutes = exercisesWithCounts.fold<int>(
+    0,
+    (sum, e) => sum + (e.totalDue > 0 ? e.exercise.estimatedMinutes : 0),
+  );
+  final totalEstimate = reviewMinutes + exerciseMinutes;
 
   return TodaySessionState(
     dueCardCount: dueCount,
     completedReviews: 0,
-    suggestedDrillIds: const ['interval-drill', 'chord-quality-drill'],
-    suggestedPracticeIds: const ['voicing-practice'],
-    sessionEstimateMinutes: totalEstimate,
+    exercises: exercisesWithCounts,
+    sessionEstimateMinutes: totalEstimate > 0 ? totalEstimate : 5,
   );
 }

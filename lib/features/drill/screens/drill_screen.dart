@@ -3,12 +3,31 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers.dart';
+import '../../../core/answer_input/answer_feedback_banner.dart';
+import '../../../core/answer_input/answer_input_controller.dart';
+import '../../../core/answer_input/answer_input_mode.dart';
+import '../../../core/answer_input/multiple_choice_answers.dart';
+import '../../../core/audio/audio_provider.dart';
+import '../../../core/music/pitch_class.dart';
+import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
+import '../../../core/widgets/piano_input/flutter_piano_pro_adapter.dart';
 import '../providers/drill_provider.dart';
+import '../widgets/audio_play_button.dart';
 
 class DrillScreen extends ConsumerStatefulWidget {
   final String exerciseId;
+  final Set<String>? selectedGroups;
+  final int questionCount;
+  final bool hardOnly;
 
-  const DrillScreen({required this.exerciseId, super.key});
+  const DrillScreen({
+    required this.exerciseId,
+    this.selectedGroups,
+    this.questionCount = 10,
+    this.hardOnly = false,
+    super.key,
+  });
 
   @override
   ConsumerState<DrillScreen> createState() => _DrillScreenState();
@@ -18,6 +37,8 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
   Timer? _timer;
   int _remainingSeconds = 0;
   final _answerController = TextEditingController();
+  AnswerInputMode _inputMode = AnswerInputMode.keyboard;
+  AnswerInputController? _controller;
 
   @override
   void initState() {
@@ -27,14 +48,75 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     });
   }
 
-  void _startDrill() {
-    const timeLimit = 120;
-    ref.read(drillSessionProvider(widget.exerciseId).notifier).startDrill(
-      totalQuestions: 10,
-      timeLimitSeconds: timeLimit,
-    );
+  void _startDrill() async {
+    final db = ref.read(appDatabaseProvider);
+    final settings = await db.settingsDao.getSettings();
+    final exercise =
+        await ref.read(exerciseByIdProvider(widget.exerciseId).future);
+    final timeLimit = settings?.drillTimeLimitSeconds ?? 120;
+
+    if (widget.hardOnly) {
+      await ref
+          .read(drillSessionProvider(widget.exerciseId).notifier)
+          .startHardDrillSession(
+            exercise: exercise,
+            selectedGroups: widget.selectedGroups,
+            timeLimitSeconds: timeLimit,
+          );
+    } else {
+      await ref
+          .read(drillSessionProvider(widget.exerciseId).notifier)
+          .startDrill(
+            totalQuestions: widget.questionCount,
+            timeLimitSeconds: timeLimit,
+            exercise: exercise,
+            selectedGroups: widget.selectedGroups,
+          );
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _inputMode = AnswerInputModeX.fromSettingsString(
+          settings?.answerInputMode ?? 'keyboard');
+    });
     _remainingSeconds = timeLimit;
     _startTimer();
+    _createController();
+  }
+
+  void _createController() {
+    final drillState = ref.read(drillSessionProvider(widget.exerciseId));
+    final question = drillState.currentQuestion;
+    if (question == null) return;
+
+    _controller?.dispose();
+
+    var mode = _inputMode;
+    if (mode == AnswerInputMode.multipleChoice &&
+        question.multipleChoiceOptions == null) {
+      mode = AnswerInputMode.selfReveal;
+    }
+
+    _controller = AnswerInputController(
+      mode: mode,
+      expectedAnswer: question.expectedAnswer,
+      answerText: question.answerText,
+      multipleChoiceOptions: question.multipleChoiceOptions,
+      onResult: (correct) {
+        ref
+            .read(drillSessionProvider(widget.exerciseId).notifier)
+            .submitAnswer(correct: correct);
+        setState(() {});
+      },
+    );
+    setState(() {});
+  }
+
+  void _nextQuestion() {
+    ref
+        .read(drillSessionProvider(widget.exerciseId).notifier)
+        .nextQuestion();
+    _createController();
   }
 
   void _startTimer() {
@@ -54,6 +136,7 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
   void dispose() {
     _timer?.cancel();
     _answerController.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -72,9 +155,10 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     return Scaffold(
       appBar: AppBar(
         title: exerciseAsync.when(
-          data: (exercise) => Text(exercise.title),
+          data: (exercise) => Text(
+              widget.hardOnly ? 'Drill Hard' : exercise.title),
           loading: () => const Text('Loading...'),
-          error: (_, _) => const Text('Drill'),
+          error: (_, _) => Text(widget.hardOnly ? 'Drill Hard' : 'Drill'),
         ),
         actions: [
           Padding(
@@ -105,28 +189,32 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     final theme = Theme.of(context);
 
     if (drillState.phase == DrillPhase.complete) {
+      _timer?.cancel();
       return _buildCompleteSummary(context, drillState);
     }
 
-    return Padding(
+    final question = drillState.currentQuestion;
+    final ctrl = _controller;
+    final useKeyboard = ctrl?.mode == AnswerInputMode.keyboard;
+    final useMcq = ctrl?.mode == AnswerInputMode.multipleChoice;
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Progress bar
           LinearProgressIndicator(
             value: drillState.progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
           ),
           const SizedBox(height: 8),
           Text(
-            'Question ${drillState.currentQuestion + 1} of ${drillState.totalQuestions}',
+            'Question ${drillState.currentQuestionIndex + 1} of ${drillState.totalQuestions}',
             style: theme.textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
-          // Score
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -138,98 +226,188 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
-          // Prompt
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'Identify the chord or interval',
+                question?.promptText ?? 'Loading...',
                 style: theme.textTheme.headlineMedium,
                 textAlign: TextAlign.center,
               ),
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Feedback banner
-          if (drillState.lastAnswerCorrect != null)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: drillState.lastAnswerCorrect!
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: drillState.lastAnswerCorrect!
-                      ? Colors.green
-                      : Colors.red,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    drillState.lastAnswerCorrect!
-                        ? Icons.check_circle
-                        : Icons.cancel,
-                    color: drillState.lastAnswerCorrect!
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    drillState.lastAnswerCorrect! ? 'Correct!' : 'Incorrect',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: drillState.lastAnswerCorrect!
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          const Spacer(),
-
-          // Answer input area (placeholder)
-          TextField(
-            controller: _answerController,
-            decoration: const InputDecoration(
-              hintText: 'Type your answer...',
-              border: OutlineInputBorder(),
-            ),
-            onSubmitted: (_) => _submitAnswer(),
-          ),
           const SizedBox(height: 16),
 
-          // Submit / Next button
-          if (drillState.phase == DrillPhase.feedback)
-            FilledButton(
-              onPressed: () {
-                _answerController.clear();
-                ref
-                    .read(drillSessionProvider(widget.exerciseId).notifier)
-                    .nextQuestion();
-              },
-              child: const Text('Next Question'),
-            )
-          else
-            FilledButton(
-              onPressed: _submitAnswer,
-              child: const Text('Submit'),
+          if (question?.audioData != null) ...[
+            AudioPlayButton(
+              audioData: question!.audioData!,
+              audioService: ref.watch(audioServiceProvider),
             ),
+            const SizedBox(height: 16),
+          ],
+
+          // For non-MCQ/non-keyboard: show notation before answering
+          if (!useMcq && !useKeyboard && question?.notationData != null) ...[
+            SimpleSheetMusicAdapter(
+              data: question!.notationData!,
+              height: 120,
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          if (ctrl != null) ...[
+            // --- Multiple choice mode ---
+            if (useMcq) _buildMcqSection(ctrl, question),
+
+            // --- Keyboard mode ---
+            if (useKeyboard) _buildKeyboardSection(ctrl, question),
+          ],
+
+          // --- Text input fallback ---
+          if (!useMcq && !useKeyboard) ...[
+            TextField(
+              controller: _answerController,
+              decoration: const InputDecoration(
+                hintText: 'Type your answer...',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _submitAnswer(),
+            ),
+            const SizedBox(height: 16),
+            if (drillState.phase == DrillPhase.feedback)
+              FilledButton(
+                onPressed: () {
+                  _answerController.clear();
+                  ref
+                      .read(drillSessionProvider(widget.exerciseId).notifier)
+                      .nextQuestion();
+                },
+                child: const Text('Next Question'),
+              )
+            else
+              FilledButton(
+                onPressed: _submitAnswer,
+                child: const Text('Submit'),
+              ),
+          ],
         ],
       ),
     );
   }
 
+  Widget _buildMcqSection(AnswerInputController ctrl, dynamic question) {
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (context, _) {
+        if (ctrl.phase == AnswerPhase.input) {
+          return MultipleChoiceAnswers(
+            options: ctrl.multipleChoiceOptions!,
+            correctAnswer: ctrl.expectedAnswer.toString(),
+            showResult: false,
+            disabled: false,
+            onSelected: ctrl.selectMcqAnswer,
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MultipleChoiceAnswers(
+              options: ctrl.multipleChoiceOptions!,
+              correctAnswer: ctrl.expectedAnswer.toString(),
+              selectedAnswer: ctrl.selectedMcqAnswer,
+              showResult: true,
+              disabled: true,
+            ),
+            if (question?.notationData != null) ...[
+              const SizedBox(height: 12),
+              SimpleSheetMusicAdapter(
+                data: question!.notationData!,
+                height: 120,
+              ),
+            ],
+            const SizedBox(height: 12),
+            AnswerFeedbackBanner(
+              isCorrect: ctrl.result!,
+              answerText: ctrl.displayAnswer,
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _nextQuestion,
+              child: const Text('Next Question'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildKeyboardSection(AnswerInputController ctrl, dynamic question) {
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (context, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 120,
+              child: FlutterPianoProAdapter(
+                octaveCount: 2,
+                startOctave: 4,
+                highlightedNotes: ctrl.keyboardSubmitted
+                    ? ctrl.expectedPitchClasses
+                    : const <PitchClass>{},
+                onNotesChanged: ctrl.keyboardSubmitted
+                    ? null
+                    : ctrl.updateKeyboardNotes,
+              ),
+            ),
+            if (ctrl.isMultiNote && ctrl.phase == AnswerPhase.input) ...[
+              const SizedBox(height: 16),
+              FilledButton.tonal(
+                onPressed:
+                    ctrl.canSubmitKeyboard ? ctrl.submitKeyboard : null,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                ),
+                child: const Text('Submit'),
+              ),
+            ],
+            if (ctrl.keyboardSubmitted) ...[
+              const SizedBox(height: 12),
+              if (question?.notationData != null) ...[
+                SimpleSheetMusicAdapter(
+                  data: question!.notationData!,
+                  height: 120,
+                ),
+                const SizedBox(height: 12),
+              ],
+              AnswerFeedbackBanner(
+                isCorrect: ctrl.result!,
+                answerText: ctrl.displayAnswer,
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: _nextQuestion,
+                child: const Text('Next Question'),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
   void _submitAnswer() {
-    // Placeholder: always mark as correct if non-empty
-    final correct = _answerController.text.trim().isNotEmpty;
+    final drillState = ref.read(drillSessionProvider(widget.exerciseId));
+    final question = drillState.currentQuestion;
+    final userAnswer = _answerController.text.trim();
+    final expected = question?.expectedAnswer?.toString().trim() ?? '';
+    final correct = userAnswer.isNotEmpty &&
+        userAnswer.toLowerCase() == expected.toLowerCase();
     ref
         .read(drillSessionProvider(widget.exerciseId).notifier)
         .submitAnswer(correct: correct);
@@ -240,6 +418,7 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     DrillSessionState drillState,
   ) {
     final theme = Theme.of(context);
+    final isEmpty = drillState.totalQuestions == 0;
 
     return Center(
       child: Padding(
@@ -248,24 +427,35 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.emoji_events,
+              isEmpty ? Icons.check_circle : Icons.emoji_events,
               size: 80,
-              color: theme.colorScheme.secondary,
+              color: isEmpty ? Colors.green : theme.colorScheme.secondary,
             ),
             const SizedBox(height: 24),
-            Text('Drill Complete!', style: theme.textTheme.headlineLarge),
+            Text(
+              isEmpty
+                  ? 'No hard items found'
+                  : widget.hardOnly
+                      ? 'Drill Hard Complete!'
+                      : 'Drill Complete!',
+              style: theme.textTheme.headlineLarge,
+            ),
             const SizedBox(height: 16),
             Text(
-              '${drillState.correctCount} / ${drillState.totalQuestions} correct',
+              isEmpty
+                  ? 'Nothing to drill right now.'
+                  : '${drillState.correctCount} / ${drillState.totalQuestions} correct',
               style: theme.textTheme.headlineSmall,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Score: ${drillState.score}%',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.secondary,
+            if (!isEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Score: ${drillState.score}%',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.secondary,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 32),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),

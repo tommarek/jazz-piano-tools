@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../providers/concepts_provider.dart';
 import '../../../domain/models/concept.dart';
-import 'concept_detail_screen.dart';
 
 class LearnScreen extends ConsumerStatefulWidget {
   const LearnScreen({super.key});
@@ -163,11 +164,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
   }
 
   void _navigateToDetail(BuildContext context, String conceptId) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ConceptDetailScreen(conceptId: conceptId),
-      ),
-    );
+    context.go('/learn/concept/$conceptId');
   }
 }
 

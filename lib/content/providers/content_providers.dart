@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../app/providers.dart';
 import '../../domain/enums/exercise_mode.dart';
 import '../../domain/enums/input_type.dart';
 import '../../domain/models/models.dart' as domain;
+import '../../features/srs/providers/srs_provider.dart';
 import '../content_loader.dart';
 import '../content_repository.dart';
 
@@ -21,6 +24,18 @@ ContentRepository contentRepository(ContentRepositoryRef ref) {
   return ContentRepository(db, loader);
 }
 
+final contentBootstrapProvider = FutureProvider<void>((ref) async {
+  final repo = ref.read(contentRepositoryProvider);
+  await repo.ensureContentLoaded();
+
+  // Initialize SRS retention from saved settings.
+  final db = ref.read(appDatabaseProvider);
+  final settings = await db.settingsDao.getSettings();
+  if (settings != null) {
+    ref.read(srsRetentionProvider.notifier).set(settings.srsDesiredRetention);
+  }
+});
+
 @riverpod
 Future<List<domain.Concept>> allConcepts(AllConceptsRef ref) async {
   final db = ref.watch(appDatabaseProvider);
@@ -32,6 +47,9 @@ Future<List<domain.Concept>> allConcepts(AllConceptsRef ref) async {
           title: r.title,
           summary: r.summary,
           bodyMarkdown: r.bodyMarkdown,
+          examples: r.examples
+              .map((e) => jsonDecode(e) as Map<String, dynamic>)
+              .toList(),
           tags: r.tags,
           level: r.level,
           relatedExerciseIds: r.relatedExerciseIds,

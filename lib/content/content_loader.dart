@@ -4,6 +4,35 @@ import 'package:flutter/services.dart';
 
 import '../domain/models/models.dart';
 
+class ProgressionTierData {
+  final String id;
+  final String topic;
+  final int tierNumber;
+  final String title;
+  final String description;
+  final Map<String, dynamic> config;
+
+  const ProgressionTierData({
+    required this.id,
+    required this.topic,
+    required this.tierNumber,
+    required this.title,
+    this.description = '',
+    required this.config,
+  });
+
+  factory ProgressionTierData.fromJson(Map<String, dynamic> json) {
+    return ProgressionTierData(
+      id: json['id'] as String,
+      topic: json['topic'] as String,
+      tierNumber: json['tierNumber'] as int,
+      title: json['title'] as String,
+      description: json['description'] as String? ?? '',
+      config: json['config'] as Map<String, dynamic>? ?? {},
+    );
+  }
+}
+
 class ContentLoader {
   Future<List<Concept>> loadConcepts() async {
     final json = await rootBundle.loadString(
@@ -49,6 +78,17 @@ class ContentLoader {
       }
     }
     return cards;
+  }
+
+  Future<List<ProgressionTierData>> loadProgressionTiers() async {
+    final json = await rootBundle.loadString(
+      'assets/content/progression/index.json',
+    );
+    final list = jsonDecode(json) as List;
+    return list
+        .map((e) =>
+            ProgressionTierData.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Map<String, dynamic> _extractDeck(Map<String, dynamic> json) {

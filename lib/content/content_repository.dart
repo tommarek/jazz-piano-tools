@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
@@ -7,13 +9,69 @@ class ContentRepository {
   final AppDatabase _db;
   final ContentLoader _loader;
 
+  /// Bump this when exercise/content JSON changes to trigger re-seed.
+  static const int currentContentVersion = 3;
+
   ContentRepository(this._db, this._loader);
 
   Future<void> ensureContentLoaded() async {
     final count = await _db.conceptsDao.getConceptCount();
     if (count == 0) {
       await _seedFromAssets();
+      await _seedProgressionTiers();
     }
+
+    // Seed default settings if empty
+    final settings = await _db.settingsDao.getSettings();
+    if (settings == null) {
+      await _db.settingsDao.upsertSettings(
+        const SettingsCompanion(contentVersion: Value(currentContentVersion)),
+      );
+    } else {
+      // Seed progression tiers if empty (for upgrades)
+      final tiers = await _db.progressionDao.getAllTiers();
+      if (tiers.isEmpty) {
+        await _seedProgressionTiers();
+      }
+      // Re-seed content if version is outdated
+      await _reseedIfOutdated();
+    }
+  }
+
+  Future<void> _reseedIfOutdated() async {
+    final settings = await _db.settingsDao.getSettings();
+    final dbVersion = settings?.contentVersion ?? 0;
+
+    if (dbVersion < currentContentVersion) {
+      await _reseedAllContent();
+      await _db.settingsDao.upsertSettings(
+        SettingsCompanion(contentVersion: Value(currentContentVersion)),
+      );
+    }
+  }
+
+  Future<void> _reseedAllContent() async {
+    await _clearContentTables();
+    await _seedFromAssets();
+    await _seedProgressionTiers();
+  }
+
+  Future<void> _clearContentTables() async {
+    // Clear content tables AND dependent user-progress tables that have
+    // foreign keys into content. Without this, re-inserting content with
+    // the same IDs causes UNIQUE constraint failures.
+    await _db.transaction(() async {
+      await _db.delete(_db.questionResults).go();
+      await _db.delete(_db.exerciseAttempts).go();
+      await _db.delete(_db.itemSchedules).go();
+      await _db.delete(_db.cardStates).go();
+      await _db.delete(_db.cards).go();
+      await _db.delete(_db.decks).go();
+      await _db.delete(_db.concepts).go();
+      await _db.delete(_db.exercises).go();
+      await _db.delete(_db.tierProgress).go();
+      await _db.delete(_db.progressionTiers).go();
+    });
   }
 
   Future<void> _seedFromAssets() async {
@@ -31,7 +89,7 @@ class ContentRepository {
             title: c.title,
             summary: c.summary,
             bodyMarkdown: c.bodyMarkdown,
-            examples: c.examples.map((e) => e.toString()).toList(),
+            examples: c.examples.map((e) => jsonEncode(e)).toList(),
             tags: c.tags,
             level: c.level,
             relatedExerciseIds: c.relatedExerciseIds,
@@ -87,13 +145,43 @@ class ContentRepository {
           _db.cardStates,
           CardStatesCompanion.insert(
             cardId: card.id,
-            due: DateTime.now(),
+            due: DateTime.now().toUtc(),
             stability: 0.0,
             difficulty: 0.0,
             interval: 0,
             lapses: 0,
             reps: 0,
             state: 'new',
+            lastReview: const Value(null),
+            step: const Value(null),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> _seedProgressionTiers() async {
+    final tiers = await _loader.loadProgressionTiers();
+
+    await _db.batch((batch) {
+      for (final t in tiers) {
+        batch.insert(
+          _db.progressionTiers,
+          ProgressionTiersCompanion.insert(
+            id: t.id,
+            topic: t.topic,
+            tierNumber: t.tierNumber,
+            title: t.title,
+            config: t.config,
+          ),
+        );
+
+        // Tier 1 of each topic is unlocked by default
+        batch.insert(
+          _db.tierProgress,
+          TierProgressCompanion(
+            tierId: Value(t.id),
+            isUnlocked: Value(t.tierNumber == 1),
           ),
         );
       }

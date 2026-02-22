@@ -43,7 +43,7 @@ void main() {
       const exercise = Exercise(
         id: 'e1',
         title: 'Build Chord',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'chord_build',
         config: {'keys': 'all'},

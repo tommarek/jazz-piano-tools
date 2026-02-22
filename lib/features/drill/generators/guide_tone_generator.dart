@@ -36,71 +36,145 @@ class GuideToneGenerator extends QuestionGenerator {
     ChordQuality.minor7,
   ];
 
-  @override
-  List<ExerciseQuestion> generate(Exercise exercise, {int count = 10}) {
-    final random = Random();
-
-    // Resolve qualities.
+  List<ChordQuality> _resolveQualities(Exercise exercise) {
+    final rawQualities = exercise.config['qualities'];
     final qualityNames =
-        (exercise.config['qualities'] as List<dynamic>?)?.cast<String>();
+        (rawQualities is List ? rawQualities : null)?.cast<String>();
     final qualities = qualityNames != null
         ? ChordQuality.allQualities
             .where((q) =>
                 qualityNames.any((n) => n.toLowerCase() == q.name.toLowerCase()))
             .toList()
         : List<ChordQuality>.from(_defaultQualities);
-
     if (qualities.isEmpty) {
       throw ArgumentError('No matching chord qualities found in config');
     }
+    return qualities;
+  }
 
-    // Resolve roots.
-    final rootValues =
-        (exercise.config['roots'] as List<dynamic>?)?.cast<int>();
-    final roots = rootValues != null
+  List<PitchClass> _resolveRoots(Exercise exercise) {
+    final rawRoots = exercise.config['roots'];
+    final rootValues = (rawRoots is List ? rawRoots : null)?.cast<int>();
+    return rootValues != null
         ? rootValues.map((v) => PitchClass(v)).toList()
         : List.generate(12, (i) => PitchClass(i));
+  }
 
+  @override
+  List<String> allItemIds(Exercise exercise) {
+    final qualities = _resolveQualities(exercise);
+    final roots = _resolveRoots(exercise);
+    final ids = <String>[];
+    for (final root in roots) {
+      for (final quality in qualities) {
+        ids.add('${NoteName.toFlat(root)}${quality.symbol}');
+      }
+    }
+    return ids;
+  }
+
+  @override
+  Map<String, List<String>> itemGroups(Exercise exercise) {
+    final qualities = _resolveQualities(exercise);
+    final roots = _resolveRoots(exercise);
+    final groups = <String, List<String>>{};
+    for (final quality in qualities) {
+      groups[quality.name] = roots
+          .map((r) => '${NoteName.toFlat(r)}${quality.symbol}')
+          .toList();
+    }
+    return groups;
+  }
+
+  @override
+  List<ExerciseQuestion> generateForItems(
+      Exercise exercise, List<String> itemIds) {
+    final qualities = _resolveQualities(exercise);
+    final roots = _resolveRoots(exercise);
+    final random = Random();
+
+    // Build lookup: itemId → (root, quality)
+    final lookup = <String, (PitchClass, ChordQuality)>{};
+    for (final root in roots) {
+      for (final quality in qualities) {
+        lookup['${NoteName.toFlat(root)}${quality.symbol}'] = (root, quality);
+      }
+    }
+
+    final questions = <ExerciseQuestion>[];
+    for (final id in itemIds) {
+      final pair = lookup[id];
+      if (pair == null) continue;
+      questions.add(_buildQuestion(pair.$1, pair.$2, qualities, random));
+    }
+    return questions;
+  }
+
+  @override
+  List<ExerciseQuestion> generate(Exercise exercise, {int count = 10}) {
+    final random = Random();
+    final qualities = _resolveQualities(exercise);
+    final roots = _resolveRoots(exercise);
     final questions = <ExerciseQuestion>[];
 
     for (var i = 0; i < count; i++) {
       final quality = qualities[random.nextInt(qualities.length)];
       final root = roots[random.nextInt(roots.length)];
-      final guides = guideTones(root, quality);
-      final rootName = NoteName.toFlat(root);
+      questions.add(_buildQuestion(root, quality, qualities, random));
+    }
 
-      final correctAnswer =
-          guides.map((pc) => NoteName.toFlat(pc)).join(' & ');
+    return questions;
+  }
 
-      // Build 4 MCQ options.
-      final options = <String>{correctAnswer};
-      while (options.length < 4) {
-        // Pick two random pitch classes as a decoy pair.
+  ExerciseQuestion _buildQuestion(
+    PitchClass root,
+    ChordQuality quality,
+    List<ChordQuality> allQualities,
+    Random random,
+  ) {
+    final guides = guideTones(root, quality);
+    final rootName = NoteName.toFlat(root);
+    final correctAnswer =
+        guides.map((pc) => NoteName.toFlat(pc)).join(' & ');
+
+    // Build 4 MCQ options matching the format of the correct answer.
+    final isSingleNote = guides.length == 1;
+    final options = <String>{correctAnswer};
+    var attempts = 0;
+    while (options.length < 4 && attempts < 100) {
+      attempts++;
+      if (isSingleNote) {
+        // For triads (single guide tone), generate single-note decoys.
+        final decoyPc = PitchClass(random.nextInt(12));
+        final decoy = NoteName.toFlat(decoyPc);
+        if (decoy != correctAnswer) {
+          options.add(decoy);
+        }
+      } else {
         final a = PitchClass(random.nextInt(12));
         final b = PitchClass(random.nextInt(12));
         if (a == b) continue;
-        final decoy =
-            '${NoteName.toFlat(a)} & ${NoteName.toFlat(b)}';
+        final decoy = '${NoteName.toFlat(a)} & ${NoteName.toFlat(b)}';
         if (decoy != correctAnswer) {
           options.add(decoy);
         }
       }
-
-      final shuffled = options.toList()..shuffle(random);
-
-      questions.add(ExerciseQuestion(
-        promptText:
-            'What are the guide tones (3rd & 7th) of $rootName${quality.symbol}?',
-        expectedAnswer: correctAnswer,
-        multipleChoiceOptions: shuffled,
-        metadata: {
-          'root': root.value,
-          'quality': quality.name,
-          'guideTones': guides.map((pc) => pc.value).toList(),
-        },
-      ));
     }
+    final shuffled = options.toList()..shuffle(random);
 
-    return questions;
+    return ExerciseQuestion(
+      promptText:
+          'What are the guide tones (3rd & 7th) of $rootName${quality.symbol}?',
+      expectedAnswer: correctAnswer,
+      multipleChoiceOptions: shuffled,
+      metadata: {
+        'topic': 'voicings',
+        'skill': 'identify',
+        'root': root.value,
+        'itemId': '$rootName${quality.symbol}',
+        'quality': quality.name,
+        'guideTones': guides.map((pc) => pc.value).toList(),
+      },
+    );
   }
 }

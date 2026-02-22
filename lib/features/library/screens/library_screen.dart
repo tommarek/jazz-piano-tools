@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/library_provider.dart';
-import '../../learn/screens/concept_detail_screen.dart';
-import '../../drill/screens/drill_screen.dart';
-import '../../drill/screens/practice_screen.dart';
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
@@ -159,21 +157,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   void _onItemTap(BuildContext context, LibraryItem item) {
     switch (item) {
       case ConceptItem(:final concept):
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) =>
-                ConceptDetailScreen(conceptId: concept.id),
-          ),
-        );
+        context.push('/learn/concept/${concept.id}');
       case ExerciseItem(:final exercise):
-        final isDrill = exercise.mode.name == 'drill';
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => isDrill
-                ? DrillScreen(exerciseId: exercise.id)
-                : PracticeScreen(exerciseId: exercise.id),
-          ),
-        );
+        context.push('/exercise-setup/${exercise.id}');
       case DeckItem():
         // Deck detail screen not yet implemented
         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,7 +178,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 }
 
-class _LibraryItemCard extends StatelessWidget {
+class _LibraryItemCard extends ConsumerWidget {
   final LibraryItem item;
   final VoidCallback onTap;
 
@@ -215,9 +201,16 @@ class _LibraryItemCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final color = _iconColor(theme);
+
+    // Fetch counts for exercise items
+    ExerciseCounts? counts;
+    if (item case ExerciseItem(:final exercise)) {
+      final countsAsync = ref.watch(exerciseCountsProvider(exercise.id));
+      counts = countsAsync.valueOrNull;
+    }
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -246,8 +239,29 @@ class _LibraryItemCard extends StatelessWidget {
                       item.title,
                       style: theme.textTheme.titleMedium,
                     ),
-                    if (item.tags.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                    const SizedBox(height: 4),
+                    if (counts != null &&
+                        (counts.reviewCount > 0 || counts.newCount > 0))
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          if (counts.reviewCount > 0)
+                            _badge(
+                              '${counts.reviewCount} to review',
+                              theme.colorScheme.tertiaryContainer,
+                              theme.colorScheme.onTertiaryContainer,
+                              theme,
+                            ),
+                          if (counts.newCount > 0)
+                            _badge(
+                              '${counts.newCount} new',
+                              theme.colorScheme.primaryContainer,
+                              theme.colorScheme.onPrimaryContainer,
+                              theme,
+                            ),
+                        ],
+                      )
+                    else if (item.tags.isNotEmpty)
                       Wrap(
                         spacing: 4,
                         children: item.tags
@@ -264,13 +278,29 @@ class _LibraryItemCard extends StatelessWidget {
                             )
                             .toList(),
                       ),
-                    ],
                   ],
                 ),
               ),
               const Icon(Icons.chevron_right),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _badge(String label, Color bg, Color fg, ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: fg,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

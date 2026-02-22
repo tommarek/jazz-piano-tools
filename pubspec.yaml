@@ -44,4 +44,5 @@ flutter:
     - assets/content/concepts/
     - assets/content/exercises/
     - assets/content/decks/
+    - assets/content/progression/
     - assets/soundfonts/

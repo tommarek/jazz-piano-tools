@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../srs/providers/srs_provider.dart';
-import '../../../domain/models/srs_card.dart';
-import 'end_summary_screen.dart';
+import 'package:go_router/go_router.dart';
 
-enum ReviewPhase { prompt, answer, feedback }
+import '../../../core/answer_input/answer_action_bar.dart';
+import '../../../core/answer_input/answer_input_area.dart';
+import '../../../core/answer_input/answer_input_controller.dart';
+import '../../../core/answer_input/answer_input_mode.dart';
+import '../../../core/answer_input/duration_formatter.dart';
+import '../../../core/answer_input/pitch_class_parser.dart';
+import '../../../core/answer_input/rating_buttons.dart';
+import '../../../domain/models/srs_card.dart';
+import '../../../domain/models/srs_card_state.dart';
+import '../../srs/providers/srs_provider.dart';
 
 class ReviewSessionScreen extends ConsumerStatefulWidget {
   const ReviewSessionScreen({super.key});
@@ -16,16 +23,16 @@ class ReviewSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
-  ReviewPhase _phase = ReviewPhase.prompt;
   int _currentIndex = 0;
   int _totalCards = 0;
   int _correctCount = 0;
   List<String> _cardIds = [];
   SrsCard? _currentCard;
-  String? _userAnswer;
+  SrsCardState? _currentState;
   bool _isLoading = true;
-  final _answerController = TextEditingController();
   final _stopwatch = Stopwatch();
+
+  AnswerInputController? _controller;
 
   @override
   void initState() {
@@ -37,7 +44,7 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
 
   @override
   void dispose() {
-    _answerController.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -67,39 +74,61 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     }
 
     final engine = ref.read(srsEngineProvider);
-    final (card, _) = await engine.getCardForReview(_cardIds[_currentIndex]);
+    final (card, state) =
+        await engine.getCardForReview(_cardIds[_currentIndex]);
     if (!mounted) return;
 
     setState(() {
       _currentCard = card;
-      _phase = ReviewPhase.prompt;
-      _userAnswer = null;
-      _answerController.clear();
+      _currentState = state;
     });
 
     _stopwatch.reset();
     _stopwatch.start();
+    _createController(card);
   }
 
-  void _submitAnswer() {
-    _stopwatch.stop();
-    setState(() {
-      _userAnswer = _answerController.text.trim();
-      _phase = ReviewPhase.feedback;
-    });
+  void _createController(SrsCard card) {
+    _controller?.dispose();
+
+    // Use keyboard if answer contains parseable pitch classes, else selfReveal
+    final hasPitches =
+        PitchClassParser.extract(card.expectedAnswer).isNotEmpty;
+    final mode =
+        hasPitches ? AnswerInputMode.keyboard : AnswerInputMode.selfReveal;
+
+    _controller = AnswerInputController(
+      mode: mode,
+      expectedAnswer: card.expectedAnswer,
+      answerText: card.expectedAnswer,
+      onResult: (correct) {
+        _stopwatch.stop();
+        setState(() {});
+        if (!correct) {
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) _rateAndNext(0);
+          });
+        }
+      },
+    );
+    setState(() {});
   }
 
   Future<void> _rateAndNext(int rating) async {
+    final cardId = _cardIds[_currentIndex];
     final engine = ref.read(srsEngineProvider);
     await engine.recordReview(
-      _cardIds[_currentIndex],
+      cardId,
       rating,
       _stopwatch.elapsedMilliseconds,
     );
 
-    // Rating 3 (Good) or 4 (Easy) counts as correct
-    if (rating >= 3) {
+    if (rating >= 2) {
       _correctCount++;
+    } else {
+      // Re-queue failed cards at the end for another attempt
+      _cardIds.add(cardId);
+      _totalCards = _cardIds.length;
     }
 
     _currentIndex++;
@@ -112,18 +141,24 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
 
   void _navigateToSummary() {
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => EndSummaryScreen(
-          cardsReviewed: _currentIndex,
-          correctCount: _correctCount,
-        ),
-      ),
-    );
+    context.pushReplacement('/summary', extra: {
+      'cardsReviewed': _currentIndex,
+      'correctCount': _correctCount,
+    });
   }
 
   double get _progress =>
       _totalCards > 0 ? _currentIndex / _totalCards : 0.0;
+
+  String _ratingSublabel(int rating) {
+    final state = _currentState;
+    if (state == null) return '';
+    final adapter = ref.read(fsrsAdapterProvider);
+    final preview = adapter.review(state, rating);
+    final now = DateTime.now().toUtc();
+    final diff = preview.due.difference(now);
+    return DurationFormatter.formatShort(diff);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,12 +181,10 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       ),
       body: Column(
         children: [
-          // Progress bar
           LinearProgressIndicator(
             value: _progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -160,14 +193,16 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: _buildBottomBar(context),
     );
   }
 
   Widget _buildPhaseContent(BuildContext context) {
     final theme = Theme.of(context);
     final card = _currentCard;
+    final ctrl = _controller;
 
-    if (card == null) {
+    if (card == null || ctrl == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -176,7 +211,6 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       children: [
         const Spacer(),
 
-        // Prompt
         Card(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -189,104 +223,51 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
         ),
         const SizedBox(height: 24),
 
-        // Answer / feedback area
-        if (_phase == ReviewPhase.prompt || _phase == ReviewPhase.answer) ...[
-          TextField(
-            controller: _answerController,
-            decoration: const InputDecoration(
-              hintText: 'Type your answer...',
-              border: OutlineInputBorder(),
-            ),
-            autofocus: true,
-            onSubmitted: (_) => _submitAnswer(),
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _answerController.text.trim().isNotEmpty
-                ? _submitAnswer
-                : null,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            child: const Text('Show Answer'),
-          ),
-        ],
-
-        if (_phase == ReviewPhase.feedback) ...[
-          // Show expected answer
-          Card(
-            color: theme.colorScheme.secondaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(
-                    'Expected Answer',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    card.expectedAnswer,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: theme.colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                  if (_userAnswer != null && _userAnswer!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      'Your answer: $_userAnswer',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer
-                            .withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Rating buttons
-          Text(
-            'How well did you know this?',
-            style: theme.textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _RatingButton(
-                label: 'Again',
-                color: theme.colorScheme.error,
-                onPressed: () => _rateAndNext(1),
-              ),
-              const SizedBox(width: 8),
-              _RatingButton(
-                label: 'Hard',
-                color: Colors.orange,
-                onPressed: () => _rateAndNext(2),
-              ),
-              const SizedBox(width: 8),
-              _RatingButton(
-                label: 'Good',
-                color: Colors.green,
-                onPressed: () => _rateAndNext(3),
-              ),
-              const SizedBox(width: 8),
-              _RatingButton(
-                label: 'Easy',
-                color: theme.colorScheme.primary,
-                onPressed: () => _rateAndNext(4),
-              ),
-            ],
-          ),
-        ],
+        AnswerInputArea(controller: ctrl),
 
         const Spacer(),
       ],
+    );
+  }
+
+  Widget? _buildBottomBar(BuildContext context) {
+    if (_isLoading || _currentCard == null) return null;
+    final ctrl = _controller;
+    if (ctrl == null) return null;
+
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (context, _) {
+        // Feedback phase: show rating buttons only for correct answers.
+        // Wrong answers auto-advance with "Again" after a delay.
+        if (ctrl.phase == AnswerPhase.feedback && ctrl.result != false) {
+          return AnswerActionBar(
+            child: RatingButtons(
+              onRate: _rateAndNext,
+              sublabelBuilder: _ratingSublabel,
+            ),
+          );
+        }
+
+        // Self-reveal input: "Show Answer" button
+        if (ctrl.mode == AnswerInputMode.selfReveal) {
+          return AnswerActionBar(
+            child: FilledButton(
+              onPressed: () {
+                _stopwatch.stop();
+                ctrl.revealAnswer();
+              },
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              child: const Text('Show Answer'),
+            ),
+          );
+        }
+
+        // Keyboard input: no bottom bar (AnswerInputArea handles inline Submit)
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -315,32 +296,5 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     if (shouldExit == true && mounted) {
       _navigateToSummary();
     }
-  }
-}
-
-class _RatingButton extends StatelessWidget {
-  final String label;
-  final Color color;
-  final VoidCallback onPressed;
-
-  const _RatingButton({
-    required this.label,
-    required this.color,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        child: Text(label),
-      ),
-    );
   }
 }

@@ -40,54 +40,122 @@ class IiViShellGenerator extends QuestionGenerator {
   /// Semitone offset from the key root for each chord.
   static const _rootOffsets = [2, 7, 0]; // ii = +2, V = +7, I = +0
 
+  List<PitchClass> _resolveKeys(Exercise exercise) {
+    final rawKeys = exercise.config['keys'];
+    final keyValues = (rawKeys is List ? rawKeys : null)?.cast<int>();
+    return keyValues != null
+        ? keyValues.map((v) => PitchClass(v)).toList()
+        : List.generate(12, (i) => PitchClass(i));
+  }
+
+  @override
+  List<String> allItemIds(Exercise exercise) {
+    final keys = _resolveKeys(exercise);
+    final fixedChordIndex = exercise.config['chordIndex'] as int?;
+    final ids = <String>[];
+    for (final keyRoot in keys) {
+      final keyName = NoteName.toFlat(keyRoot);
+      if (fixedChordIndex != null) {
+        ids.add('${_chordLabels[fixedChordIndex]}-$keyName');
+      } else {
+        for (final label in _chordLabels) {
+          ids.add('$label-$keyName');
+        }
+      }
+    }
+    return ids;
+  }
+
+  @override
+  Map<String, List<String>> itemGroups(Exercise exercise) {
+    final keys = _resolveKeys(exercise);
+    final fixedChordIndex = exercise.config['chordIndex'] as int?;
+    final groups = <String, List<String>>{};
+    if (fixedChordIndex != null) {
+      final label = _chordLabels[fixedChordIndex];
+      groups[label] = keys
+          .map((k) => '$label-${NoteName.toFlat(k)}')
+          .toList();
+    } else {
+      for (final label in _chordLabels) {
+        groups[label] = keys
+            .map((k) => '$label-${NoteName.toFlat(k)}')
+            .toList();
+      }
+    }
+    return groups;
+  }
+
+  @override
+  List<ExerciseQuestion> generateForItems(
+      Exercise exercise, List<String> itemIds) {
+    final questions = <ExerciseQuestion>[];
+    final keys = _resolveKeys(exercise);
+    final keyMap = {for (final k in keys) NoteName.toFlat(k): k};
+
+    for (final id in itemIds) {
+      final dashIdx = id.indexOf('-');
+      if (dashIdx < 0) continue;
+      final chordLabel = id.substring(0, dashIdx);
+      final keyName = id.substring(dashIdx + 1);
+      final chordIdx = _chordLabels.indexOf(chordLabel);
+      if (chordIdx < 0) continue;
+      final keyRoot = keyMap[keyName];
+      if (keyRoot == null) continue;
+      questions.add(_buildQuestion(keyRoot, chordIdx));
+    }
+    return questions;
+  }
+
   @override
   List<ExerciseQuestion> generate(Exercise exercise, {int count = 10}) {
     final random = Random();
-
-    // Resolve which keys to drill.
-    final keyValues =
-        (exercise.config['keys'] as List<dynamic>?)?.cast<int>();
-    final keys = keyValues != null
-        ? keyValues.map((v) => PitchClass(v)).toList()
-        : List.generate(12, (i) => PitchClass(i));
-
+    final keys = _resolveKeys(exercise);
     final fixedChordIndex = exercise.config['chordIndex'] as int?;
-
     final questions = <ExerciseQuestion>[];
 
     for (var i = 0; i < count; i++) {
       final keyRoot = keys[random.nextInt(keys.length)];
       final chordIdx = fixedChordIndex ?? random.nextInt(3);
-      final chordLabel = _chordLabels[chordIdx];
-      final chordRoot = keyRoot.transpose(_rootOffsets[chordIdx]);
-
-      final shellSemitones = _shellIntervals[chordLabel]!;
-      final shellPitches =
-          shellSemitones.map((s) => chordRoot.transpose(s)).toList();
-      final expected = shellPitches.toSet();
-
-      final keyName = NoteName.toFlat(keyRoot);
-      final chordRootName = NoteName.toFlat(chordRoot);
-      final quality = _qualities[chordIdx];
-
-      questions.add(ExerciseQuestion(
-        promptText:
-            'Play the $chordLabel shell voicing in the key of $keyName '
-            '($chordRootName${quality.symbol})',
-        notationData: NotationData(
-          pitches: shellPitches,
-          label: '$chordRootName${quality.symbol} shell',
-        ),
-        expectedAnswer: expected,
-        metadata: {
-          'key': keyRoot.value,
-          'chordLabel': chordLabel,
-          'chordRoot': chordRoot.value,
-          'shellPitches': shellPitches.map((pc) => pc.value).toList(),
-        },
-      ));
+      questions.add(_buildQuestion(keyRoot, chordIdx));
     }
 
     return questions;
+  }
+
+  ExerciseQuestion _buildQuestion(PitchClass keyRoot, int chordIdx) {
+    final chordLabel = _chordLabels[chordIdx];
+    final chordRoot = keyRoot.transpose(_rootOffsets[chordIdx]);
+
+    final shellSemitones = _shellIntervals[chordLabel]!;
+    final shellPitches =
+        shellSemitones.map((s) => chordRoot.transpose(s)).toList();
+    final expected = shellPitches.toSet();
+
+    final keyName = NoteName.toFlat(keyRoot);
+    final chordRootName = NoteName.toFlat(chordRoot);
+    final quality = _qualities[chordIdx];
+
+    return ExerciseQuestion(
+      promptText:
+          'Play the $chordLabel shell voicing in the key of $keyName '
+          '($chordRootName${quality.symbol})',
+      notationData: NotationData(
+        pitches: shellPitches,
+        label: '$chordRootName${quality.symbol} shell',
+      ),
+      expectedAnswer: expected,
+      answerText: shellPitches.map((pc) => NoteName.toFlat(pc)).join(', '),
+      metadata: {
+        'topic': 'voicings',
+        'skill': 'build',
+        'root': chordRoot.value,
+        'itemId': '$chordLabel-$keyName',
+        'key': keyRoot.value,
+        'chordLabel': chordLabel,
+        'chordRoot': chordRoot.value,
+        'shellPitches': shellPitches.map((pc) => pc.value).toList(),
+      },
+    );
   }
 }

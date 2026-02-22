@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jazz_piano_tools/core/music/interval.dart' as music;
+
 import 'package:jazz_piano_tools/core/music/note_name.dart';
 import 'package:jazz_piano_tools/core/music/pitch_class.dart';
 import 'package:jazz_piano_tools/domain/enums/exercise_mode.dart';
@@ -14,7 +14,7 @@ void main() {
     final exercise = Exercise(
       id: 'test-interval-build',
       title: 'Build Intervals',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.piano,
       generatorId: 'intervalBuild',
     );
@@ -85,12 +85,118 @@ void main() {
 
       for (final q in questions) {
         final root = PitchClass(q.metadata['root'] as int);
-        final rootName = NoteName.toSharp(root);
+        final rootNamer = NoteName.namerForRoot(root);
+        final rootName = rootNamer(root);
         final intervalName = q.metadata['intervalName'] as String;
         expect(q.promptText, contains(rootName));
         expect(q.promptText, contains(intervalName));
         expect(q.promptText, startsWith('Play a'));
       }
+    });
+
+    test('metadata itemId is key-specific (interval:root format)', () {
+      final questions = generator.generate(exercise, count: 20);
+
+      for (final q in questions) {
+        final itemId = q.metadata['itemId'] as String;
+        expect(itemId, contains(':'),
+            reason: 'itemId should be in "interval:root" format');
+        final parts = itemId.split(':');
+        expect(parts.length, 2);
+        // First part is the interval name
+        expect(q.metadata['intervalName'], parts[0]);
+        // Second part is the flat root name
+        final root = PitchClass(q.metadata['root'] as int);
+        expect(parts[1], NoteName.toFlat(root));
+      }
+    });
+  });
+
+  group('IntervalBuildGenerator - allItemIds and itemGroups', () {
+    final exercise = Exercise(
+      id: 'test-interval-build',
+      title: 'Build Intervals',
+      mode: ExerciseMode.test,
+      inputType: InputType.piano,
+      generatorId: 'intervalBuild',
+    );
+
+    test('allItemIds returns key-specific IDs (11 intervals x 12 keys)', () {
+      final ids = generator.allItemIds(exercise);
+      // 11 intervals (no unison) x 12 keys = 132
+      expect(ids.length, 132);
+      expect(ids.toSet().length, 132, reason: 'All IDs should be unique');
+
+      // Verify format
+      for (final id in ids) {
+        expect(id, contains(':'));
+      }
+
+      // Verify specific examples
+      expect(ids, contains('Minor 2nd:C'));
+      expect(ids, contains('Major 7th:B'));
+      expect(ids, contains('Perfect 5th:Gb'));
+    });
+
+    test('itemGroups returns 11 groups with 12 items each', () {
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 11);
+      for (final entry in groups.entries) {
+        expect(entry.value.length, 12,
+            reason: '${entry.key} should have 12 items');
+        // All items in group should start with the group name
+        for (final id in entry.value) {
+          expect(id, startsWith('${entry.key}:'));
+        }
+      }
+    });
+
+    test('allItemIds with filtered config', () {
+      final filtered = Exercise(
+        id: 'test-filtered',
+        title: 'Filtered',
+        mode: ExerciseMode.test,
+        inputType: InputType.piano,
+        generatorId: 'intervalBuild',
+        config: {
+          'intervals': [3, 7], // minor 3rd and perfect 5th
+          'roots': [0, 4, 9], // C, E, A only
+        },
+      );
+
+      final ids = generator.allItemIds(filtered);
+      expect(ids.length, 6); // 2 intervals x 3 roots
+      expect(ids, contains('Minor 3rd:C'));
+      expect(ids, contains('Perfect 5th:A'));
+    });
+  });
+
+  group('IntervalBuildGenerator - generateForItems with key-specific IDs', () {
+    final exercise = Exercise(
+      id: 'test-interval-build',
+      title: 'Build Intervals',
+      mode: ExerciseMode.test,
+      inputType: InputType.piano,
+      generatorId: 'intervalBuild',
+    );
+
+    test('generates questions for specific interval:root combos', () {
+      final questions = generator.generateForItems(
+          exercise, ['Perfect 5th:C', 'Minor 3rd:Eb']);
+
+      expect(questions.length, 2);
+
+      // First question: P5 above C = G
+      final q1 = questions[0];
+      expect(q1.metadata['intervalName'], 'Perfect 5th');
+      expect(q1.metadata['root'], 0); // C
+      expect(q1.metadata['target'], 7); // G
+
+      // Second question: m3 above Eb = Gb
+      final q2 = questions[1];
+      expect(q2.metadata['intervalName'], 'Minor 3rd');
+      expect(q2.metadata['root'], 3); // Eb
+      expect(q2.metadata['target'], 6); // Gb
     });
   });
 
@@ -99,7 +205,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-interval-filtered',
         title: 'Filtered Intervals',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'intervalBuild',
         config: {
@@ -119,7 +225,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-interval-roots',
         title: 'Filtered Roots',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'intervalBuild',
         config: {
@@ -140,7 +246,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-interval-specific',
         title: 'Specific Interval',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'intervalBuild',
         config: {

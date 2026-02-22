@@ -14,7 +14,7 @@ void main() {
     final exercise = Exercise(
       id: 'test-guide-tone',
       title: 'Guide Tones',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.multipleChoice,
       generatorId: 'guideTone',
     );
@@ -115,12 +115,33 @@ void main() {
     });
   });
 
+  group('GuideToneGenerator - itemGroups', () {
+    test('default config has 3 groups by quality with 12 items each', () {
+      final exercise = Exercise(
+        id: 'test-guide-tone',
+        title: 'Guide Tones',
+        mode: ExerciseMode.test,
+        inputType: InputType.multipleChoice,
+        generatorId: 'guideTone',
+      );
+
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 3);
+      expect(groups.keys,
+          containsAll(['Dominant 7th', 'Major 7th', 'Minor 7th']));
+      for (final entry in groups.entries) {
+        expect(entry.value.length, 12,
+            reason: '${entry.key} group should have 12 items');
+      }
+    });
+  });
+
   group('GuideToneGenerator with filtered config', () {
     test('respects qualities filter', () {
       final exercise = Exercise(
         id: 'test-guide-filtered',
         title: 'Filtered Guide Tones',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.multipleChoice,
         generatorId: 'guideTone',
         config: {
@@ -139,7 +160,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-guide-roots',
         title: 'Filtered Roots',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.multipleChoice,
         generatorId: 'guideTone',
         config: {
@@ -159,7 +180,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-guide-invalid',
         title: 'Invalid',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.multipleChoice,
         generatorId: 'guideTone',
         config: {

@@ -45,19 +45,19 @@ class ChordQuality {
 
   static const halfDiminished = ChordQuality('Half-Diminished', 'm7b5', [
     Interval.minorThird,
-    Interval.tritone,
+    Interval.diminishedFifth,
     Interval.minorSeventh,
   ]);
 
   static const diminished7 = ChordQuality('Diminished 7th', 'dim7', [
     Interval.minorThird,
-    Interval.tritone,
-    Interval.majorSixth,
+    Interval.diminishedFifth,
+    Interval.diminishedSeventh,
   ]);
 
   static const augmented = ChordQuality('Augmented', 'aug', [
     Interval.majorThird,
-    Interval.minorSixth,
+    Interval.augmentedFifth,
   ]);
 
   static const allQualities = [

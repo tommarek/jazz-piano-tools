@@ -14,7 +14,7 @@ void main() {
     final exercise = Exercise(
       id: 'test-chord-build',
       title: 'Build Chords',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.piano,
       generatorId: 'chordBuild',
     );
@@ -63,7 +63,8 @@ void main() {
 
       for (final q in questions) {
         final root = PitchClass(q.metadata['root'] as int);
-        final rootName = NoteName.toSharp(root);
+        final rootNamer = NoteName.namerForRoot(root);
+        final rootName = rootNamer(root);
         expect(q.promptText, contains(rootName));
         expect(q.promptText, startsWith('Play '));
       }
@@ -77,6 +78,89 @@ void main() {
         expect(q.notationData!.pitches, isNotEmpty);
       }
     });
+
+    test('metadata itemId is key-specific (quality:root format)', () {
+      final questions = generator.generate(exercise, count: 20);
+
+      for (final q in questions) {
+        final itemId = q.metadata['itemId'] as String;
+        expect(itemId, contains(':'),
+            reason: 'itemId should be in "quality:root" format');
+        final parts = itemId.split(':');
+        expect(parts.length, 2);
+        // First part is the quality name
+        expect(q.metadata['quality'], parts[0]);
+        // Second part is the flat root name
+        final root = PitchClass(q.metadata['root'] as int);
+        expect(parts[1], NoteName.toFlat(root));
+      }
+    });
+  });
+
+  group('ChordBuildGenerator - allItemIds and itemGroups', () {
+    final exercise = Exercise(
+      id: 'test-chord-build',
+      title: 'Build Chords',
+      mode: ExerciseMode.test,
+      inputType: InputType.piano,
+      generatorId: 'chordBuild',
+    );
+
+    test('allItemIds returns key-specific IDs', () {
+      final ids = generator.allItemIds(exercise);
+      final qualityCount = ChordQuality.allQualities.length;
+      expect(ids.length, qualityCount * 12);
+      expect(ids.toSet().length, ids.length, reason: 'All IDs should be unique');
+
+      // Verify format
+      for (final id in ids) {
+        expect(id, contains(':'));
+      }
+
+      // Verify specific examples
+      expect(ids, contains('Major:C'));
+      expect(ids, contains('Minor:Eb'));
+    });
+
+    test('itemGroups returns groups by quality with 12 items each', () {
+      final groups = generator.itemGroups(exercise);
+      final qualityCount = ChordQuality.allQualities.length;
+      expect(groups.length, qualityCount);
+      for (final entry in groups.entries) {
+        expect(entry.value.length, 12,
+            reason: '${entry.key} should have 12 items');
+        for (final id in entry.value) {
+          expect(id, startsWith('${entry.key}:'));
+        }
+      }
+    });
+  });
+
+  group('ChordBuildGenerator - generateForItems with key-specific IDs', () {
+    final exercise = Exercise(
+      id: 'test-chord-build',
+      title: 'Build Chords',
+      mode: ExerciseMode.test,
+      inputType: InputType.piano,
+      generatorId: 'chordBuild',
+    );
+
+    test('generates questions for specific quality:root combos', () {
+      final questions = generator.generateForItems(
+          exercise, ['Major:C', 'Minor:Eb']);
+
+      expect(questions.length, 2);
+
+      // First question: C Major
+      final q1 = questions[0];
+      expect(q1.metadata['quality'], 'Major');
+      expect(q1.metadata['root'], 0); // C
+
+      // Second question: Eb Minor
+      final q2 = questions[1];
+      expect(q2.metadata['quality'], 'Minor');
+      expect(q2.metadata['root'], 3); // Eb
+    });
   });
 
   group('ChordBuildGenerator with filtered config', () {
@@ -84,7 +168,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-chord-filtered',
         title: 'Build Chords Filtered',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'chordBuild',
         config: {
@@ -104,7 +188,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-chord-roots',
         title: 'Build Chords Roots',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'chordBuild',
         config: {
@@ -124,7 +208,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-chord-invalid',
         title: 'Invalid',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'chordBuild',
         config: {

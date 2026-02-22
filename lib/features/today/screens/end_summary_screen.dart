@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class EndSummaryScreen extends StatelessWidget {
+import '../../srs/providers/srs_provider.dart';
+import '../providers/today_session_provider.dart';
+
+class EndSummaryScreen extends ConsumerWidget {
   final int cardsReviewed;
   final int correctCount;
 
@@ -14,7 +19,7 @@ class EndSummaryScreen extends StatelessWidget {
       cardsReviewed > 0 ? ((correctCount / cardsReviewed) * 100).round() : 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -68,7 +73,9 @@ class EndSummaryScreen extends StatelessWidget {
               // Done button
               FilledButton(
                 onPressed: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  ref.invalidate(todaySessionProvider);
+                  ref.invalidate(dueCardCountProvider);
+                  context.go('/today');
                 },
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),

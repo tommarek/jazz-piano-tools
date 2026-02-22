@@ -9,12 +9,21 @@ import 'tables/reviews_table.dart';
 import 'tables/concepts_table.dart';
 import 'tables/exercises_table.dart';
 import 'tables/exercise_attempts_table.dart';
+import 'tables/progression_tiers_table.dart';
+import 'tables/tier_progress_table.dart';
+import 'tables/question_results_table.dart';
+import 'tables/settings_table.dart';
+import 'tables/item_schedules_table.dart';
 
 import 'daos/cards_dao.dart';
 import 'daos/decks_dao.dart';
 import 'daos/reviews_dao.dart';
 import 'daos/concepts_dao.dart';
 import 'daos/exercises_dao.dart';
+import 'daos/progression_dao.dart';
+import 'daos/question_results_dao.dart';
+import 'daos/settings_dao.dart';
+import 'daos/item_schedules_dao.dart';
 
 export 'converters.dart';
 
@@ -29,6 +38,11 @@ part 'app_database.g.dart';
     Concepts,
     Exercises,
     ExerciseAttempts,
+    ProgressionTiers,
+    TierProgress,
+    QuestionResults,
+    Settings,
+    ItemSchedules,
   ],
   daos: [
     CardsDao,
@@ -36,6 +50,10 @@ part 'app_database.g.dart';
     ReviewsDao,
     ConceptsDao,
     ExercisesDao,
+    ProgressionDao,
+    QuestionResultsDao,
+    SettingsDao,
+    ItemSchedulesDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -50,5 +68,48 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 10;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) => m.createAll(),
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.createTable(progressionTiers);
+          await m.createTable(tierProgress);
+          await m.createTable(questionResults);
+          await m.createTable(settings);
+        }
+        if (from < 3) {
+          await m.addColumn(settings, settings.contentVersion);
+        }
+        if (from < 5) {
+          await m.addColumn(settings, settings.answerInputMode);
+        }
+        if (from < 6) {
+          await m.createTable(itemSchedules);
+        }
+        if (from < 7) {
+          await m.addColumn(settings, settings.showIntervalHints);
+        }
+        if (from < 8) {
+          await m.addColumn(settings, settings.newCardsPerDay);
+          await m.addColumn(itemSchedules, itemSchedules.createdAt);
+        }
+        if (from < 9) {
+          await m.addColumn(settings, settings.srsDesiredRetention);
+        }
+        if (from < 10) {
+          await m.addColumn(itemSchedules, itemSchedules.lastReview);
+          await m.addColumn(itemSchedules, itemSchedules.step);
+          await m.addColumn(cardStates, cardStates.lastReview);
+          await m.addColumn(cardStates, cardStates.step);
+        }
+      },
+    );
+  }
 }

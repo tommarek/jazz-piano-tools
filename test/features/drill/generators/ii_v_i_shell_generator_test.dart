@@ -12,7 +12,7 @@ void main() {
     final exercise = Exercise(
       id: 'test-ii-v-i',
       title: 'ii-V-I Shells',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.piano,
       generatorId: 'iiViShell',
     );
@@ -102,7 +102,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-ii-v-i-c',
         title: 'ii-V-I in C',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'iiViShell',
         config: {
@@ -124,7 +124,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-v-c',
         title: 'V in C',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'iiViShell',
         config: {
@@ -146,7 +146,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-i-c',
         title: 'I in C',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'iiViShell',
         config: {
@@ -165,12 +165,51 @@ void main() {
     });
   });
 
+  group('IiViShellGenerator - itemGroups', () {
+    test('default config has 3 groups (ii, V, I) with 12 items each', () {
+      final exercise = Exercise(
+        id: 'test-ii-v-i',
+        title: 'ii-V-I Shells',
+        mode: ExerciseMode.test,
+        inputType: InputType.piano,
+        generatorId: 'iiViShell',
+      );
+
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 3);
+      expect(groups.keys, containsAll(['ii', 'V', 'I']));
+      for (final entry in groups.entries) {
+        expect(entry.value.length, 12,
+            reason: '${entry.key} group should have 12 items');
+        for (final id in entry.value) {
+          expect(id, startsWith('${entry.key}-'));
+        }
+      }
+    });
+
+    test('chordIndex config limits to single group', () {
+      final exercise = Exercise(
+        id: 'test-ii-v-i-v',
+        title: 'V only',
+        mode: ExerciseMode.test,
+        inputType: InputType.piano,
+        generatorId: 'iiViShell',
+        config: {'chordIndex': 1},
+      );
+
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 1);
+      expect(groups.keys.first, 'V');
+      expect(groups['V']!.length, 12);
+    });
+  });
+
   group('IiViShellGenerator with filtered config', () {
     test('respects keys filter', () {
       final exercise = Exercise(
         id: 'test-ii-v-i-keys',
         title: 'Filtered Keys',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'iiViShell',
         config: {
@@ -190,7 +229,7 @@ void main() {
       final exercise = Exercise(
         id: 'test-ii-v-i-chord',
         title: 'V only',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.piano,
         generatorId: 'iiViShell',
         config: {

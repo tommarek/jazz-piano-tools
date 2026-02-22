@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/today_session_provider.dart';
 
@@ -12,7 +13,15 @@ class TodayScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Today')),
+      appBar: AppBar(
+        title: const Text('Today'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
+      ),
       body: sessionAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
@@ -91,59 +100,10 @@ class TodayScreen extends ConsumerWidget {
                 )
               : Icon(Icons.check_circle, color: Colors.green.shade600),
           onTap: session.dueCardCount > 0
-              ? () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const _ReviewSessionPlaceholder(),
-                    ),
-                  );
-                }
+              ? () => context.push('/review')
               : null,
         ),
-        const SizedBox(height: 12),
-
-        // Drill suggestion card
-        _SessionCard(
-          icon: Icons.speed,
-          iconColor: theme.colorScheme.secondary,
-          title: 'Suggested Drills',
-          subtitle: session.suggestedDrillIds.isNotEmpty
-              ? '${session.suggestedDrillIds.length} drills available'
-              : 'No drills suggested',
-          trailing: const Icon(Icons.chevron_right),
-          onTap: session.suggestedDrillIds.isNotEmpty ? () {} : null,
-        ),
-        const SizedBox(height: 12),
-
-        // Practice suggestion card
-        _SessionCard(
-          icon: Icons.piano,
-          iconColor: Colors.teal,
-          title: 'Suggested Practice',
-          subtitle: session.suggestedPracticeIds.isNotEmpty
-              ? '${session.suggestedPracticeIds.length} exercises available'
-              : 'No practice suggested',
-          trailing: const Icon(Icons.chevron_right),
-          onTap: session.suggestedPracticeIds.isNotEmpty ? () {} : null,
-        ),
-        const SizedBox(height: 32),
-
-        // Start session button
-        FilledButton(
-          onPressed: session.dueCardCount > 0
-              ? () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const _ReviewSessionPlaceholder(),
-                    ),
-                  );
-                }
-              : null,
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(56),
-          ),
-          child: const Text('Start Session'),
-        ),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -208,19 +168,6 @@ class _SessionCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Temporary placeholder until ReviewSessionScreen is wired into routing.
-class _ReviewSessionPlaceholder extends StatelessWidget {
-  const _ReviewSessionPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Review Session')),
-      body: const Center(child: Text('Review session coming soon')),
     );
   }
 }

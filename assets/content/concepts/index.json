@@ -36,7 +36,7 @@
     ],
     "tags": ["fundamentals", "intervals"],
     "level": 1,
-    "relatedExerciseIds": ["interval-build", "interval-identify"],
+    "relatedExerciseIds": ["interval-build"],
     "relatedCardDeckIds": ["intervals-deck"]
   },
   {
@@ -56,7 +56,7 @@
     ],
     "tags": ["chords", "fundamentals"],
     "level": 1,
-    "relatedExerciseIds": ["chord-build", "chord-identify"],
+    "relatedExerciseIds": ["chord-build"],
     "relatedCardDeckIds": ["major-triads-deck"]
   },
   {
@@ -76,7 +76,7 @@
     ],
     "tags": ["chords", "harmony"],
     "level": 2,
-    "relatedExerciseIds": ["chord-build", "chord-identify"],
+    "relatedExerciseIds": ["chord-build"],
     "relatedCardDeckIds": ["seventh-chords-deck"]
   },
   {

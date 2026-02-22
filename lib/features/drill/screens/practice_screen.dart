@@ -1,183 +1,357 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers.dart';
+import '../../../core/answer_input/answer_action_bar.dart';
+import '../../../core/answer_input/answer_input_area.dart';
+import '../../../core/answer_input/answer_input_controller.dart';
+import '../../../core/answer_input/answer_input_mode.dart';
+import '../../../core/answer_input/duration_formatter.dart';
+import '../../../core/answer_input/rating_buttons.dart';
+import '../../../core/audio/audio_provider.dart';
+import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
+import '../../../domain/models/srs_card_state.dart';
+import '../../srs/providers/srs_provider.dart';
 import '../providers/drill_provider.dart';
+import '../widgets/audio_play_button.dart';
 
 class PracticeScreen extends ConsumerStatefulWidget {
   final String exerciseId;
+  final Set<String>? selectedGroups;
+  final int? newCardCount;
+  final bool learnedOnly;
 
-  const PracticeScreen({required this.exerciseId, super.key});
+  const PracticeScreen({
+    required this.exerciseId,
+    this.selectedGroups,
+    this.newCardCount,
+    this.learnedOnly = false,
+    super.key,
+  });
 
   @override
   ConsumerState<PracticeScreen> createState() => _PracticeScreenState();
 }
 
 class _PracticeScreenState extends ConsumerState<PracticeScreen> {
-  bool _showAnswer = false;
-  int _currentQuestion = 0;
-  final int _totalQuestions = 10;
-  int _correctCount = 0;
-  bool _isComplete = false;
+  bool _started = false;
+  bool _showIntervalHints = true;
+  SrsCardState? _currentItemState;
+  AnswerInputController? _controller;
 
-  void _revealAnswer() {
-    setState(() {
-      _showAnswer = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startPractice(newCardCount: widget.newCardCount);
     });
   }
 
-  void _markAnswer(bool correct) {
-    setState(() {
-      if (correct) _correctCount++;
-      _currentQuestion++;
-      _showAnswer = false;
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
-      if (_currentQuestion >= _totalQuestions) {
-        _isComplete = true;
-      }
+  void _startPractice({bool ignoreNewCardLimit = false, int? newCardCount}) async {
+    final db = ref.read(appDatabaseProvider);
+    final settings = await db.settingsDao.getSettings();
+    final exercise =
+        await ref.read(exerciseByIdProvider(widget.exerciseId).future);
+    final count = await ref
+        .read(drillSessionProvider(widget.exerciseId).notifier)
+        .startPracticeSession(
+          exercise: exercise,
+          selectedGroups: widget.selectedGroups,
+          ignoreNewCardLimit: ignoreNewCardLimit,
+          newCardCount: newCardCount,
+          learnedOnly: widget.learnedOnly,
+        );
+    if (!mounted) return;
+    setState(() {
+      _started = true;
+      _showIntervalHints = settings?.showIntervalHints ?? true;
+    });
+    if (count > 0) {
+      _loadItemState();
+      _createController();
+    }
+  }
+
+  void _createController() {
+    final drillState = ref.read(drillSessionProvider(widget.exerciseId));
+    final question = drillState.currentQuestion;
+    if (question == null) return;
+
+    _controller?.dispose();
+
+    _controller = AnswerInputController(
+      mode: AnswerInputMode.keyboard,
+      expectedAnswer: question.expectedAnswer,
+      answerText: question.answerText,
+      onResult: (correct) {
+        setState(() {});
+        if (!correct) {
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) _rateAndAdvance(0);
+          });
+        }
+      },
+    );
+    setState(() {});
+  }
+
+  Future<void> _loadItemState() async {
+    final drillState = ref.read(drillSessionProvider(widget.exerciseId));
+    final question = drillState.currentQuestion;
+    if (question == null) {
+      setState(() => _currentItemState = null);
+      return;
+    }
+
+    final meta = question.metadata;
+    final topic = meta['topic'] as String?;
+    final itemId = meta['itemId'] as String?;
+    if (topic == null || itemId == null) {
+      setState(() => _currentItemState = null);
+      return;
+    }
+
+    final db = ref.read(appDatabaseProvider);
+    final existing = await db.itemSchedulesDao.getSchedule(topic, itemId);
+    if (!mounted) return;
+
+    final now = DateTime.now().toUtc();
+    setState(() {
+      _currentItemState = existing != null
+          ? SrsCardState(
+              cardId: '$topic:$itemId',
+              due: existing.due,
+              stability: existing.stability,
+              difficulty: existing.difficulty,
+              interval: existing.interval,
+              lapses: existing.lapses,
+              reps: existing.reps,
+              state: existing.state,
+              lastReview: existing.lastReview,
+              step: existing.step,
+            )
+          : SrsCardState(cardId: '$topic:$itemId', due: now);
     });
   }
 
-  double get _progress =>
-      _totalQuestions > 0 ? _currentQuestion / _totalQuestions : 0.0;
+  String _ratingSublabel(int rating) {
+    final state = _currentItemState;
+    if (state == null || !_showIntervalHints) return '';
+    final adapter = ref.read(fsrsAdapterProvider);
+    final preview = adapter.review(state, rating);
+    final now = DateTime.now().toUtc();
+    final diff = preview.due.difference(now);
+    return DurationFormatter.formatShort(diff);
+  }
+
+  void _rateAndAdvance(int rating) async {
+    await ref
+        .read(drillSessionProvider(widget.exerciseId).notifier)
+        .submitAnswer(correct: rating > 0, rating: rating);
+    if (!mounted) return;
+    setState(() {
+      _currentItemState = null;
+    });
+    ref
+        .read(drillSessionProvider(widget.exerciseId).notifier)
+        .nextQuestion();
+    _loadItemState();
+    _createController();
+  }
+
+  String? _formatNextReview(DateTime? due) {
+    if (due == null) return null;
+    final now = DateTime.now().toUtc();
+    final diff = due.difference(now);
+
+    if (diff.inMinutes < 1) return 'now';
+    if (diff.inMinutes < 60) return 'in ${diff.inMinutes} min';
+    if (diff.inHours < 24) return 'in ${diff.inHours} hr';
+    if (diff.inDays == 1) return 'tomorrow';
+    return 'in ${diff.inDays} days';
+  }
 
   @override
   Widget build(BuildContext context) {
     final exerciseAsync = ref.watch(exerciseByIdProvider(widget.exerciseId));
+    final drillState = ref.watch(drillSessionProvider(widget.exerciseId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: exerciseAsync.when(
-          data: (exercise) => Text(exercise.title),
-          loading: () => const Text('Loading...'),
-          error: (_, _) => const Text('Practice'),
+    return PopScope(
+      canPop: !_started || drillState.phase == DrillPhase.complete,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _showExitConfirmation(context, drillState);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: exerciseAsync.when(
+            data: (exercise) => Text(exercise.title),
+            loading: () => const Text('Loading...'),
+            error: (_, _) => const Text('Practice'),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => _showExitConfirmation(context, drillState),
+            ),
+          ],
         ),
-      ),
-      body: exerciseAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
-        data: (exercise) {
-          if (_isComplete) {
-            return _buildCompleteSummary(context);
-          }
-          return _buildPracticeBody(context);
-        },
+        body: exerciseAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(child: Text('Error: $error')),
+          data: (exercise) {
+            if (!_started) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (drillState.phase == DrillPhase.complete) {
+              return _buildCompleteSummary(context, drillState);
+            }
+            return _buildPracticeBody(context, drillState);
+          },
+        ),
+        bottomNavigationBar: _buildBottomBar(context, drillState),
       ),
     );
   }
 
-  Widget _buildPracticeBody(BuildContext context) {
+  Widget _buildPracticeBody(
+    BuildContext context,
+    DrillSessionState drillState,
+  ) {
     final theme = Theme.of(context);
+    final question = drillState.currentQuestion;
+    final progress = drillState.progress;
+    final ctrl = _controller;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Progress bar
           LinearProgressIndicator(
-            value: _progress,
+            value: progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
           ),
           const SizedBox(height: 8),
           Text(
-            'Question ${_currentQuestion + 1} of $_totalQuestions',
+            'Question ${drillState.currentQuestionIndex + 1} of ${drillState.totalQuestions}',
             style: theme.textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
 
-          // Prompt card
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'Identify the chord or interval',
+                question?.promptText ?? 'Loading...',
                 style: theme.textTheme.headlineMedium,
                 textAlign: TextAlign.center,
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-          // Answer area
-          if (_showAnswer) ...[
-            Card(
-              color: theme.colorScheme.secondaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Text(
-                      'Answer',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'C Major 7',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'How did you do?',
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
+          if (question?.audioData != null) ...[
+            AudioPlayButton(
+              audioData: question!.audioData!,
+              audioService: ref.watch(audioServiceProvider),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _markAnswer(false),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Incorrect'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: theme.colorScheme.error,
-                      side: BorderSide(color: theme.colorScheme.error),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () => _markAnswer(true),
-                    icon: const Icon(Icons.check),
-                    label: const Text('Correct'),
-                  ),
-                ),
-              ],
-            ),
           ],
 
-          const Spacer(),
-
-          // Show answer button
-          if (!_showAnswer)
-            FilledButton.tonal(
-              onPressed: _revealAnswer,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(56),
-              ),
-              child: const Text('Show Answer'),
+          if (ctrl != null)
+            AnswerInputArea(
+              controller: ctrl,
+              nextReviewText: _formatNextReview(drillState.lastItemDue),
+              feedbackExtra: question?.notationData != null
+                  ? SimpleSheetMusicAdapter(
+                      data: question!.notationData!,
+                      height: 120,
+                    )
+                  : null,
             ),
         ],
       ),
     );
   }
 
-  Widget _buildCompleteSummary(BuildContext context) {
+  Widget? _buildBottomBar(BuildContext context, DrillSessionState drillState) {
+    if (!_started || drillState.phase == DrillPhase.complete) return null;
+
+    final ctrl = _controller;
+    if (ctrl == null) return null;
+
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (context, _) {
+        if (ctrl.phase != AnswerPhase.feedback) return const SizedBox.shrink();
+
+        // Wrong answers auto-advance with "Again" after a delay — no rating needed.
+        if (ctrl.result == false) return const SizedBox.shrink();
+
+        return AnswerActionBar(
+          child: RatingButtons(
+            onRate: _rateAndAdvance,
+            sublabelBuilder: _ratingSublabel,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showExitConfirmation(
+    BuildContext context,
+    DrillSessionState drillState,
+  ) async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('End practice session?'),
+        content: Text(
+          'You have completed ${drillState.currentQuestionIndex} of '
+          '${drillState.totalQuestions} questions.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Continue'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('End Session'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldExit == true && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _learnMore() {
+    _controller?.dispose();
+    _controller = null;
+    setState(() {
+      _started = false;
+      _currentItemState = null;
+    });
+    _startPractice(ignoreNewCardLimit: true);
+  }
+
+  Widget _buildCompleteSummary(
+    BuildContext context,
+    DrillSessionState drillState,
+  ) {
     final theme = Theme.of(context);
-    final score =
-        _totalQuestions > 0
-            ? ((_correctCount / _totalQuestions) * 100).round()
-            : 0;
+    final isEmpty = drillState.totalQuestions == 0;
 
     return Center(
       child: Padding(
@@ -186,28 +360,41 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.emoji_events,
+              isEmpty ? Icons.check_circle : Icons.emoji_events,
               size: 80,
-              color: theme.colorScheme.secondary,
+              color: isEmpty ? Colors.green : theme.colorScheme.secondary,
             ),
             const SizedBox(height: 24),
-            Text('Practice Complete!', style: theme.textTheme.headlineLarge),
+            Text(
+              isEmpty ? 'All caught up!' : 'Practice Complete!',
+              style: theme.textTheme.headlineLarge,
+            ),
             const SizedBox(height: 16),
             Text(
-              '$_correctCount / $_totalQuestions correct',
+              isEmpty
+                  ? 'No cards to review or learn right now.'
+                  : '${drillState.correctCount} / ${drillState.totalQuestions} correct',
               style: theme.textTheme.headlineSmall,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Score: $score%',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.secondary,
+            if (!isEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Score: ${drillState.score}%',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.secondary,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 32),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Done'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _learnMore,
+              icon: const Icon(Icons.add),
+              label: const Text('Learn More'),
             ),
           ],
         ),

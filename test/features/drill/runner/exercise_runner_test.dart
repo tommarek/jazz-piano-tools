@@ -19,6 +19,17 @@ class MockQuestionGenerator implements QuestionGenerator {
   List<ExerciseQuestion> generate(Exercise exercise, {int count = 10}) {
     return fixedQuestions.take(count).toList();
   }
+
+  @override
+  List<String> allItemIds(Exercise exercise) => [];
+
+  @override
+  List<ExerciseQuestion> generateForItems(
+      Exercise exercise, List<String> itemIds) => [];
+
+  @override
+  Map<String, List<String>> itemGroups(Exercise exercise) =>
+      {'All': allItemIds(exercise)};
 }
 
 // ---------------------------------------------------------------------------
@@ -44,7 +55,7 @@ void main() {
     exercise = const Exercise(
       id: 'ex-1',
       title: 'Name That Note',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.text,
       generatorId: 'mock',
     );

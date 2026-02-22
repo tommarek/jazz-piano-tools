@@ -15,7 +15,7 @@ void main() {
     final exercise = Exercise(
       id: 'test-cof-next',
       title: 'Circle of Fourths',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.multipleChoice,
       generatorId: 'circleOfFourths',
       config: {'subMode': 'nextKey'},
@@ -73,7 +73,7 @@ void main() {
       final defaultExercise = Exercise(
         id: 'test-cof-default',
         title: 'Circle of Fourths',
-        mode: ExerciseMode.drill,
+        mode: ExerciseMode.test,
         inputType: InputType.multipleChoice,
         generatorId: 'circleOfFourths',
       );
@@ -86,11 +86,45 @@ void main() {
     });
   });
 
+  group('CircleOfFourthsGenerator - itemGroups', () {
+    test('nextKey mode has single "All" group with 12 items', () {
+      final exercise = Exercise(
+        id: 'test-cof-next',
+        title: 'Circle of Fourths',
+        mode: ExerciseMode.test,
+        inputType: InputType.multipleChoice,
+        generatorId: 'circleOfFourths',
+        config: {'subMode': 'nextKey'},
+      );
+
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 1);
+      expect(groups.keys.first, 'All');
+      expect(groups['All']!.length, 12);
+    });
+
+    test('playChord mode has single "All" group with 12 items', () {
+      final exercise = Exercise(
+        id: 'test-cof-play',
+        title: 'Circle of Fourths Play',
+        mode: ExerciseMode.test,
+        inputType: InputType.piano,
+        generatorId: 'circleOfFourths',
+        config: {'subMode': 'playChord', 'chordQuality': 'Major'},
+      );
+
+      final groups = generator.itemGroups(exercise);
+      expect(groups.length, 1);
+      expect(groups.keys.first, 'All');
+      expect(groups['All']!.length, 12);
+    });
+  });
+
   group('CircleOfFourthsGenerator - playChord mode', () {
     final exercise = Exercise(
       id: 'test-cof-play',
       title: 'Circle of Fourths Play',
-      mode: ExerciseMode.drill,
+      mode: ExerciseMode.test,
       inputType: InputType.piano,
       generatorId: 'circleOfFourths',
       config: {'subMode': 'playChord', 'chordQuality': 'Major'},

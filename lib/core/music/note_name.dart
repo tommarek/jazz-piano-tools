@@ -30,8 +30,10 @@ class NoteName {
       switch (upper[i]) {
         case '#':
           offset++;
+          break;
         case 'B':
           offset--;
+          break;
         default:
           throw ArgumentError('Invalid accidental: ${upper[i]}');
       }
@@ -42,4 +44,27 @@ class NoteName {
 
   static String toSharp(PitchClass pc) => sharpNames[pc.value];
   static String toFlat(PitchClass pc) => flatNames[pc.value];
+
+  /// Pitch classes whose key signatures use flats: Db, Eb, F, Gb, Ab, Bb.
+  static const _flatRoots = {1, 3, 5, 6, 8, 10};
+
+  /// Returns a namer appropriate for the given root's key signature.
+  ///
+  /// Flat-key roots (Db, Eb, F, Ab, Bb) use [toFlat]; all others use [toSharp].
+  static String Function(PitchClass) namerForRoot(PitchClass root) {
+    return _flatRoots.contains(root.value) ? toFlat : toSharp;
+  }
+
+  /// Returns a note naming function for the given style.
+  ///
+  /// - `'sharp'` -> [toSharp]
+  /// - `'flat'` -> [toFlat]
+  /// - `'auto'` or `null` -> returns `null` (caller should use [namerForRoot])
+  static String Function(PitchClass)? namerForStyle(String? style) {
+    return switch (style) {
+      'sharp' => toSharp,
+      'flat' => toFlat,
+      _ => null,
+    };
+  }
 }

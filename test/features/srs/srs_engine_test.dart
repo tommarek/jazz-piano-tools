@@ -29,7 +29,7 @@ void main() {
       ));
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card$i',
-        due: DateTime.now().subtract(const Duration(hours: 1)),
+        due: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
         stability: 0.0,
         difficulty: 0.0,
         interval: 0,
@@ -53,7 +53,7 @@ void main() {
     test('recordReview updates card state in DB', () async {
       final newState = await engine.recordReview('card1', 2, 2000);
       expect(newState.state, isNot('new'));
-      expect(newState.due.isAfter(DateTime.now()), isTrue);
+      expect(newState.due.isAfter(DateTime.now().toUtc()), isTrue);
 
       // Check that review was inserted
       final reviews = await db.reviewsDao.getReviewsForCard('card1');
@@ -71,7 +71,7 @@ void main() {
     test('after review with again, card stays due or very soon', () async {
       final newState = await engine.recordReview('card1', 0, 1000);
       // Card should still be due soon (within a day)
-      final diff = newState.due.difference(DateTime.now());
+      final diff = newState.due.difference(DateTime.now().toUtc());
       expect(diff.inDays, lessThan(1));
     });
   });

@@ -12,6 +12,11 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
 
   Future<List<Card>> getAllCards() => select(cards).get();
 
+  Future<Card?> getCardById(String cardId) {
+    return (select(cards)..where((c) => c.id.equals(cardId)))
+        .getSingleOrNull();
+  }
+
   Future<List<Card>> getCardsByDeck(String deckId) {
     return (select(cards)..where((c) => c.deckId.equals(deckId))).get();
   }
@@ -35,5 +40,58 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   Future<CardState?> getCardState(String cardId) {
     return (select(cardStates)..where((s) => s.cardId.equals(cardId)))
         .getSingleOrNull();
+  }
+
+  Future<int> getCardCountForDeck(String deckId) async {
+    final count = cards.id.count();
+    final query = selectOnly(cards)..addColumns([count]);
+    query.where(cards.deckId.equals(deckId));
+    final result = await query.getSingle();
+    return result.read(count)!;
+  }
+
+  Future<List<Card>> getDueCardsForDeck(String deckId, DateTime now) {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(cards.deckId.equals(deckId) &
+          cardStates.due.isSmallerOrEqualValue(now));
+    return query.map((row) => row.readTable(cards)).get();
+  }
+
+  Future<List<Card>> getNewCardsForDeck(String deckId) {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(cards.deckId.equals(deckId) &
+          cardStates.state.equals('new'));
+    return query.map((row) => row.readTable(cards)).get();
+  }
+
+  Future<List<Card>> getDueCardsForDecks(
+      List<String> deckIds, DateTime now) {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(cards.deckId.isIn(deckIds) &
+          cardStates.due.isSmallerOrEqualValue(now));
+    return query.map((row) => row.readTable(cards)).get();
+  }
+
+  Future<List<Card>> getNewCardsForDecks(List<String> deckIds) {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(cards.deckId.isIn(deckIds) &
+          cardStates.state.equals('new'));
+    return query.map((row) => row.readTable(cards)).get();
+  }
+
+  Future<List<Card>> getRandomCardsForDecks(
+      List<String> deckIds, int count) async {
+    final allCards =
+        await (select(cards)..where((c) => c.deckId.isIn(deckIds))).get();
+    allCards.shuffle();
+    return allCards.take(count).toList();
   }
 }

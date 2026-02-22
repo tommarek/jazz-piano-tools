@@ -67,7 +67,7 @@ void main() {
       ));
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card1',
-        due: DateTime.now().subtract(const Duration(hours: 1)),
+        due: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
         stability: 0.0,
         difficulty: 0.0,
         interval: 0,
@@ -76,7 +76,7 @@ void main() {
         state: 'new',
       ));
 
-      final dueCards = await db.cardsDao.getDueCards(DateTime.now());
+      final dueCards = await db.cardsDao.getDueCards(DateTime.now().toUtc());
       expect(dueCards.length, 1);
       expect(dueCards.first.id, 'card1');
     });
@@ -97,7 +97,7 @@ void main() {
       ));
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card1',
-        due: DateTime.now().add(const Duration(days: 7)),
+        due: DateTime.now().toUtc().add(const Duration(days: 7)),
         stability: 5.0,
         difficulty: 3.0,
         interval: 7,
@@ -106,7 +106,7 @@ void main() {
         state: 'review',
       ));
 
-      final dueCards = await db.cardsDao.getDueCards(DateTime.now());
+      final dueCards = await db.cardsDao.getDueCards(DateTime.now().toUtc());
       expect(dueCards, isEmpty);
     });
 
@@ -127,7 +127,7 @@ void main() {
 
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card1',
-        due: DateTime.now(),
+        due: DateTime.now().toUtc(),
         stability: 0.0,
         difficulty: 0.0,
         interval: 0,
@@ -138,7 +138,7 @@ void main() {
 
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card1',
-        due: DateTime.now().add(const Duration(days: 3)),
+        due: DateTime.now().toUtc().add(const Duration(days: 3)),
         stability: 5.0,
         difficulty: 4.0,
         interval: 3,
