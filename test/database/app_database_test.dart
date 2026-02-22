@@ -73,7 +73,7 @@ void main() {
         interval: 0,
         lapses: 0,
         reps: 0,
-        state: 'new',
+        state: 'review',
       ));
 
       final dueCards = await db.cardsDao.getDueCards(DateTime.now().toUtc());

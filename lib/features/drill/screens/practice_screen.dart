@@ -11,9 +11,13 @@ import '../../../core/answer_input/rating_buttons.dart';
 import '../../../core/audio/audio_provider.dart';
 import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../../../domain/models/srs_card_state.dart';
+import '../../library/providers/library_provider.dart';
 import '../../srs/providers/srs_provider.dart';
 import '../providers/drill_provider.dart';
+import 'drill_screen.dart';
+import 'learn_screen.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/session_app_bar_title.dart';
 
 class PracticeScreen extends ConsumerStatefulWidget {
   final String exerciseId;
@@ -151,6 +155,10 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   }
 
   void _rateAndAdvance(int rating) async {
+    if (rating == 0) {
+      await _rateAndAdvanceWithDelay(rating);
+      return;
+    }
     await ref
         .read(drillSessionProvider(widget.exerciseId).notifier)
         .submitAnswer(correct: rating > 0, rating: rating);
@@ -158,9 +166,22 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     setState(() {
       _currentItemState = null;
     });
-    ref
+    ref.read(drillSessionProvider(widget.exerciseId).notifier).nextQuestion();
+    _loadItemState();
+    _createController();
+  }
+
+  Future<void> _rateAndAdvanceWithDelay(int rating) async {
+    await ref
         .read(drillSessionProvider(widget.exerciseId).notifier)
-        .nextQuestion();
+        .submitAnswer(correct: false, rating: rating);
+    if (!mounted) return;
+    setState(() {
+      _currentItemState = null;
+    });
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    ref.read(drillSessionProvider(widget.exerciseId).notifier).nextQuestion();
     _loadItemState();
     _createController();
   }
@@ -181,6 +202,17 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   Widget build(BuildContext context) {
     final exerciseAsync = ref.watch(exerciseByIdProvider(widget.exerciseId));
     final drillState = ref.watch(drillSessionProvider(widget.exerciseId));
+    final countsAsync = ref.watch(exerciseCountsProvider(widget.exerciseId));
+
+    ref.listen<DrillSessionState>(
+      drillSessionProvider(widget.exerciseId),
+      (previous, next) {
+        if (previous?.phase != DrillPhase.complete &&
+            next.phase == DrillPhase.complete) {
+          ref.invalidate(exerciseCountsProvider(widget.exerciseId));
+        }
+      },
+    );
 
     return PopScope(
       canPop: !_started || drillState.phase == DrillPhase.complete,
@@ -190,10 +222,12 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: exerciseAsync.when(
-            data: (exercise) => Text(exercise.title),
-            loading: () => const Text('Loading...'),
-            error: (_, _) => const Text('Practice'),
+          title: SessionAppBarTitle(
+            title: exerciseAsync.valueOrNull?.title ?? 'Practice',
+            subtitleParts: [
+              widget.learnedOnly ? 'Practice Learned' : 'Review',
+              '${drillState.currentQuestionIndex + 1}/${drillState.totalQuestions}',
+            ],
           ),
           actions: [
             IconButton(
@@ -210,7 +244,11 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (drillState.phase == DrillPhase.complete) {
-              return _buildCompleteSummary(context, drillState);
+              return _buildCompleteSummary(
+                context,
+                drillState,
+                countsAsync.valueOrNull,
+              );
             }
             return _buildPracticeBody(context, drillState);
           },
@@ -237,12 +275,6 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           LinearProgressIndicator(
             value: progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Question ${drillState.currentQuestionIndex + 1} of ${drillState.totalQuestions}',
-            style: theme.textTheme.bodySmall,
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
 
@@ -337,21 +369,53 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   }
 
   void _learnMore() {
+    _restartPractice(ignoreNewCardLimit: true);
+  }
+
+  void _restartPractice({bool ignoreNewCardLimit = false}) {
     _controller?.dispose();
     _controller = null;
     setState(() {
       _started = false;
       _currentItemState = null;
     });
-    _startPractice(ignoreNewCardLimit: true);
+    _startPractice(
+      ignoreNewCardLimit: ignoreNewCardLimit,
+      newCardCount: widget.newCardCount,
+    );
+  }
+
+  void _startDrill() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (_) => DrillScreen(
+          exerciseId: widget.exerciseId,
+          selectedGroups: widget.selectedGroups,
+        ),
+      ),
+    );
+  }
+
+  void _startLearn() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (_) => ExerciseLearnScreen(
+          exerciseId: widget.exerciseId,
+          selectedGroups: widget.selectedGroups,
+        ),
+      ),
+    );
   }
 
   Widget _buildCompleteSummary(
     BuildContext context,
     DrillSessionState drillState,
+    ExerciseCounts? counts,
   ) {
     final theme = Theme.of(context);
     final isEmpty = drillState.totalQuestions == 0;
+    final canReviewAgain = counts != null &&
+        (counts.reviewCount > 0 || counts.newCount > 0);
 
     return Center(
       child: Padding(
@@ -391,11 +455,33 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
               child: const Text('Done'),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _learnMore,
-              icon: const Icon(Icons.add),
-              label: const Text('Learn More'),
-            ),
+            if (canReviewAgain) ...[
+              OutlinedButton.icon(
+                onPressed: _restartPractice,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Review Again'),
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _startDrill,
+                      icon: const Icon(Icons.timer),
+                      label: const Text('Drill'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _startLearn,
+                      icon: const Icon(Icons.school),
+                      label: const Text('Learn'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

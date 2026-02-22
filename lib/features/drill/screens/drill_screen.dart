@@ -14,18 +14,21 @@ import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../../../core/widgets/piano_input/flutter_piano_pro_adapter.dart';
 import '../providers/drill_provider.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/session_app_bar_title.dart';
 
 class DrillScreen extends ConsumerStatefulWidget {
   final String exerciseId;
   final Set<String>? selectedGroups;
   final int questionCount;
   final bool hardOnly;
+  final int? timeLimitSeconds;
 
   const DrillScreen({
     required this.exerciseId,
     this.selectedGroups,
     this.questionCount = 10,
     this.hardOnly = false,
+    this.timeLimitSeconds,
     super.key,
   });
 
@@ -53,7 +56,8 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     final settings = await db.settingsDao.getSettings();
     final exercise =
         await ref.read(exerciseByIdProvider(widget.exerciseId).future);
-    final timeLimit = settings?.drillTimeLimitSeconds ?? 120;
+    final timeLimit =
+        widget.timeLimitSeconds ?? (settings?.drillTimeLimitSeconds ?? 120);
 
     if (widget.hardOnly) {
       await ref
@@ -152,13 +156,18 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
     final drillState = ref.watch(drillSessionProvider(widget.exerciseId));
     final theme = Theme.of(context);
 
+    final exerciseTitle = exerciseAsync.valueOrNull?.title;
+    final modeLabel = widget.hardOnly ? 'Drill Hard' : 'Speed Test';
+
     return Scaffold(
       appBar: AppBar(
-        title: exerciseAsync.when(
-          data: (exercise) => Text(
-              widget.hardOnly ? 'Drill Hard' : exercise.title),
-          loading: () => const Text('Loading...'),
-          error: (_, _) => Text(widget.hardOnly ? 'Drill Hard' : 'Drill'),
+        title: SessionAppBarTitle(
+          title: exerciseTitle ?? modeLabel,
+          subtitleParts: [
+            if (exerciseTitle != null) modeLabel,
+            '${drillState.currentQuestionIndex + 1}/${drillState.totalQuestions}',
+            'Score ${drillState.score}%',
+          ],
         ),
         actions: [
           Padding(
@@ -206,25 +215,6 @@ class _DrillScreenState extends ConsumerState<DrillScreen> {
           LinearProgressIndicator(
             value: drillState.progress,
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Question ${drillState.currentQuestionIndex + 1} of ${drillState.totalQuestions}',
-            style: theme.textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.stars, color: theme.colorScheme.secondary),
-              const SizedBox(width: 8),
-              Text(
-                'Score: ${drillState.score}%',
-                style: theme.textTheme.titleMedium,
-              ),
-            ],
           ),
           const SizedBox(height: 24),
 

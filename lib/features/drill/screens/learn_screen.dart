@@ -8,6 +8,7 @@ import '../../../core/audio/audio_provider.dart';
 import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../providers/drill_provider.dart';
 import '../widgets/audio_play_button.dart';
+import '../widgets/session_app_bar_title.dart';
 
 /// Learn mode screen — flashcard-style, no scoring.
 class ExerciseLearnScreen extends ConsumerStatefulWidget {
@@ -82,6 +83,7 @@ class _ExerciseLearnScreenState extends ConsumerState<ExerciseLearnScreen> {
 
   void _revealAnswer() {
     _controller?.revealAnswer();
+    setState(() {});
   }
 
   void _studyAgain() {
@@ -149,7 +151,12 @@ class _ExerciseLearnScreenState extends ConsumerState<ExerciseLearnScreen> {
       child: Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Learn'),
+        title: SessionAppBarTitle(
+          title: 'Learn',
+          subtitleParts: [
+            '${drillState.currentQuestionIndex + 1}/${drillState.totalQuestions}',
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -198,12 +205,6 @@ class _ExerciseLearnScreenState extends ConsumerState<ExerciseLearnScreen> {
                 value: drillState.progress,
                 backgroundColor: theme.colorScheme.surfaceContainerHighest,
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${drillState.currentQuestionIndex + 1} of ${drillState.totalQuestions}',
-                style: theme.textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
             ],
           ),
         ),
@@ -234,15 +235,6 @@ class _ExerciseLearnScreenState extends ConsumerState<ExerciseLearnScreen> {
                         AudioPlayButton(
                           audioData: question!.audioData!,
                           audioService: ref.watch(audioServiceProvider),
-                        ),
-                      ],
-
-                      // For non-MCQ: show notation as part of prompt
-                      if (!isMcqMode && question?.notationData != null && !isAnswerShown) ...[
-                        const SizedBox(height: 16),
-                        SimpleSheetMusicAdapter(
-                          data: question!.notationData!,
-                          height: 120,
                         ),
                       ],
 

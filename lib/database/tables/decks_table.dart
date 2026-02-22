@@ -7,6 +7,7 @@ class Decks extends Table {
   TextColumn get title => text()();
   TextColumn get tags => text().map(const JsonListConverter())();
   TextColumn get sourceConceptId => text().nullable()();
+  TextColumn get parentId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

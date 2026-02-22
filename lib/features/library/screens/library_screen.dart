@@ -159,7 +159,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       case ConceptItem(:final concept):
         context.push('/learn/concept/${concept.id}');
       case ExerciseItem(:final exercise):
-        context.push('/exercise-setup/${exercise.id}');
+        context.push('/session-builder/${exercise.id}');
       case DeckItem():
         // Deck detail screen not yet implemented
         ScaffoldMessenger.of(context).showSnackBar(

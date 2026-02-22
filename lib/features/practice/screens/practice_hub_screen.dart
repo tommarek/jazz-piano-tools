@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../content/providers/content_providers.dart';
 import '../../../domain/models/exercise.dart';
@@ -47,14 +48,7 @@ class PracticeHubScreen extends ConsumerWidget {
           clipBehavior: Clip.antiAlias,
           margin: const EdgeInsets.only(bottom: 8),
           child: InkWell(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Practice sessions coming soon'),
-                  duration: Duration(seconds: 1),
-                ),
-              );
-            },
+            onTap: () => context.push('/session-builder/${exercise.id}'),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(

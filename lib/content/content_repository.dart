@@ -10,7 +10,7 @@ class ContentRepository {
   final ContentLoader _loader;
 
   /// Bump this when exercise/content JSON changes to trigger re-seed.
-  static const int currentContentVersion = 3;
+  static const int currentContentVersion = 7;
 
   ContentRepository(this._db, this._loader);
 
@@ -61,6 +61,7 @@ class ContentRepository {
     // foreign keys into content. Without this, re-inserting content with
     // the same IDs causes UNIQUE constraint failures.
     await _db.transaction(() async {
+      await _db.delete(_db.reviews).go();
       await _db.delete(_db.questionResults).go();
       await _db.delete(_db.exerciseAttempts).go();
       await _db.delete(_db.itemSchedules).go();
@@ -125,6 +126,7 @@ class ContentRepository {
             title: d.title,
             tags: d.tags,
             sourceConceptId: Value(d.sourceConceptId),
+            parentId: Value(d.parentId),
           ),
         );
       }
@@ -185,6 +187,50 @@ class ContentRepository {
           ),
         );
       }
+    });
+  }
+
+  Future<void> resetProgress() async {
+    final now = DateTime.now().toUtc();
+    await _db.transaction(() async {
+      await _db.delete(_db.reviews).go();
+      await _db.delete(_db.questionResults).go();
+      await _db.delete(_db.exerciseAttempts).go();
+      await _db.delete(_db.itemSchedules).go();
+      await _db.delete(_db.cardStates).go();
+      await _db.delete(_db.tierProgress).go();
+
+      final cards = await _db.cardsDao.getAllCards();
+      final tiers = await _db.progressionDao.getAllTiers();
+
+      await _db.batch((batch) {
+        for (final card in cards) {
+          batch.insert(
+            _db.cardStates,
+            CardStatesCompanion.insert(
+              cardId: card.id,
+              due: now,
+              stability: 0.0,
+              difficulty: 0.0,
+              interval: 0,
+              lapses: 0,
+              reps: 0,
+              state: 'new',
+              lastReview: const Value(null),
+              step: const Value(null),
+            ),
+          );
+        }
+        for (final tier in tiers) {
+          batch.insert(
+            _db.tierProgress,
+            TierProgressCompanion(
+              tierId: Value(tier.id),
+              isUnlocked: Value(tier.tierNumber == 1),
+            ),
+          );
+        }
+      });
     });
   }
 }

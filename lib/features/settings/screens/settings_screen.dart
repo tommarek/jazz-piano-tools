@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../content/providers/content_providers.dart';
 import '../../../database/app_database.dart';
+import '../../learn/providers/deck_review_provider.dart';
+import '../../library/providers/library_provider.dart';
+import '../../progression/providers/progression_provider.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../today/providers/today_session_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +21,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Setting? _settings;
   bool _loading = true;
+  bool _resetting = false;
 
   @override
   void initState() {
@@ -112,6 +118,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => _showNewCardsPerDayPicker(),
                 ),
                 ListTile(
+                  title: const Text('Deck drill count'),
+                  subtitle: const Text('Default number of cards for drills'),
+                  trailing: Text(
+                    '${_settings?.deckDrillCount ?? 10}',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showDeckDrillCountPicker(),
+                ),
+                ListTile(
+                  title: const Text('Deck drill hardness'),
+                  subtitle: const Text('How strict “Hard” drill selection is'),
+                  trailing: Text(
+                    _hardnessLabel(
+                        _settings?.deckHardnessLevel ?? 'medium'),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showDeckHardnessPicker(),
+                ),
+                ListTile(
                   title: const Text('SRS retention target'),
                   subtitle:
                       const Text('Target recall rate for spaced repetition'),
@@ -128,6 +153,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showTimeLimitPicker(),
+                ),
+                const Divider(),
+                const _SectionHeader(title: 'Data'),
+                ListTile(
+                  title: Text(
+                    'Reset progress',
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                  subtitle: const Text(
+                    'Clears review history, schedules, and tier progress',
+                  ),
+                  trailing: _resetting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                  onTap: _resetting ? null : _confirmResetProgress,
                 ),
               ],
             ),
@@ -199,6 +243,69 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  String _hardnessLabel(String value) {
+    return switch (value) {
+      'strict' => 'Strict',
+      'wide' => 'Wide',
+      _ => 'Medium',
+    };
+  }
+
+  void _showDeckHardnessPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final level in ['strict', 'medium', 'wide'])
+              ListTile(
+                title: Text(_hardnessLabel(level)),
+                trailing:
+                    (_settings?.deckHardnessLevel ?? 'medium') == level
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(
+                      deckHardnessLevel: Value(level),
+                    ),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeckDrillCountPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final count in [5, 10, 15, 20, 30])
+              ListTile(
+                title: Text('$count cards'),
+                trailing: (_settings?.deckDrillCount ?? 10) == count
+                    ? const Icon(Icons.check)
+                    : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(deckDrillCount: Value(count)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _answerInputLabel(String mode) {
     return switch (mode) {
       'keyboard' => 'Piano keyboard',
@@ -241,7 +348,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final count in [3, 5, 10, 15, 20])
+            for (final count in [3, 5, 10, 15, 20, 25, 30, 40, 50])
               ListTile(
                 title: Text('$count new cards'),
                 trailing:
@@ -286,6 +393,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmResetProgress() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset progress?'),
+        content: const Text(
+          'This clears all review history, schedules, and progression stats. '
+          'Your decks and content stay intact.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    setState(() => _resetting = true);
+    try {
+      await ref.read(contentRepositoryProvider).resetProgress();
+      ref.invalidate(exerciseCountsProvider);
+      ref.invalidate(exerciseGroupCountsProvider);
+      ref.invalidate(deckTreeStatsProvider);
+      ref.invalidate(tiersByTopicProvider);
+      ref.invalidate(todaySessionProvider);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Progress reset.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _resetting = false);
+      }
+    }
   }
 }
 

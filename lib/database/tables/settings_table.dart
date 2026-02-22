@@ -30,6 +30,27 @@ class Settings extends Table {
   RealColumn get srsDesiredRetention =>
       real().withDefault(const Constant(0.9))();
 
+  /// Quick start usage count.
+  IntColumn get quickStartCount =>
+      integer().withDefault(const Constant(0))();
+
+  /// Last quick start timestamp (milliseconds since epoch).
+  IntColumn get lastQuickStartAt => integer().nullable()();
+
+  /// Last used template key (builtin or custom id).
+  TextColumn get lastTemplateKey => text().nullable()();
+
+  /// Last template usage timestamp (milliseconds since epoch).
+  IntColumn get lastTemplateUsedAt => integer().nullable()();
+
+  /// Default card count for deck drill sessions.
+  IntColumn get deckDrillCount =>
+      integer().withDefault(const Constant(10))();
+
+  /// Hardness level for deck drill (strict, medium, wide).
+  TextColumn get deckHardnessLevel =>
+      text().withDefault(const Constant('medium'))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

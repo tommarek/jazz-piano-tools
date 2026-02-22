@@ -22,18 +22,18 @@ class FlutterPianoProAdapter extends PianoInputWidget {
 }
 
 class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
-  final Set<PitchClass> _activeNotes = {};
+  final Set<int> _activeMidis = {};
 
-  /// Maps pointer IDs to the PitchClass they are currently pressing,
+  /// Maps pointer IDs to the MIDI note number they are currently pressing,
   /// so we can correctly remove notes on pointer-up.
-  final Map<int, PitchClass> _pointerNotes = {};
+  final Map<int, int> _pointerNotes = {};
 
   @override
   void didUpdateWidget(FlutterPianoProAdapter oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Clear toggle state when the question changes (new callback identity).
     if (widget.onNotesChanged != oldWidget.onNotesChanged) {
-      _activeNotes.clear();
+      _activeMidis.clear();
       _pointerNotes.clear();
     }
   }
@@ -43,9 +43,9 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
   }
 
   Map<int, Color>? _buildButtonColors() {
-    if (widget.highlightedNotes.isEmpty && _activeNotes.isEmpty) return null;
-
     final colors = <int, Color>{};
+    final whiteBase = const Color(0xFFF7F7F7);
+    final blackBase = const Color(0xFF1E1E1E);
 
     // Highlight notes across all visible octaves.
     final totalWhiteKeys = widget.octaveCount * 7;
@@ -62,7 +62,8 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
       final midi = whiteNote.midiNoteNumber;
       final pc = PitchClass(midi % 12);
 
-      if (_activeNotes.contains(pc)) {
+      colors[midi] = whiteBase;
+      if (_activeMidis.contains(midi)) {
         colors[midi] = Colors.blue.shade300;
       } else if (widget.highlightedNotes.contains(pc)) {
         colors[midi] = Colors.amber.shade200;
@@ -81,7 +82,8 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
         final blackMidi = blackNote.midiNoteNumber;
         final blackPc = PitchClass(blackMidi % 12);
 
-        if (_activeNotes.contains(blackPc)) {
+        colors[blackMidi] = blackBase;
+        if (_activeMidis.contains(blackMidi)) {
           colors[blackMidi] = Colors.blue.shade300;
         } else if (widget.highlightedNotes.contains(blackPc)) {
           colors[blackMidi] = Colors.amber.shade200;
@@ -89,27 +91,31 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
       }
     }
 
-    return colors.isEmpty ? null : colors;
+    return colors;
   }
 
   void _onTapDown(NoteModel? note, int pointer) {
     if (note == null) return;
+    final midi = note.midiNoteNumber;
     final pc = _noteModelToPitchClass(note);
     setState(() {
-      if (_activeNotes.contains(pc)) {
-        _activeNotes.remove(pc);
+      if (_activeMidis.contains(midi)) {
+        _activeMidis.remove(midi);
       } else {
-        _activeNotes.add(pc);
+        _activeMidis.add(midi);
       }
-      _pointerNotes[pointer] = pc;
+      _pointerNotes[pointer] = midi;
     });
-    widget.onNotesChanged?.call(Set.unmodifiable(_activeNotes));
+    final pcs = _activeMidis
+        .map((m) => PitchClass(m % 12))
+        .toSet();
+    widget.onNotesChanged?.call(Set.unmodifiable(pcs));
   }
 
   void _onTapUpdate(NoteModel? note, int pointer) {
     // No-op for toggle mode — don't change selection on drag
     if (note == null) return;
-    _pointerNotes[pointer] = _noteModelToPitchClass(note);
+    _pointerNotes[pointer] = note.midiNoteNumber;
   }
 
   void _onTapUp(int pointer) {
@@ -119,16 +125,34 @@ class _FlutterPianoProAdapterState extends State<FlutterPianoProAdapter> {
 
   @override
   Widget build(BuildContext context) {
-    return PianoPro(
-      noteCount: widget.octaveCount * 7,
-      firstOctave: widget.startOctave,
-      showNames: true,
-      showOctave: false,
-      expand: true,
-      buttonColors: _buildButtonColors(),
-      onTapDown: _onTapDown,
-      onTapUpdate: _onTapUpdate,
-      onTapUp: _onTapUp,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B2B2B),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: PianoPro(
+          noteCount: widget.octaveCount * 7,
+          firstOctave: widget.startOctave,
+          showNames: true,
+          showOctave: false,
+          expand: true,
+          whiteHeight: 140,
+          blackWidthRatio: 2.0,
+          buttonColors: _buildButtonColors(),
+          onTapDown: _onTapDown,
+          onTapUpdate: _onTapUpdate,
+          onTapUp: _onTapUp,
+        ),
+      ),
     );
   }
 }

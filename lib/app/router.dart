@@ -11,9 +11,9 @@ import '../features/learn/screens/deck_review_screen.dart';
 import '../features/library/screens/library_screen.dart';
 import '../features/practice/screens/practice_hub_screen.dart';
 import '../features/drill/screens/drill_screen.dart';
-import '../features/drill/screens/exercise_setup_screen.dart';
 import '../features/drill/screens/learn_screen.dart';
 import '../features/drill/screens/practice_screen.dart';
+import '../features/drill/screens/session_builder_screen.dart';
 import '../features/progression/screens/progression_screen.dart';
 import '../features/statistics/screens/statistics_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
@@ -92,11 +92,11 @@ GoRouter router(RouterRef ref) {
         builder: (context, state) => const ReviewSessionScreen(),
       ),
       GoRoute(
-        path: '/exercise-setup/:exerciseId',
+        path: '/session-builder/:exerciseId',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
           final exerciseId = state.pathParameters['exerciseId']!;
-          return ExerciseSetupScreen(exerciseId: exerciseId);
+          return SessionBuilderScreen(exerciseId: exerciseId);
         },
       ),
       GoRoute(

@@ -83,6 +83,7 @@ class DrillSession extends _$DrillSession {
       questions: questions,
       attemptId: attemptId,
       exerciseId: exercise.id,
+      repeatDueIncorrect: false,
     );
   }
 
@@ -193,6 +194,7 @@ class DrillSession extends _$DrillSession {
       questions: questions,
       attemptId: attemptId,
       exerciseId: exercise.id,
+      repeatDueIncorrect: true,
     );
 
     return questions.length;
@@ -260,6 +262,7 @@ class DrillSession extends _$DrillSession {
       questions: questions,
       attemptId: attemptId,
       exerciseId: exercise.id,
+      repeatDueIncorrect: false,
     );
 
     return questions.length;
@@ -332,12 +335,20 @@ class DrillSession extends _$DrillSession {
       itemDue = await _recordItemSchedule(question, correct, rating);
     }
 
-    final isLastQuestion = answeredIndex + 1 >= state.totalQuestions;
+    final shouldRepeat =
+        !correct && state.repeatDueIncorrect && question != null;
+    final nextQuestions = shouldRepeat
+        ? [...state.questions, question!]
+        : state.questions;
+    final nextTotal = state.totalQuestions + (shouldRepeat ? 1 : 0);
+    final isLastQuestion = answeredIndex + 1 >= nextTotal;
 
     if (isLastQuestion) {
       await _finalizeAttempt(newCorrect, answeredIndex + 1);
       state = state.copyWith(
         phase: DrillPhase.complete,
+        questions: nextQuestions,
+        totalQuestions: nextTotal,
         correctCount: newCorrect,
         lastAnswerCorrect: correct,
         lastItemDue: itemDue,
@@ -345,6 +356,8 @@ class DrillSession extends _$DrillSession {
     } else {
       state = state.copyWith(
         phase: DrillPhase.feedback,
+        questions: nextQuestions,
+        totalQuestions: nextTotal,
         correctCount: newCorrect,
         lastAnswerCorrect: correct,
         lastItemDue: itemDue,
@@ -503,6 +516,7 @@ class DrillSessionState {
   final List<ExerciseQuestion> questions;
   final String? attemptId;
   final String? exerciseId;
+  final bool repeatDueIncorrect;
 
   const DrillSessionState({
     this.phase = DrillPhase.prompt,
@@ -516,6 +530,7 @@ class DrillSessionState {
     this.questions = const [],
     this.attemptId,
     this.exerciseId,
+    this.repeatDueIncorrect = false,
   });
 
   ExerciseQuestion? get currentQuestion {
@@ -539,6 +554,7 @@ class DrillSessionState {
     List<ExerciseQuestion>? questions,
     String? attemptId,
     String? exerciseId,
+    bool? repeatDueIncorrect,
   }) {
     return DrillSessionState(
       phase: phase ?? this.phase,
@@ -556,6 +572,7 @@ class DrillSessionState {
       questions: questions ?? this.questions,
       attemptId: attemptId ?? this.attemptId,
       exerciseId: exerciseId ?? this.exerciseId,
+      repeatDueIncorrect: repeatDueIncorrect ?? this.repeatDueIncorrect,
     );
   }
 

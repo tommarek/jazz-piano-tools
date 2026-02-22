@@ -19,11 +19,17 @@ class DeckReviewScreen extends ConsumerStatefulWidget {
   final List<String> deckIds;
   final int questionCount;
   final bool isRandom;
+  final int? newCardCount;
+  final List<String>? cardIdsOverride;
+  final String? modeLabel;
 
   const DeckReviewScreen({
     required this.deckIds,
     required this.questionCount,
     this.isRandom = false,
+    this.newCardCount,
+    this.cardIdsOverride,
+    this.modeLabel,
     super.key,
   });
 
@@ -61,6 +67,21 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     final db = ref.read(appDatabaseProvider);
     List<drift.Card> cards;
 
+    if (widget.cardIdsOverride != null) {
+      final ids = widget.cardIdsOverride!;
+      if (ids.isEmpty) {
+        _navigateToSummary();
+        return;
+      }
+      setState(() {
+        _cardIds = ids;
+        _totalCards = ids.length;
+        _isLoading = false;
+      });
+      await _loadCurrentCard();
+      return;
+    }
+
     if (widget.isRandom) {
       cards = await db.cardsDao
           .getRandomCardsForDecks(widget.deckIds, widget.questionCount);
@@ -71,7 +92,8 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       final settings = await db.settingsDao.getSettings();
       final newCardsPerDay = settings?.newCardsPerDay ?? 5;
       final newCards = await db.cardsDao.getNewCardsForDecks(widget.deckIds);
-      final cappedNew = newCards.take(newCardsPerDay).toList();
+      final limit = widget.newCardCount ?? newCardsPerDay;
+      final cappedNew = newCards.take(limit).toList();
       cards = [...dueCards, ...cappedNew]..shuffle();
     }
 
@@ -135,34 +157,69 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   }
 
   Future<void> _rateAndNext(int rating) async {
-    if (!widget.isRandom) {
-      final engine = ref.read(srsEngineProvider);
-      await engine.recordReview(
-        _cardIds[_currentIndex],
-        rating,
-        _stopwatch.elapsedMilliseconds,
-      );
+    if (rating == 0) {
+      // Auto-Again: record and move on after a short pause.
+      await _rateAndNextWithDelay(rating);
+      return;
+    }
+    try {
+      if (!widget.isRandom) {
+        final engine = ref.read(srsEngineProvider);
+        await engine.recordReview(
+          _cardIds[_currentIndex],
+          rating,
+          _stopwatch.elapsedMilliseconds,
+        );
+      }
+    } catch (_) {
+      // Fall through to advance even if SRS write fails.
     }
 
     if (rating >= 2) {
       _correctCount++;
     }
 
+    _advanceToNext();
+  }
+
+  Future<void> _rateAndNextWithDelay(int rating) async {
+    try {
+      if (!widget.isRandom) {
+        final engine = ref.read(srsEngineProvider);
+        await engine.recordReview(
+          _cardIds[_currentIndex],
+          rating,
+          _stopwatch.elapsedMilliseconds,
+        );
+      }
+    } catch (_) {}
+
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+    _advanceToNext();
+  }
+
+  void _advanceToNext() {
     _currentIndex++;
     if (_currentIndex >= _cardIds.length) {
       _navigateToSummary();
     } else {
-      await _loadCurrentCard();
+      _loadCurrentCard();
     }
   }
 
   void _navigateToSummary() {
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         builder: (_) => EndSummaryScreen(
           cardsReviewed: _currentIndex,
           correctCount: _correctCount,
+          onDone: () {
+            final nav = Navigator.of(context, rootNavigator: true);
+            nav.pop();
+            nav.pop();
+          },
         ),
       ),
     );
@@ -184,7 +241,8 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final modeLabel = widget.isRandom ? 'Practice' : 'Review';
+    final modeLabel =
+        widget.modeLabel ?? (widget.isRandom ? 'Drill' : 'Review');
 
     if (_isLoading) {
       return Scaffold(
@@ -195,7 +253,9 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('$modeLabel (${_currentIndex + 1}/$_totalCards)'),
+        title: Text(
+          '$modeLabel (${_currentIndex + 1}/${_cardIds.length - _currentIndex})',
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => _showExitConfirmation(context),
@@ -260,7 +320,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       listenable: ctrl,
       builder: (context, _) {
         // Feedback phase: always show rating buttons
-        if (ctrl.phase == AnswerPhase.feedback) {
+        if (ctrl.phase == AnswerPhase.feedback || ctrl.keyboardSubmitted) {
           return AnswerActionBar(
             child: RatingButtons(
               onRate: _rateAndNext,

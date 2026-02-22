@@ -8,10 +8,12 @@ import '../providers/today_session_provider.dart';
 class EndSummaryScreen extends ConsumerWidget {
   final int cardsReviewed;
   final int correctCount;
+  final VoidCallback? onDone;
 
   const EndSummaryScreen({
     required this.cardsReviewed,
     required this.correctCount,
+    this.onDone,
     super.key,
   });
 
@@ -73,6 +75,10 @@ class EndSummaryScreen extends ConsumerWidget {
               // Done button
               FilledButton(
                 onPressed: () {
+                  if (onDone != null) {
+                    onDone!();
+                    return;
+                  }
                   ref.invalidate(todaySessionProvider);
                   ref.invalidate(dueCardCountProvider);
                   context.go('/today');

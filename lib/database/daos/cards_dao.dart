@@ -29,7 +29,10 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     final query = select(cards).join([
       innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
     ])
-      ..where(cardStates.due.isSmallerOrEqualValue(now));
+      ..where(
+        cardStates.due.isSmallerOrEqualValue(now) &
+            cardStates.state.isNotValue('new'),
+      );
     return query.map((row) => row.readTable(cards)).get();
   }
 
@@ -55,7 +58,8 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
       innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
     ])
       ..where(cards.deckId.equals(deckId) &
-          cardStates.due.isSmallerOrEqualValue(now));
+          cardStates.due.isSmallerOrEqualValue(now) &
+          cardStates.state.isNotValue('new'));
     return query.map((row) => row.readTable(cards)).get();
   }
 
@@ -74,7 +78,8 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
       innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
     ])
       ..where(cards.deckId.isIn(deckIds) &
-          cardStates.due.isSmallerOrEqualValue(now));
+          cardStates.due.isSmallerOrEqualValue(now) &
+          cardStates.state.isNotValue('new'));
     return query.map((row) => row.readTable(cards)).get();
   }
 
@@ -93,5 +98,26 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
         await (select(cards)..where((c) => c.deckId.isIn(deckIds))).get();
     allCards.shuffle();
     return allCards.take(count).toList();
+  }
+
+  Future<List<Card>> getHardCardsForDecks(
+    List<String> deckIds,
+    double stabilityThreshold,
+    int count,
+  ) async {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(
+        cards.deckId.isIn(deckIds) &
+            cardStates.state.isNotValue('new') &
+            cardStates.stability.isSmallerThanValue(stabilityThreshold),
+      )
+      ..orderBy([
+        OrderingTerm(expression: cardStates.stability, mode: OrderingMode.asc),
+      ]);
+
+    final results = await query.map((row) => row.readTable(cards)).get();
+    return results.take(count).toList();
   }
 }

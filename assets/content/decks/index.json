@@ -1,809 +1,4621 @@
 [
   {
-    "id": "intervals-deck",
-    "title": "Intervals",
-    "tags": ["intervals"],
+    "id": "intervals-semitones",
+    "title": "Count Semitones",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic"
+  },
+  {
+    "id": "intervals-function",
+    "title": "Identify by Function",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic"
+  },
+  {
+    "id": "intervals-function-P1",
+    "title": "P1",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
     "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
     "cards": [
       {
-        "id": "intervals-p1",
-        "deckId": "intervals-deck",
+        "id": "intervals-function-P1-C",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of C, what is the P1?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "C",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-P1-Db",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of Db, what is the P1?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Db",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-P1-D",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of D, what is the P1?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "D",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-P1-Eb",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of Eb, what is the P1?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Eb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-P1-E",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of E, what is the P1?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "E",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-P1-F",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of F, what is the P1?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "F",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-P1-Gb",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of Gb, what is the P1?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Gb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-P1-G",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of G, what is the P1?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "G",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-P1-Ab",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of Ab, what is the P1?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Ab",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-P1-A",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of A, what is the P1?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "A",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-P1-Bb",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of Bb, what is the P1?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Bb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-P1-B",
+        "deckId": "intervals-function-P1",
+        "prompt": "In the key of B, what is the P1?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "B",
+          "target": "B"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-m2",
+    "title": "m2",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-m2-C",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of C, what is the m2?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "C",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-m2-Db",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of Db, what is the m2?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Db",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-m2-D",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of D, what is the m2?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "D",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-m2-Eb",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of Eb, what is the m2?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Eb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-m2-E",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of E, what is the m2?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "E",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-m2-F",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of F, what is the m2?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "F",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-m2-Gb",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of Gb, what is the m2?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Gb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-m2-G",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of G, what is the m2?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "G",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-m2-Ab",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of Ab, what is the m2?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Ab",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-m2-A",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of A, what is the m2?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "A",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-m2-Bb",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of Bb, what is the m2?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Bb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-m2-B",
+        "deckId": "intervals-function-m2",
+        "prompt": "In the key of B, what is the m2?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "B",
+          "target": "C"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-M2",
+    "title": "M2",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-M2-C",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of C, what is the M2?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "C",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-M2-Db",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of Db, what is the M2?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Db",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-M2-D",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of D, what is the M2?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "D",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-M2-Eb",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of Eb, what is the M2?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Eb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-M2-E",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of E, what is the M2?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "E",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-M2-F",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of F, what is the M2?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "F",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-M2-Gb",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of Gb, what is the M2?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Gb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-M2-G",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of G, what is the M2?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "G",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-M2-Ab",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of Ab, what is the M2?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Ab",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-M2-A",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of A, what is the M2?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "A",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-M2-Bb",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of Bb, what is the M2?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Bb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-M2-B",
+        "deckId": "intervals-function-M2",
+        "prompt": "In the key of B, what is the M2?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "B",
+          "target": "Db"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-m3",
+    "title": "m3",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-m3-C",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of C, what is the m3?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "C",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-m3-Db",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of Db, what is the m3?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Db",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-m3-D",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of D, what is the m3?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "D",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-m3-Eb",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of Eb, what is the m3?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Eb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-m3-E",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of E, what is the m3?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "E",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-m3-F",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of F, what is the m3?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "F",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-m3-Gb",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of Gb, what is the m3?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Gb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-m3-G",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of G, what is the m3?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "G",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-m3-Ab",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of Ab, what is the m3?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Ab",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-m3-A",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of A, what is the m3?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "A",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-m3-Bb",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of Bb, what is the m3?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Bb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-m3-B",
+        "deckId": "intervals-function-m3",
+        "prompt": "In the key of B, what is the m3?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "B",
+          "target": "D"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-M3",
+    "title": "M3",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-M3-C",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of C, what is the M3?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "C",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-M3-Db",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of Db, what is the M3?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Db",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-M3-D",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of D, what is the M3?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "D",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-M3-Eb",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of Eb, what is the M3?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Eb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-M3-E",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of E, what is the M3?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "E",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-M3-F",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of F, what is the M3?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "F",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-M3-Gb",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of Gb, what is the M3?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Gb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-M3-G",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of G, what is the M3?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "G",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-M3-Ab",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of Ab, what is the M3?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Ab",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-M3-A",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of A, what is the M3?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "A",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-M3-Bb",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of Bb, what is the M3?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Bb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-M3-B",
+        "deckId": "intervals-function-M3",
+        "prompt": "In the key of B, what is the M3?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "B",
+          "target": "Eb"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-P4",
+    "title": "P4",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-P4-C",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of C, what is the P4?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "C",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-P4-Db",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of Db, what is the P4?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Db",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-P4-D",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of D, what is the P4?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "D",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-P4-Eb",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of Eb, what is the P4?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Eb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-P4-E",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of E, what is the P4?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "E",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-P4-F",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of F, what is the P4?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "F",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-P4-Gb",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of Gb, what is the P4?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Gb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-P4-G",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of G, what is the P4?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "G",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-P4-Ab",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of Ab, what is the P4?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Ab",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-P4-A",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of A, what is the P4?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "A",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-P4-Bb",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of Bb, what is the P4?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Bb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-P4-B",
+        "deckId": "intervals-function-P4",
+        "prompt": "In the key of B, what is the P4?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "B",
+          "target": "E"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-TT",
+    "title": "TT",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-TT-C",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of C, what is the TT?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "C",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-TT-Db",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of Db, what is the TT?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Db",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-TT-D",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of D, what is the TT?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "D",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-TT-Eb",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of Eb, what is the TT?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Eb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-TT-E",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of E, what is the TT?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "E",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-TT-F",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of F, what is the TT?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "F",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-TT-Gb",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of Gb, what is the TT?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Gb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-TT-G",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of G, what is the TT?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "G",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-TT-Ab",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of Ab, what is the TT?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Ab",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-TT-A",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of A, what is the TT?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "A",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-TT-Bb",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of Bb, what is the TT?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Bb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-TT-B",
+        "deckId": "intervals-function-TT",
+        "prompt": "In the key of B, what is the TT?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "B",
+          "target": "F"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-P5",
+    "title": "P5",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-P5-C",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of C, what is the P5?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "C",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-P5-Db",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of Db, what is the P5?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Db",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-P5-D",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of D, what is the P5?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "D",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-P5-Eb",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of Eb, what is the P5?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Eb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-P5-E",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of E, what is the P5?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "E",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-P5-F",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of F, what is the P5?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "F",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-P5-Gb",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of Gb, what is the P5?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Gb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-P5-G",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of G, what is the P5?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "G",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-P5-Ab",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of Ab, what is the P5?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Ab",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-P5-A",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of A, what is the P5?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "A",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-P5-Bb",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of Bb, what is the P5?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Bb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-P5-B",
+        "deckId": "intervals-function-P5",
+        "prompt": "In the key of B, what is the P5?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "B",
+          "target": "Gb"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-m6",
+    "title": "m6",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-m6-C",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of C, what is the m6?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "C",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-m6-Db",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of Db, what is the m6?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Db",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-m6-D",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of D, what is the m6?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "D",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-m6-Eb",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of Eb, what is the m6?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Eb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-m6-E",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of E, what is the m6?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "E",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-m6-F",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of F, what is the m6?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "F",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-m6-Gb",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of Gb, what is the m6?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Gb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-m6-G",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of G, what is the m6?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "G",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-m6-Ab",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of Ab, what is the m6?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Ab",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-m6-A",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of A, what is the m6?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "A",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-m6-Bb",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of Bb, what is the m6?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Bb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-m6-B",
+        "deckId": "intervals-function-m6",
+        "prompt": "In the key of B, what is the m6?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "B",
+          "target": "G"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-M6",
+    "title": "M6",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-M6-C",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of C, what is the M6?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "C",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-M6-Db",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of Db, what is the M6?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Db",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-M6-D",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of D, what is the M6?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "D",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-M6-Eb",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of Eb, what is the M6?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Eb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-M6-E",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of E, what is the M6?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "E",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-M6-F",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of F, what is the M6?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "F",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-M6-Gb",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of Gb, what is the M6?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Gb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-M6-G",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of G, what is the M6?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "G",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-M6-Ab",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of Ab, what is the M6?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Ab",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-M6-A",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of A, what is the M6?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "A",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-M6-Bb",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of Bb, what is the M6?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Bb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-M6-B",
+        "deckId": "intervals-function-M6",
+        "prompt": "In the key of B, what is the M6?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "B",
+          "target": "Ab"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-m7",
+    "title": "m7",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-m7-C",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of C, what is the m7?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "C",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-function-m7-Db",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of Db, what is the m7?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Db",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-m7-D",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of D, what is the m7?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "D",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-m7-Eb",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of Eb, what is the m7?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Eb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-m7-E",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of E, what is the m7?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "E",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-m7-F",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of F, what is the m7?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "F",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-m7-Gb",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of Gb, what is the m7?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Gb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-m7-G",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of G, what is the m7?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "G",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-m7-Ab",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of Ab, what is the m7?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Ab",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-m7-A",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of A, what is the m7?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "A",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-m7-Bb",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of Bb, what is the m7?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Bb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-m7-B",
+        "deckId": "intervals-function-m7",
+        "prompt": "In the key of B, what is the m7?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "B",
+          "target": "A"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-function-M7",
+    "title": "M7",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-function",
+    "cards": [
+      {
+        "id": "intervals-function-M7-C",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of C, what is the M7?",
+        "expectedAnswer": "B",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "C",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-function-M7-Db",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of Db, what is the M7?",
+        "expectedAnswer": "C",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Db",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-function-M7-D",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of D, what is the M7?",
+        "expectedAnswer": "Db",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "D",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-function-M7-Eb",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of Eb, what is the M7?",
+        "expectedAnswer": "D",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Eb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-function-M7-E",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of E, what is the M7?",
+        "expectedAnswer": "Eb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "E",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-function-M7-F",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of F, what is the M7?",
+        "expectedAnswer": "E",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "F",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-function-M7-Gb",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of Gb, what is the M7?",
+        "expectedAnswer": "F",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Gb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-function-M7-G",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of G, what is the M7?",
+        "expectedAnswer": "Gb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "G",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-function-M7-Ab",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of Ab, what is the M7?",
+        "expectedAnswer": "G",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Ab",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-function-M7-A",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of A, what is the M7?",
+        "expectedAnswer": "Ab",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "A",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-function-M7-Bb",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of Bb, what is the M7?",
+        "expectedAnswer": "A",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Bb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-function-M7-B",
+        "deckId": "intervals-function-M7",
+        "prompt": "In the key of B, what is the M7?",
+        "expectedAnswer": "Bb",
+        "answerType": "text",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "B",
+          "target": "Bb"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear",
+    "title": "Intervals (Ear Training)",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic"
+  },
+  {
+    "id": "intervals-piano",
+    "title": "Intervals (Piano)",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic"
+  },
+  {
+    "id": "intervals-semitones-P1",
+    "title": "P1",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-P1-semitones",
+        "deckId": "intervals-semitones-P1",
         "prompt": "How many semitones in a perfect unison (P1)?",
         "expectedAnswer": "0",
         "answerType": "text",
-        "metadata": { "interval": "P1", "semitones": 0 }
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-P1",
+    "title": "P1",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-P1",
+        "deckId": "intervals-ear-P1",
+        "prompt": "Identify the interval: P1",
+        "expectedAnswer": "P1",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-P1",
+    "title": "P1",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-P1-C",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above C",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "C",
+          "target": "C"
+        }
       },
       {
-        "id": "intervals-m2",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a minor 2nd?",
+        "id": "intervals-piano-P1-Db",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above Db",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Db",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-D",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above D",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "D",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-Eb",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above Eb",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Eb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-E",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above E",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "E",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-F",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above F",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "F",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-Gb",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above Gb",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Gb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-G",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above G",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "G",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-Ab",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above Ab",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Ab",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-A",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above A",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "A",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-Bb",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above Bb",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "Bb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-P1-B",
+        "deckId": "intervals-piano-P1",
+        "prompt": "Play a P1 above B",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P1",
+          "semitones": 0,
+          "root": "B",
+          "target": "B"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-m2",
+    "title": "m2",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-m2-semitones",
+        "deckId": "intervals-semitones-m2",
+        "prompt": "How many semitones in a m2?",
         "expectedAnswer": "1",
         "answerType": "text",
-        "metadata": { "interval": "m2", "semitones": 1 }
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-m2",
+    "title": "m2",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-m2",
+        "deckId": "intervals-ear-m2",
+        "prompt": "Identify the interval: m2",
+        "expectedAnswer": "m2",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-m2",
+    "title": "m2",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-m2-C",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above C",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "C",
+          "target": "Db"
+        }
       },
       {
-        "id": "intervals-M2",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a major 2nd?",
+        "id": "intervals-piano-m2-Db",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above Db",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Db",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-D",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above D",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "D",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-Eb",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above Eb",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Eb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-E",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above E",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "E",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-F",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above F",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "F",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-Gb",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above Gb",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Gb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-G",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above G",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "G",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-Ab",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above Ab",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Ab",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-A",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above A",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "A",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-Bb",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above Bb",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "Bb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-m2-B",
+        "deckId": "intervals-piano-m2",
+        "prompt": "Play a m2 above B",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m2",
+          "semitones": 1,
+          "root": "B",
+          "target": "C"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-M2",
+    "title": "M2",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-M2-semitones",
+        "deckId": "intervals-semitones-M2",
+        "prompt": "How many semitones in a M2?",
         "expectedAnswer": "2",
         "answerType": "text",
-        "metadata": { "interval": "M2", "semitones": 2 }
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-M2",
+    "title": "M2",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-M2",
+        "deckId": "intervals-ear-M2",
+        "prompt": "Identify the interval: M2",
+        "expectedAnswer": "M2",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-M2",
+    "title": "M2",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-M2-C",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above C",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "C",
+          "target": "D"
+        }
       },
       {
-        "id": "intervals-m3",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a minor 3rd?",
+        "id": "intervals-piano-M2-Db",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above Db",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Db",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-D",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above D",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "D",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-Eb",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above Eb",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Eb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-E",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above E",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "E",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-F",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above F",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "F",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-Gb",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above Gb",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Gb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-G",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above G",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "G",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-Ab",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above Ab",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Ab",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-A",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above A",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "A",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-Bb",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above Bb",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "Bb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-M2-B",
+        "deckId": "intervals-piano-M2",
+        "prompt": "Play a M2 above B",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M2",
+          "semitones": 2,
+          "root": "B",
+          "target": "Db"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-m3",
+    "title": "m3",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-m3-semitones",
+        "deckId": "intervals-semitones-m3",
+        "prompt": "How many semitones in a m3?",
         "expectedAnswer": "3",
         "answerType": "text",
-        "metadata": { "interval": "m3", "semitones": 3 }
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-m3",
+    "title": "m3",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-m3",
+        "deckId": "intervals-ear-m3",
+        "prompt": "Identify the interval: m3",
+        "expectedAnswer": "m3",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-m3",
+    "title": "m3",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-m3-C",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above C",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "C",
+          "target": "Eb"
+        }
       },
       {
-        "id": "intervals-M3",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a major 3rd?",
+        "id": "intervals-piano-m3-Db",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above Db",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Db",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-D",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above D",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "D",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-Eb",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above Eb",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Eb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-E",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above E",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "E",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-F",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above F",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "F",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-Gb",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above Gb",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Gb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-G",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above G",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "G",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-Ab",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above Ab",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Ab",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-A",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above A",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "A",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-Bb",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above Bb",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "Bb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-m3-B",
+        "deckId": "intervals-piano-m3",
+        "prompt": "Play a m3 above B",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m3",
+          "semitones": 3,
+          "root": "B",
+          "target": "D"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-M3",
+    "title": "M3",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-M3-semitones",
+        "deckId": "intervals-semitones-M3",
+        "prompt": "How many semitones in a M3?",
         "expectedAnswer": "4",
         "answerType": "text",
-        "metadata": { "interval": "M3", "semitones": 4 }
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-M3",
+    "title": "M3",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-M3",
+        "deckId": "intervals-ear-M3",
+        "prompt": "Identify the interval: M3",
+        "expectedAnswer": "M3",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-M3",
+    "title": "M3",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-M3-C",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above C",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "C",
+          "target": "E"
+        }
       },
       {
-        "id": "intervals-P4",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a perfect 4th?",
+        "id": "intervals-piano-M3-Db",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above Db",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Db",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-D",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above D",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "D",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-Eb",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above Eb",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Eb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-E",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above E",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "E",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-F",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above F",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "F",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-Gb",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above Gb",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Gb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-G",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above G",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "G",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-Ab",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above Ab",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Ab",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-A",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above A",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "A",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-Bb",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above Bb",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "Bb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-M3-B",
+        "deckId": "intervals-piano-M3",
+        "prompt": "Play a M3 above B",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M3",
+          "semitones": 4,
+          "root": "B",
+          "target": "Eb"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-P4",
+    "title": "P4",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-P4-semitones",
+        "deckId": "intervals-semitones-P4",
+        "prompt": "How many semitones in a P4?",
         "expectedAnswer": "5",
         "answerType": "text",
-        "metadata": { "interval": "P4", "semitones": 5 }
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-P4",
+    "title": "P4",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-P4",
+        "deckId": "intervals-ear-P4",
+        "prompt": "Identify the interval: P4",
+        "expectedAnswer": "P4",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-P4",
+    "title": "P4",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-P4-C",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above C",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "C",
+          "target": "F"
+        }
       },
       {
-        "id": "intervals-TT",
-        "deckId": "intervals-deck",
+        "id": "intervals-piano-P4-Db",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above Db",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Db",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-D",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above D",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "D",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-Eb",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above Eb",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Eb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-E",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above E",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "E",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-F",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above F",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "F",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-Gb",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above Gb",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Gb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-G",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above G",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "G",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-Ab",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above Ab",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Ab",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-A",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above A",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "A",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-Bb",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above Bb",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "Bb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-P4-B",
+        "deckId": "intervals-piano-P4",
+        "prompt": "Play a P4 above B",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P4",
+          "semitones": 5,
+          "root": "B",
+          "target": "E"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-TT",
+    "title": "TT",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-TT-semitones",
+        "deckId": "intervals-semitones-TT",
         "prompt": "How many semitones in a tritone?",
         "expectedAnswer": "6",
         "answerType": "text",
-        "metadata": { "interval": "TT", "semitones": 6 }
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-TT",
+    "title": "TT",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-TT",
+        "deckId": "intervals-ear-TT",
+        "prompt": "Identify the interval: TT",
+        "expectedAnswer": "TT",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-TT",
+    "title": "TT",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-TT-C",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above C",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "C",
+          "target": "Gb"
+        }
       },
       {
-        "id": "intervals-P5",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a perfect 5th?",
+        "id": "intervals-piano-TT-Db",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above Db",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Db",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-D",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above D",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "D",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-Eb",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above Eb",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Eb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-E",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above E",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "E",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-F",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above F",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "F",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-Gb",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above Gb",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Gb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-G",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above G",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "G",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-Ab",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above Ab",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Ab",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-A",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above A",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "A",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-Bb",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above Bb",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "Bb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-TT-B",
+        "deckId": "intervals-piano-TT",
+        "prompt": "Play a TT above B",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "TT",
+          "semitones": 6,
+          "root": "B",
+          "target": "F"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-P5",
+    "title": "P5",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-P5-semitones",
+        "deckId": "intervals-semitones-P5",
+        "prompt": "How many semitones in a P5?",
         "expectedAnswer": "7",
         "answerType": "text",
-        "metadata": { "interval": "P5", "semitones": 7 }
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-P5",
+    "title": "P5",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-P5",
+        "deckId": "intervals-ear-P5",
+        "prompt": "Identify the interval: P5",
+        "expectedAnswer": "P5",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-P5",
+    "title": "P5",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-P5-C",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above C",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "C",
+          "target": "G"
+        }
       },
       {
-        "id": "intervals-m6",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a minor 6th?",
+        "id": "intervals-piano-P5-Db",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above Db",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Db",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-D",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above D",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "D",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-Eb",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above Eb",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Eb",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-E",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above E",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "E",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-F",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above F",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "F",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-Gb",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above Gb",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Gb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-G",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above G",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "G",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-Ab",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above Ab",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Ab",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-A",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above A",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "A",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-Bb",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above Bb",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "Bb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-P5-B",
+        "deckId": "intervals-piano-P5",
+        "prompt": "Play a P5 above B",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "P5",
+          "semitones": 7,
+          "root": "B",
+          "target": "Gb"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-m6",
+    "title": "m6",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-m6-semitones",
+        "deckId": "intervals-semitones-m6",
+        "prompt": "How many semitones in a m6?",
         "expectedAnswer": "8",
         "answerType": "text",
-        "metadata": { "interval": "m6", "semitones": 8 }
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-m6",
+    "title": "m6",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-m6",
+        "deckId": "intervals-ear-m6",
+        "prompt": "Identify the interval: m6",
+        "expectedAnswer": "m6",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-m6",
+    "title": "m6",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-m6-C",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above C",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "C",
+          "target": "Ab"
+        }
       },
       {
-        "id": "intervals-M6",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a major 6th?",
+        "id": "intervals-piano-m6-Db",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above Db",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Db",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-D",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above D",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "D",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-Eb",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above Eb",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Eb",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-E",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above E",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "E",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-F",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above F",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "F",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-Gb",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above Gb",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Gb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-G",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above G",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "G",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-Ab",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above Ab",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Ab",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-A",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above A",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "A",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-Bb",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above Bb",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "Bb",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-m6-B",
+        "deckId": "intervals-piano-m6",
+        "prompt": "Play a m6 above B",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m6",
+          "semitones": 8,
+          "root": "B",
+          "target": "G"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-M6",
+    "title": "M6",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-M6-semitones",
+        "deckId": "intervals-semitones-M6",
+        "prompt": "How many semitones in a M6?",
         "expectedAnswer": "9",
         "answerType": "text",
-        "metadata": { "interval": "M6", "semitones": 9 }
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-M6",
+    "title": "M6",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-M6",
+        "deckId": "intervals-ear-M6",
+        "prompt": "Identify the interval: M6",
+        "expectedAnswer": "M6",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-M6",
+    "title": "M6",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-M6-C",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above C",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "C",
+          "target": "A"
+        }
       },
       {
-        "id": "intervals-m7",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a minor 7th?",
+        "id": "intervals-piano-M6-Db",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above Db",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Db",
+          "target": "Bb"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-D",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above D",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "D",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-Eb",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above Eb",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Eb",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-E",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above E",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "E",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-F",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above F",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "F",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-Gb",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above Gb",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Gb",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-G",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above G",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "G",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-Ab",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above Ab",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Ab",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-A",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above A",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "A",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-Bb",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above Bb",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "Bb",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-M6-B",
+        "deckId": "intervals-piano-M6",
+        "prompt": "Play a M6 above B",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M6",
+          "semitones": 9,
+          "root": "B",
+          "target": "Ab"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-m7",
+    "title": "m7",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-m7-semitones",
+        "deckId": "intervals-semitones-m7",
+        "prompt": "How many semitones in a m7?",
         "expectedAnswer": "10",
         "answerType": "text",
-        "metadata": { "interval": "m7", "semitones": 10 }
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-ear-m7",
+    "title": "m7",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
+    "cards": [
+      {
+        "id": "intervals-ear-m7",
+        "deckId": "intervals-ear-m7",
+        "prompt": "Identify the interval: m7",
+        "expectedAnswer": "m7",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-piano-m7",
+    "title": "m7",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
+    "cards": [
+      {
+        "id": "intervals-piano-m7-C",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above C",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "C",
+          "target": "Bb"
+        }
       },
       {
-        "id": "intervals-M7",
-        "deckId": "intervals-deck",
-        "prompt": "How many semitones in a major 7th?",
+        "id": "intervals-piano-m7-Db",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above Db",
+        "expectedAnswer": "B",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Db",
+          "target": "B"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-D",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above D",
+        "expectedAnswer": "C",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "D",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-Eb",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above Eb",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Eb",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-E",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above E",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "E",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-F",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above F",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "F",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-Gb",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above Gb",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Gb",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-G",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above G",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "G",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-Ab",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above Ab",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Ab",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-A",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above A",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "A",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-Bb",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above Bb",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "Bb",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-m7-B",
+        "deckId": "intervals-piano-m7",
+        "prompt": "Play a m7 above B",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "m7",
+          "semitones": 10,
+          "root": "B",
+          "target": "A"
+        }
+      }
+    ]
+  },
+  {
+    "id": "intervals-semitones-M7",
+    "title": "M7",
+    "tags": [
+      "intervals",
+      "modality:theory"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-semitones",
+    "cards": [
+      {
+        "id": "intervals-M7-semitones",
+        "deckId": "intervals-semitones-M7",
+        "prompt": "How many semitones in a M7?",
         "expectedAnswer": "11",
         "answerType": "text",
-        "metadata": { "interval": "M7", "semitones": 11 }
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11
+        }
       }
     ]
   },
   {
-    "id": "major-triads-deck",
-    "title": "Major Triads in All Keys",
-    "tags": ["triads", "chords"],
-    "sourceConceptId": "triads",
+    "id": "intervals-ear-M7",
+    "title": "M7",
+    "tags": [
+      "intervals",
+      "modality:ear"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "major-triad-c",
-        "deckId": "major-triads-deck",
-        "prompt": "Play C major triad",
-        "expectedAnswer": "C,E,G",
-        "answerType": "pitch",
-        "metadata": { "root": "C", "quality": "major" }
-      },
-      {
-        "id": "major-triad-db",
-        "deckId": "major-triads-deck",
-        "prompt": "Play Db major triad",
-        "expectedAnswer": "C#,F,G#",
-        "answerType": "pitch",
-        "metadata": { "root": "Db", "quality": "major" }
-      },
-      {
-        "id": "major-triad-d",
-        "deckId": "major-triads-deck",
-        "prompt": "Play D major triad",
-        "expectedAnswer": "D,F#,A",
-        "answerType": "pitch",
-        "metadata": { "root": "D", "quality": "major" }
-      },
-      {
-        "id": "major-triad-eb",
-        "deckId": "major-triads-deck",
-        "prompt": "Play Eb major triad",
-        "expectedAnswer": "D#,G,A#",
-        "answerType": "pitch",
-        "metadata": { "root": "Eb", "quality": "major" }
-      },
-      {
-        "id": "major-triad-e",
-        "deckId": "major-triads-deck",
-        "prompt": "Play E major triad",
-        "expectedAnswer": "E,G#,B",
-        "answerType": "pitch",
-        "metadata": { "root": "E", "quality": "major" }
-      },
-      {
-        "id": "major-triad-f",
-        "deckId": "major-triads-deck",
-        "prompt": "Play F major triad",
-        "expectedAnswer": "F,A,C",
-        "answerType": "pitch",
-        "metadata": { "root": "F", "quality": "major" }
-      },
-      {
-        "id": "major-triad-fsharp",
-        "deckId": "major-triads-deck",
-        "prompt": "Play F# major triad",
-        "expectedAnswer": "F#,A#,C#",
-        "answerType": "pitch",
-        "metadata": { "root": "F#", "quality": "major" }
-      },
-      {
-        "id": "major-triad-g",
-        "deckId": "major-triads-deck",
-        "prompt": "Play G major triad",
-        "expectedAnswer": "G,B,D",
-        "answerType": "pitch",
-        "metadata": { "root": "G", "quality": "major" }
-      },
-      {
-        "id": "major-triad-ab",
-        "deckId": "major-triads-deck",
-        "prompt": "Play Ab major triad",
-        "expectedAnswer": "G#,C,D#",
-        "answerType": "pitch",
-        "metadata": { "root": "Ab", "quality": "major" }
-      },
-      {
-        "id": "major-triad-a",
-        "deckId": "major-triads-deck",
-        "prompt": "Play A major triad",
-        "expectedAnswer": "A,C#,E",
-        "answerType": "pitch",
-        "metadata": { "root": "A", "quality": "major" }
-      },
-      {
-        "id": "major-triad-bb",
-        "deckId": "major-triads-deck",
-        "prompt": "Play Bb major triad",
-        "expectedAnswer": "A#,D,F",
-        "answerType": "pitch",
-        "metadata": { "root": "Bb", "quality": "major" }
-      },
-      {
-        "id": "major-triad-b",
-        "deckId": "major-triads-deck",
-        "prompt": "Play B major triad",
-        "expectedAnswer": "B,D#,F#",
-        "answerType": "pitch",
-        "metadata": { "root": "B", "quality": "major" }
+        "id": "intervals-ear-M7",
+        "deckId": "intervals-ear-M7",
+        "prompt": "Identify the interval: M7",
+        "expectedAnswer": "M7",
+        "answerType": "intervalName",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11
+        }
       }
     ]
   },
   {
-    "id": "seventh-chords-deck",
-    "title": "7th Chords",
-    "tags": ["chords", "harmony"],
-    "sourceConceptId": "seventh-chords",
+    "id": "intervals-piano-M7",
+    "title": "M7",
+    "tags": [
+      "intervals",
+      "modality:piano"
+    ],
+    "sourceConceptId": "intervals-basic",
+    "parentId": "intervals-piano",
     "cards": [
       {
-        "id": "seventh-cmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Cmaj7",
-        "expectedAnswer": "C,E,G,B",
-        "answerType": "pitch",
-        "metadata": { "root": "C", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-cm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Cm7",
-        "expectedAnswer": "C,D#,G,A#",
-        "answerType": "pitch",
-        "metadata": { "root": "C", "quality": "m7" }
-      },
-      {
-        "id": "seventh-c7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play C7",
-        "expectedAnswer": "C,E,G,A#",
-        "answerType": "pitch",
-        "metadata": { "root": "C", "quality": "7" }
-      },
-      {
-        "id": "seventh-cm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Cm7b5",
-        "expectedAnswer": "C,D#,F#,A#",
-        "answerType": "pitch",
-        "metadata": { "root": "C", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-csharpmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play C#maj7",
-        "expectedAnswer": "C#,F,G#,C",
-        "answerType": "pitch",
-        "metadata": { "root": "C#", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-csharpm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play C#m7",
-        "expectedAnswer": "C#,E,G#,B",
-        "answerType": "pitch",
-        "metadata": { "root": "C#", "quality": "m7" }
-      },
-      {
-        "id": "seventh-csharp7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play C#7",
-        "expectedAnswer": "C#,F,G#,B",
-        "answerType": "pitch",
-        "metadata": { "root": "C#", "quality": "7" }
-      },
-      {
-        "id": "seventh-csharpm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play C#m7b5",
-        "expectedAnswer": "C#,E,G,B",
-        "answerType": "pitch",
-        "metadata": { "root": "C#", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-dmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Dmaj7",
-        "expectedAnswer": "D,F#,A,C#",
-        "answerType": "pitch",
-        "metadata": { "root": "D", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-dm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Dm7",
-        "expectedAnswer": "D,F,A,C",
-        "answerType": "pitch",
-        "metadata": { "root": "D", "quality": "m7" }
-      },
-      {
-        "id": "seventh-d7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play D7",
-        "expectedAnswer": "D,F#,A,C",
-        "answerType": "pitch",
-        "metadata": { "root": "D", "quality": "7" }
-      },
-      {
-        "id": "seventh-dm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Dm7b5",
-        "expectedAnswer": "D,F,G#,C",
-        "answerType": "pitch",
-        "metadata": { "root": "D", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-dsharpmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play D#maj7",
-        "expectedAnswer": "D#,G,A#,D",
-        "answerType": "pitch",
-        "metadata": { "root": "D#", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-dsharpm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play D#m7",
-        "expectedAnswer": "D#,F#,A#,C#",
-        "answerType": "pitch",
-        "metadata": { "root": "D#", "quality": "m7" }
-      },
-      {
-        "id": "seventh-dsharp7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play D#7",
-        "expectedAnswer": "D#,G,A#,C#",
-        "answerType": "pitch",
-        "metadata": { "root": "D#", "quality": "7" }
-      },
-      {
-        "id": "seventh-dsharpm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play D#m7b5",
-        "expectedAnswer": "D#,F#,A,C#",
-        "answerType": "pitch",
-        "metadata": { "root": "D#", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-emaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Emaj7",
-        "expectedAnswer": "E,G#,B,D#",
-        "answerType": "pitch",
-        "metadata": { "root": "E", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-em7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Em7",
-        "expectedAnswer": "E,G,B,D",
-        "answerType": "pitch",
-        "metadata": { "root": "E", "quality": "m7" }
-      },
-      {
-        "id": "seventh-e7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play E7",
-        "expectedAnswer": "E,G#,B,D",
-        "answerType": "pitch",
-        "metadata": { "root": "E", "quality": "7" }
-      },
-      {
-        "id": "seventh-em7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Em7b5",
-        "expectedAnswer": "E,G,A#,D",
-        "answerType": "pitch",
-        "metadata": { "root": "E", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-fmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Fmaj7",
-        "expectedAnswer": "F,A,C,E",
-        "answerType": "pitch",
-        "metadata": { "root": "F", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-fm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Fm7",
-        "expectedAnswer": "F,G#,C,D#",
-        "answerType": "pitch",
-        "metadata": { "root": "F", "quality": "m7" }
-      },
-      {
-        "id": "seventh-f7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play F7",
-        "expectedAnswer": "F,A,C,D#",
-        "answerType": "pitch",
-        "metadata": { "root": "F", "quality": "7" }
-      },
-      {
-        "id": "seventh-fm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Fm7b5",
-        "expectedAnswer": "F,G#,B,D#",
-        "answerType": "pitch",
-        "metadata": { "root": "F", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-fsharpmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play F#maj7",
-        "expectedAnswer": "F#,A#,C#,F",
-        "answerType": "pitch",
-        "metadata": { "root": "F#", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-fsharpm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play F#m7",
-        "expectedAnswer": "F#,A,C#,E",
-        "answerType": "pitch",
-        "metadata": { "root": "F#", "quality": "m7" }
-      },
-      {
-        "id": "seventh-fsharp7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play F#7",
-        "expectedAnswer": "F#,A#,C#,E",
-        "answerType": "pitch",
-        "metadata": { "root": "F#", "quality": "7" }
-      },
-      {
-        "id": "seventh-fsharpm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play F#m7b5",
-        "expectedAnswer": "F#,A,C,E",
-        "answerType": "pitch",
-        "metadata": { "root": "F#", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-gmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Gmaj7",
-        "expectedAnswer": "G,B,D,F#",
-        "answerType": "pitch",
-        "metadata": { "root": "G", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-gm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Gm7",
-        "expectedAnswer": "G,A#,D,F",
-        "answerType": "pitch",
-        "metadata": { "root": "G", "quality": "m7" }
-      },
-      {
-        "id": "seventh-g7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play G7",
-        "expectedAnswer": "G,B,D,F",
-        "answerType": "pitch",
-        "metadata": { "root": "G", "quality": "7" }
-      },
-      {
-        "id": "seventh-gm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Gm7b5",
-        "expectedAnswer": "G,A#,C#,F",
-        "answerType": "pitch",
-        "metadata": { "root": "G", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-gsharpmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play G#maj7",
-        "expectedAnswer": "G#,C,D#,G",
-        "answerType": "pitch",
-        "metadata": { "root": "G#", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-gsharpm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play G#m7",
-        "expectedAnswer": "G#,B,D#,F#",
-        "answerType": "pitch",
-        "metadata": { "root": "G#", "quality": "m7" }
-      },
-      {
-        "id": "seventh-gsharp7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play G#7",
-        "expectedAnswer": "G#,C,D#,F#",
-        "answerType": "pitch",
-        "metadata": { "root": "G#", "quality": "7" }
-      },
-      {
-        "id": "seventh-gsharpm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play G#m7b5",
-        "expectedAnswer": "G#,B,D,F#",
-        "answerType": "pitch",
-        "metadata": { "root": "G#", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-amaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Amaj7",
-        "expectedAnswer": "A,C#,E,G#",
-        "answerType": "pitch",
-        "metadata": { "root": "A", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-am7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Am7",
-        "expectedAnswer": "A,C,E,G",
-        "answerType": "pitch",
-        "metadata": { "root": "A", "quality": "m7" }
-      },
-      {
-        "id": "seventh-a7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play A7",
-        "expectedAnswer": "A,C#,E,G",
-        "answerType": "pitch",
-        "metadata": { "root": "A", "quality": "7" }
-      },
-      {
-        "id": "seventh-am7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Am7b5",
-        "expectedAnswer": "A,C,D#,G",
-        "answerType": "pitch",
-        "metadata": { "root": "A", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-asharpmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play A#maj7",
-        "expectedAnswer": "A#,D,F,A",
-        "answerType": "pitch",
-        "metadata": { "root": "A#", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-asharpm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play A#m7",
-        "expectedAnswer": "A#,C#,F,G#",
-        "answerType": "pitch",
-        "metadata": { "root": "A#", "quality": "m7" }
-      },
-      {
-        "id": "seventh-asharp7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play A#7",
-        "expectedAnswer": "A#,D,F,G#",
-        "answerType": "pitch",
-        "metadata": { "root": "A#", "quality": "7" }
-      },
-      {
-        "id": "seventh-asharpm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play A#m7b5",
-        "expectedAnswer": "A#,C#,E,G#",
-        "answerType": "pitch",
-        "metadata": { "root": "A#", "quality": "m7b5" }
-      },
-      {
-        "id": "seventh-bmaj7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Bmaj7",
-        "expectedAnswer": "B,D#,F#,A#",
-        "answerType": "pitch",
-        "metadata": { "root": "B", "quality": "maj7" }
-      },
-      {
-        "id": "seventh-bm7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Bm7",
-        "expectedAnswer": "B,D,F#,A",
-        "answerType": "pitch",
-        "metadata": { "root": "B", "quality": "m7" }
-      },
-      {
-        "id": "seventh-b7",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play B7",
-        "expectedAnswer": "B,D#,F#,A",
-        "answerType": "pitch",
-        "metadata": { "root": "B", "quality": "7" }
-      },
-      {
-        "id": "seventh-bm7b5",
-        "deckId": "seventh-chords-deck",
-        "prompt": "Play Bm7b5",
-        "expectedAnswer": "B,D,F,A",
-        "answerType": "pitch",
-        "metadata": { "root": "B", "quality": "m7b5" }
-      }
-    ]
-  },
-  {
-    "id": "shell-voicings-deck",
-    "title": "Shell Voicings ii-V-I",
-    "tags": ["voicings", "jazz"],
-    "sourceConceptId": "shell-voicings",
-    "cards": [
-      {
-        "id": "shells-c",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in C major",
-        "expectedAnswer": "D,F,C;G,B,F;C,E,B",
-        "answerType": "text",
-        "metadata": { "key": "C" }
-      },
-      {
-        "id": "shells-csharp",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in C# major",
-        "expectedAnswer": "D#,F#,C#;G#,C,F#;C#,F,C",
-        "answerType": "text",
-        "metadata": { "key": "C#" }
-      },
-      {
-        "id": "shells-d",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in D major",
-        "expectedAnswer": "E,G,D;A,C#,G;D,F#,C#",
-        "answerType": "text",
-        "metadata": { "key": "D" }
-      },
-      {
-        "id": "shells-dsharp",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in D# major",
-        "expectedAnswer": "F,G#,D#;A#,D,G#;D#,G,D",
-        "answerType": "text",
-        "metadata": { "key": "D#" }
-      },
-      {
-        "id": "shells-e",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in E major",
-        "expectedAnswer": "F#,A,E;B,D#,A;E,G#,D#",
-        "answerType": "text",
-        "metadata": { "key": "E" }
-      },
-      {
-        "id": "shells-f",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in F major",
-        "expectedAnswer": "G,A#,F;C,E,A#;F,A,E",
-        "answerType": "text",
-        "metadata": { "key": "F" }
-      },
-      {
-        "id": "shells-fsharp",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in F# major",
-        "expectedAnswer": "G#,B,F#;C#,F,B;F#,A#,F",
-        "answerType": "text",
-        "metadata": { "key": "F#" }
-      },
-      {
-        "id": "shells-g",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in G major",
-        "expectedAnswer": "A,C,G;D,F#,C;G,B,F#",
-        "answerType": "text",
-        "metadata": { "key": "G" }
-      },
-      {
-        "id": "shells-gsharp",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in G# major",
-        "expectedAnswer": "A#,C#,G#;D#,G,C#;G#,C,G",
-        "answerType": "text",
-        "metadata": { "key": "G#" }
-      },
-      {
-        "id": "shells-a",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in A major",
-        "expectedAnswer": "B,D,A;E,G#,D;A,C#,G#",
-        "answerType": "text",
-        "metadata": { "key": "A" }
-      },
-      {
-        "id": "shells-asharp",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in A# major",
-        "expectedAnswer": "C,D#,A#;F,A,D#;A#,D,A",
-        "answerType": "text",
-        "metadata": { "key": "A#" }
-      },
-      {
-        "id": "shells-b",
-        "deckId": "shell-voicings-deck",
-        "prompt": "Play ii-V-I shells in B major",
-        "expectedAnswer": "C#,E,B;F#,A#,E;B,D#,A#",
-        "answerType": "text",
-        "metadata": { "key": "B" }
-      }
-    ]
-  },
-  {
-    "id": "circle-of-fourths-deck",
-    "title": "Circle of 4ths",
-    "tags": ["circle-of-fourths"],
-    "sourceConceptId": "circle-of-fourths",
-    "cards": [
-      {
-        "id": "cof-c",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after C in the circle of 4ths?",
-        "expectedAnswer": "F",
-        "answerType": "text",
-        "metadata": { "current": "C", "next": "F" }
-      },
-      {
-        "id": "cof-f",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after F in the circle of 4ths?",
-        "expectedAnswer": "Bb",
-        "answerType": "text",
-        "metadata": { "current": "F", "next": "Bb" }
-      },
-      {
-        "id": "cof-bb",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after Bb in the circle of 4ths?",
-        "expectedAnswer": "Eb",
-        "answerType": "text",
-        "metadata": { "current": "Bb", "next": "Eb" }
-      },
-      {
-        "id": "cof-eb",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after Eb in the circle of 4ths?",
-        "expectedAnswer": "Ab",
-        "answerType": "text",
-        "metadata": { "current": "Eb", "next": "Ab" }
-      },
-      {
-        "id": "cof-ab",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after Ab in the circle of 4ths?",
-        "expectedAnswer": "Db",
-        "answerType": "text",
-        "metadata": { "current": "Ab", "next": "Db" }
-      },
-      {
-        "id": "cof-db",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after Db in the circle of 4ths?",
-        "expectedAnswer": "Gb",
-        "answerType": "text",
-        "metadata": { "current": "Db", "next": "Gb" }
-      },
-      {
-        "id": "cof-gb",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after Gb in the circle of 4ths?",
+        "id": "intervals-piano-M7-C",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above C",
         "expectedAnswer": "B",
-        "answerType": "text",
-        "metadata": { "current": "Gb", "next": "B" }
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "C",
+          "target": "B"
+        }
       },
       {
-        "id": "cof-b",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after B in the circle of 4ths?",
-        "expectedAnswer": "E",
-        "answerType": "text",
-        "metadata": { "current": "B", "next": "E" }
-      },
-      {
-        "id": "cof-e",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after E in the circle of 4ths?",
-        "expectedAnswer": "A",
-        "answerType": "text",
-        "metadata": { "current": "E", "next": "A" }
-      },
-      {
-        "id": "cof-a",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after A in the circle of 4ths?",
-        "expectedAnswer": "D",
-        "answerType": "text",
-        "metadata": { "current": "A", "next": "D" }
-      },
-      {
-        "id": "cof-d",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after D in the circle of 4ths?",
-        "expectedAnswer": "G",
-        "answerType": "text",
-        "metadata": { "current": "D", "next": "G" }
-      },
-      {
-        "id": "cof-g",
-        "deckId": "circle-of-fourths-deck",
-        "prompt": "What key comes after G in the circle of 4ths?",
+        "id": "intervals-piano-M7-Db",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above Db",
         "expectedAnswer": "C",
-        "answerType": "text",
-        "metadata": { "current": "G", "next": "C" }
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Db",
+          "target": "C"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-D",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above D",
+        "expectedAnswer": "Db",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "D",
+          "target": "Db"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-Eb",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above Eb",
+        "expectedAnswer": "D",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Eb",
+          "target": "D"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-E",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above E",
+        "expectedAnswer": "Eb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "E",
+          "target": "Eb"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-F",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above F",
+        "expectedAnswer": "E",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "F",
+          "target": "E"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-Gb",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above Gb",
+        "expectedAnswer": "F",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Gb",
+          "target": "F"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-G",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above G",
+        "expectedAnswer": "Gb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "G",
+          "target": "Gb"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-Ab",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above Ab",
+        "expectedAnswer": "G",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Ab",
+          "target": "G"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-A",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above A",
+        "expectedAnswer": "Ab",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "A",
+          "target": "Ab"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-Bb",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above Bb",
+        "expectedAnswer": "A",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "Bb",
+          "target": "A"
+        }
+      },
+      {
+        "id": "intervals-piano-M7-B",
+        "deckId": "intervals-piano-M7",
+        "prompt": "Play a M7 above B",
+        "expectedAnswer": "Bb",
+        "answerType": "pitch",
+        "metadata": {
+          "interval": "M7",
+          "semitones": 11,
+          "root": "B",
+          "target": "Bb"
+        }
       }
     ]
   }

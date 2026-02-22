@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/providers.dart';
 import '../providers/concepts_provider.dart';
 import '../../../content/providers/content_providers.dart';
 import '../../../domain/models/concept.dart';
 import '../../../domain/models/exercise.dart';
-import '../../drill/screens/drill_screen.dart';
-import '../../drill/screens/learn_screen.dart';
-import '../../drill/screens/practice_screen.dart';
-import '../../drill/widgets/practice_launch_sheet.dart';
+import '../../../domain/enums/input_type.dart';
+import '../providers/deck_review_provider.dart';
+import '../widgets/deck_session_sheet.dart';
+import '../../drill/screens/session_builder_screen.dart';
 import '../../library/providers/library_provider.dart';
 
 class ConceptDetailScreen extends ConsumerStatefulWidget {
@@ -89,46 +90,13 @@ class _ConceptDetailScreenState extends ConsumerState<ConceptDetailScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Summary
-        if (concept.summary.isNotEmpty) ...[
-          Text(
-            concept.summary,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Theory section — collapsible
-        if (concept.bodyMarkdown.isNotEmpty) ...[
-          InkWell(
-            onTap: () =>
-                setState(() => _theoryExpanded = !_theoryExpanded),
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    _theoryExpanded
-                        ? Icons.expand_less
-                        : Icons.expand_more,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Theory',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_theoryExpanded) ...[
-            const SizedBox(height: 8),
+        // Theory section — compact summary + expand
+        if (concept.bodyMarkdown.isNotEmpty ||
+            concept.summary.isNotEmpty ||
+            concept.examples.isNotEmpty) ...[
+          _buildTheoryCard(theme, concept),
+          if (_theoryExpanded && concept.bodyMarkdown.isNotEmpty) ...[
+            const SizedBox(height: 12),
             MarkdownBody(
               data: concept.bodyMarkdown,
               selectable: true,
@@ -144,12 +112,23 @@ class _ConceptDetailScreenState extends ConsumerState<ConceptDetailScreen> {
           const SizedBox(height: 16),
         ],
 
-        // Practice section — inline groups with direct Start Practice
-        if (concept.relatedExerciseIds.isNotEmpty) ...[
+        if (concept.id == 'intervals-basic' &&
+            concept.relatedCardDeckIds.isNotEmpty) ...[
           const Divider(),
           const SizedBox(height: 16),
           Text(
-            'Practice',
+            'Decks',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _DecksSection(deckIds: concept.relatedCardDeckIds),
+        ] else if (concept.relatedExerciseIds.isNotEmpty) ...[
+          const Divider(),
+          const SizedBox(height: 16),
+          Text(
+            'Exercises',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -160,6 +139,244 @@ class _ConceptDetailScreenState extends ConsumerState<ConceptDetailScreen> {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _DecksSection extends ConsumerWidget {
+  final List<String> deckIds;
+
+  const _DecksSection({required this.deckIds});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final decksAsync = ref.watch(deckTreeStatsProvider(deckIds));
+    final theme = Theme.of(context);
+
+    return decksAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Text('Error: $error'),
+      data: (nodes) {
+        final theory = nodes.where((n) => _hasTag(n, 'modality:theory')).toList();
+        final ear = nodes.where((n) => _hasTag(n, 'modality:ear')).toList();
+        final piano = nodes.where((n) => _hasTag(n, 'modality:piano')).toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _DeckSection(
+              title: 'Theory',
+              nodes: theory,
+              emptyLabel: 'No theory decks yet.',
+            ),
+            const SizedBox(height: 16),
+            _DeckSection(
+              title: 'Ear Training',
+              nodes: ear,
+              emptyLabel: 'No ear training decks yet.',
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _hasTag(DeckTreeNode node, String tag) {
+    return node.deck.tags.contains(tag);
+  }
+}
+
+class _DeckSection extends ConsumerWidget {
+  final String title;
+  final List<DeckTreeNode> nodes;
+  final String emptyLabel;
+
+  const _DeckSection({
+    required this.title,
+    required this.nodes,
+    required this.emptyLabel,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    if (nodes.isEmpty) {
+      return Text(
+        emptyLabel,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        for (final node in nodes) ...[
+          _DeckTreeTile(node: node),
+          const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+}
+
+class _DeckTreeTile extends ConsumerWidget {
+  final DeckTreeNode node;
+
+  const _DeckTreeTile({required this.node});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final subtitle =
+        '${node.dueCards} due \u00b7 ${node.newCards} new \u00b7 ${node.totalCards} total';
+    final db = ref.read(appDatabaseProvider);
+
+    if (node.children.isEmpty) {
+      return Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          title: Text(node.deck.title),
+          subtitle: Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          trailing: FilledButton.tonal(
+            onPressed: () => showDeckSessionSheet(
+              context: context,
+              db: db,
+              node: node,
+              deckIds: _collectDeckIds(node),
+            ),
+            child: const Text('Start'),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        title: Text(node.deck.title),
+        subtitle: Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        trailing: FilledButton.tonal(
+          onPressed: () => showDeckSessionSheet(
+            context: context,
+            db: db,
+            node: node,
+            deckIds: _collectDeckIds(node),
+          ),
+          child: const Text('Start'),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        children: [
+          for (final child in node.children) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _DeckTreeTile(node: child),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+List<String> _collectDeckIds(DeckTreeNode node) {
+  final ids = <String>[];
+  void walk(DeckTreeNode n) {
+    ids.add(n.deck.id);
+    for (final child in n.children) {
+      walk(child);
+    }
+  }
+
+  walk(node);
+  return ids;
+}
+
+extension on _ConceptDetailScreenState {
+  Widget _buildTheoryCard(ThemeData theme, Concept concept) {
+    final examples = concept.examples.take(2).toList();
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Theory',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: concept.bodyMarkdown.isNotEmpty
+                      ? () => setState(
+                            () => _theoryExpanded = !_theoryExpanded,
+                          )
+                      : null,
+                  icon: Icon(
+                    _theoryExpanded
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                  ),
+                  label: Text(
+                    _theoryExpanded ? 'Hide' : 'Read full theory',
+                  ),
+                ),
+              ],
+            ),
+            if (concept.summary.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                concept.summary,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            if (examples.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              for (final example in examples) ...[
+                Text(
+                  example['label']?.toString() ?? 'Example',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  example['content']?.toString() ?? '',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -186,285 +403,132 @@ class _PracticeSection extends ConsumerWidget {
             .map((id) => allExercises.where((e) => e.id == id).firstOrNull)
             .whereType<Exercise>()
             .toList();
-
-        final showHeaders = matched.length > 1;
+        final theoryExercises = matched.where(_isTheoryExercise).toList();
+        final practiceExercises = matched.where(_isPracticeExercise).toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (var i = 0; i < matched.length; i++) ...[
-              if (i > 0) const SizedBox(height: 24),
-              _ExerciseGroupSection(
-                exercise: matched[i],
-                showHeader: showHeaders,
+            if (theoryExercises.isNotEmpty) ...[
+              Text(
+                'Learn',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
+              const SizedBox(height: 12),
+              for (var i = 0; i < theoryExercises.length; i++) ...[
+                if (i > 0) const SizedBox(height: 12),
+                _ExercisePracticeCard(
+                  exercise: theoryExercises[i],
+                  actionLabel: 'Start Learn',
+                ),
+              ],
+              const SizedBox(height: 24),
+            ],
+            if (practiceExercises.isNotEmpty) ...[
+              Text(
+                'Practice',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              for (var i = 0; i < practiceExercises.length; i++) ...[
+                if (i > 0) const SizedBox(height: 12),
+                _ExercisePracticeCard(
+                  exercise: practiceExercises[i],
+                  actionLabel: 'Start Practice',
+                ),
+              ],
             ],
           ],
         );
       },
     );
   }
+
+  bool _isTheoryExercise(Exercise exercise) {
+    final tags = exercise.tags;
+    if (tags.contains('track:theory')) return true;
+    if (tags.contains('track:piano')) return false;
+    return exercise.inputType != InputType.piano;
+  }
+
+  bool _isPracticeExercise(Exercise exercise) {
+    final tags = exercise.tags;
+    if (tags.contains('track:piano')) return true;
+    if (tags.contains('track:theory')) return false;
+    return exercise.inputType == InputType.piano;
+  }
 }
 
-class _ExerciseGroupSection extends ConsumerStatefulWidget {
+class _ExercisePracticeCard extends ConsumerWidget {
   final Exercise exercise;
-  final bool showHeader;
+  final String actionLabel;
 
-  const _ExerciseGroupSection({
+  const _ExercisePracticeCard({
     required this.exercise,
-    required this.showHeader,
+    required this.actionLabel,
   });
 
   @override
-  ConsumerState<_ExerciseGroupSection> createState() =>
-      _ExerciseGroupSectionState();
-}
-
-class _ExerciseGroupSectionState
-    extends ConsumerState<_ExerciseGroupSection> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final exercise = widget.exercise;
     final countsAsync = ref.watch(exerciseCountsProvider(exercise.id));
-    final groupCountsAsync =
-        ref.watch(exerciseGroupCountsProvider(exercise.id));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (widget.showHeader) ...[
-          Text(
-            exercise.title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              exercise.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        // Summary row with Practice button → opens launch sheet
-        countsAsync.when(
-          loading: () => const SizedBox.shrink(),
-          error: (_, _) => const SizedBox.shrink(),
-          data: (counts) => _SummaryRow(
-            counts: counts,
-            onStart: () => _openLaunchSheet(context),
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        // Group list (read-only)
-        groupCountsAsync.when(
-          loading: () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          error: (error, _) => Text('Error: $error'),
-          data: (groups) => Column(
-            children: groups
-                .map((group) => _GroupRow(group: group))
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _openLaunchSheet(BuildContext context) async {
-    final exercise = widget.exercise;
-    final result = await showPracticeLaunchSheet(
-      context: context,
-      exerciseId: exercise.id,
-    );
-    if (result == null || !context.mounted) return;
-
-    final Widget screen;
-    switch (result.mode) {
-      case PracticeMode.review:
-        screen = PracticeScreen(
-          exerciseId: exercise.id,
-          selectedGroups: result.selectedGroups,
-          newCardCount: result.newCardCount,
-        );
-      case PracticeMode.practiceLearned:
-        screen = PracticeScreen(
-          exerciseId: exercise.id,
-          selectedGroups: result.selectedGroups,
-          learnedOnly: true,
-        );
-      case PracticeMode.learn:
-        screen = ExerciseLearnScreen(
-          exerciseId: exercise.id,
-          selectedGroups: result.selectedGroups,
-          questionCount: result.questionCount,
-        );
-      case PracticeMode.speedTest:
-        screen = DrillScreen(
-          exerciseId: exercise.id,
-          selectedGroups: result.selectedGroups,
-          questionCount: result.questionCount,
-        );
-    }
-
-    // Push over root navigator so bottom nav is hidden
-    await Navigator.of(context, rootNavigator: true)
-        .push(MaterialPageRoute(builder: (_) => screen));
-    if (!mounted) return;
-    ref.invalidate(exerciseCountsProvider(exercise.id));
-    ref.invalidate(exerciseGroupCountsProvider(exercise.id));
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final ExerciseCounts counts;
-  final VoidCallback onStart;
-
-  const _SummaryRow({required this.counts, required this.onStart});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final hasDue = counts.reviewCount > 0 || counts.newCount > 0;
-
-    final parts = <String>[];
-    if (counts.reviewCount > 0) {
-      parts.add('${counts.reviewCount} to review');
-    }
-    if (counts.newCount > 0) {
-      parts.add('${counts.newCount} new');
-    }
-
-    return Row(
-      children: [
-        Expanded(
-          child: hasDue
-              ? Wrap(
-                  spacing: 6,
-                  children: [
-                    if (counts.reviewCount > 0)
-                      _badge(
-                        '${counts.reviewCount} to review',
-                        theme.colorScheme.tertiaryContainer,
-                        theme.colorScheme.onTertiaryContainer,
-                        theme,
-                      ),
-                    if (counts.newCount > 0)
-                      _badge(
-                        '${counts.newCount} new',
-                        theme.colorScheme.primaryContainer,
-                        theme.colorScheme.onPrimaryContainer,
-                        theme,
-                      ),
-                  ],
-                )
-              : Text(
-                  counts.availableNew > 0
-                      ? 'All caught up \u00b7 ${counts.availableNew} to explore'
-                      : 'All caught up',
+            const SizedBox(height: 8),
+            countsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+              data: (counts) {
+                final hasDue =
+                    counts.reviewCount > 0 || counts.newCount > 0;
+                final parts = <String>[];
+                if (counts.reviewCount > 0) {
+                  parts.add('${counts.reviewCount} due');
+                }
+                if (counts.newCount > 0) {
+                  parts.add('${counts.newCount} new');
+                }
+                final subtitle = hasDue
+                    ? parts.join(' + ')
+                    : counts.availableNew > 0
+                        ? 'All caught up \u00b7 ${counts.availableNew} to explore'
+                        : 'All caught up';
+                return Text(
+                  subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => SessionBuilderScreen(
+                    exerciseId: exercise.id,
+                  ),
                 ),
-        ),
-        const SizedBox(width: 12),
-        FilledButton(
-          onPressed: onStart,
-          child: const Text('Practice'),
-        ),
-      ],
-    );
-  }
-
-  Widget _badge(String label, Color bg, Color fg, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-class _GroupRow extends StatelessWidget {
-  final GroupCounts group;
-
-  const _GroupRow({required this.group});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              group.groupName,
-              style: theme.textTheme.bodyLarge,
+              ),
+              child: Text(actionLabel),
             ),
-          ),
-          Text(
-            '${group.totalItems} items',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (group.dueCount > 0)
-            _badge(
-              '${group.dueCount} due',
-              theme.colorScheme.tertiaryContainer,
-              theme.colorScheme.onTertiaryContainer,
-              theme,
-            ),
-          if (group.dueCount > 0 && group.newCount > 0)
-            const SizedBox(width: 4),
-          if (group.newCount > 0)
-            _badge(
-              '${group.newCount} new',
-              theme.colorScheme.primaryContainer,
-              theme.colorScheme.onPrimaryContainer,
-              theme,
-            ),
-          if (group.dueCount == 0 &&
-              group.newCount == 0 &&
-              group.learnedCount > 0)
-            _badge(
-              '${group.learnedCount} learned',
-              theme.colorScheme.surfaceContainerHighest,
-              theme.colorScheme.onSurfaceVariant,
-              theme,
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _badge(String label, Color bg, Color fg, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.bold,
+          ],
         ),
       ),
     );

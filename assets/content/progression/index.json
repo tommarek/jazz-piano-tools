@@ -4,10 +4,18 @@
     "topic": "intervals",
     "tierNumber": 1,
     "title": "Consonant Intervals",
-    "description": "Perfect 5th, Perfect 4th, and Octave — the most consonant, easiest to hear",
+    "description": "Perfect 5th, Perfect 4th, and Octave \u2014 the most consonant, easiest to hear",
     "config": {
-      "intervals": [7, 5, 12],
-      "roots": [0, 5, 7]
+      "intervals": [
+        7,
+        5,
+        12
+      ],
+      "roots": [
+        0,
+        5,
+        7
+      ]
     }
   },
   {
@@ -17,8 +25,18 @@
     "title": "Major & Minor 3rds",
     "description": "The intervals that define chord quality",
     "config": {
-      "intervals": [4, 3],
-      "roots": [0, 5, 10, 3, 7, 2]
+      "intervals": [
+        4,
+        3
+      ],
+      "roots": [
+        0,
+        5,
+        10,
+        3,
+        7,
+        2
+      ]
     }
   },
   {
@@ -26,10 +44,26 @@
     "topic": "intervals",
     "tierNumber": 3,
     "title": "Major & Minor 6ths",
-    "description": "Inversions of 3rds — equally important for voice leading",
+    "description": "Inversions of 3rds \u2014 equally important for voice leading",
     "config": {
-      "intervals": [9, 8],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        9,
+        8
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   },
   {
@@ -37,10 +71,26 @@
     "topic": "intervals",
     "tierNumber": 4,
     "title": "Major & Minor 2nds",
-    "description": "Stepwise motion — the building blocks of scales and melody",
+    "description": "Stepwise motion \u2014 the building blocks of scales and melody",
     "config": {
-      "intervals": [2, 1],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        2,
+        1
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   },
   {
@@ -48,10 +98,26 @@
     "topic": "intervals",
     "tierNumber": 5,
     "title": "Major & Minor 7ths",
-    "description": "Essential for jazz harmony — the color tones of seventh chords",
+    "description": "Essential for jazz harmony \u2014 the color tones of seventh chords",
     "config": {
-      "intervals": [11, 10],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        11,
+        10
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   },
   {
@@ -61,8 +127,23 @@
     "title": "Tritone",
     "description": "The defining interval of dominant function in jazz",
     "config": {
-      "intervals": [6],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        6
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   },
   {
@@ -70,10 +151,27 @@
     "topic": "intervals",
     "tierNumber": 7,
     "title": "Basic Compound Intervals",
-    "description": "Major 9th, Perfect 11th, and Major 13th — the natural extensions",
+    "description": "Major 9th, Perfect 11th, and Major 13th \u2014 the natural extensions",
     "config": {
-      "intervals": [14, 17, 21],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        14,
+        17,
+        21
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   },
   {
@@ -81,76 +179,28 @@
     "topic": "intervals",
     "tierNumber": 8,
     "title": "Altered Extensions",
-    "description": "Minor 9th, Augmented 9th, Sharp 11th, Minor 13th — altered dominant sounds",
+    "description": "Minor 9th, Augmented 9th, Sharp 11th, Minor 13th \u2014 altered dominant sounds",
     "config": {
-      "intervals": [13, 15, 18, 20],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    }
-  },
-  {
-    "id": "chord-t1",
-    "topic": "chords",
-    "tierNumber": 1,
-    "title": "Basic Triads (Easy Keys)",
-    "description": "Major and minor triads in C, F, and G",
-    "config": {
-      "qualities": ["major", "minor"],
-      "roots": [0, 5, 7]
-    }
-  },
-  {
-    "id": "chord-t2",
-    "topic": "chords",
-    "tierNumber": 2,
-    "title": "Basic Triads (All Keys)",
-    "description": "Major and minor triads in all 12 keys",
-    "config": {
-      "qualities": ["major", "minor"],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    }
-  },
-  {
-    "id": "chord-t3",
-    "topic": "chords",
-    "tierNumber": 3,
-    "title": "Dominant 7th & Major 7th",
-    "description": "The two most common jazz seventh chords",
-    "config": {
-      "qualities": ["dominant7", "major7"],
-      "roots": [0, 5, 10, 7, 2]
-    }
-  },
-  {
-    "id": "chord-t4",
-    "topic": "chords",
-    "tierNumber": 4,
-    "title": "Minor 7th & Half-Diminished",
-    "description": "Complete the ii-V-I seventh chord vocabulary",
-    "config": {
-      "qualities": ["minor7", "halfDiminished"],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    }
-  },
-  {
-    "id": "chord-t5",
-    "topic": "chords",
-    "tierNumber": 5,
-    "title": "Diminished 7th & Augmented",
-    "description": "Symmetric chords with special voice-leading properties",
-    "config": {
-      "qualities": ["diminished7", "augmented"],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    }
-  },
-  {
-    "id": "chord-t6",
-    "topic": "chords",
-    "tierNumber": 6,
-    "title": "Extended Chords",
-    "description": "9th, 11th, and 13th chords",
-    "config": {
-      "qualities": ["dominant9", "major9", "minor9", "dominant13"],
-      "roots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+      "intervals": [
+        13,
+        15,
+        18,
+        20
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
     }
   }
 ]

@@ -14,6 +14,7 @@ import 'tables/tier_progress_table.dart';
 import 'tables/question_results_table.dart';
 import 'tables/settings_table.dart';
 import 'tables/item_schedules_table.dart';
+import 'tables/session_templates_table.dart';
 
 import 'daos/cards_dao.dart';
 import 'daos/decks_dao.dart';
@@ -24,6 +25,7 @@ import 'daos/progression_dao.dart';
 import 'daos/question_results_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/item_schedules_dao.dart';
+import 'daos/session_templates_dao.dart';
 
 export 'converters.dart';
 
@@ -43,6 +45,7 @@ part 'app_database.g.dart';
     QuestionResults,
     Settings,
     ItemSchedules,
+    SessionTemplates,
   ],
   daos: [
     CardsDao,
@@ -54,6 +57,7 @@ part 'app_database.g.dart';
     QuestionResultsDao,
     SettingsDao,
     ItemSchedulesDao,
+    SessionTemplatesDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -68,7 +72,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -108,6 +112,26 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(itemSchedules, itemSchedules.step);
           await m.addColumn(cardStates, cardStates.lastReview);
           await m.addColumn(cardStates, cardStates.step);
+        }
+        if (from < 11) {
+          await m.addColumn(settings, settings.quickStartCount);
+          await m.addColumn(settings, settings.lastQuickStartAt);
+          await m.addColumn(settings, settings.lastTemplateKey);
+          await m.addColumn(settings, settings.lastTemplateUsedAt);
+          // createTable uses current schema, so folder/tags/isGlobal
+          // columns are included — skip the <12 block to avoid duplicates.
+          await m.createTable(sessionTemplates);
+        } else if (from < 12) {
+          await m.addColumn(sessionTemplates, sessionTemplates.folder);
+          await m.addColumn(sessionTemplates, sessionTemplates.tags);
+          await m.addColumn(sessionTemplates, sessionTemplates.isGlobal);
+        }
+        if (from < 13) {
+          await m.addColumn(decks, decks.parentId);
+        }
+        if (from < 14) {
+          await m.addColumn(settings, settings.deckDrillCount);
+          await m.addColumn(settings, settings.deckHardnessLevel);
         }
       },
     );

@@ -10,6 +10,7 @@ abstract class Deck with _$Deck {
     required String title,
     @Default([]) List<String> tags,
     String? sourceConceptId,
+    String? parentId,
   }) = _Deck;
 
   factory Deck.fromJson(Map<String, dynamic> json) => _$DeckFromJson(json);

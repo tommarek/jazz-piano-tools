@@ -81,6 +81,9 @@ class AnswerInputArea extends StatelessWidget {
 
   Widget _buildKeyboard(BuildContext context) {
     final theme = Theme.of(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final octaveCount = isLandscape ? 2 : 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -88,7 +91,7 @@ class AnswerInputArea extends StatelessWidget {
         SizedBox(
           height: 120,
           child: FlutterPianoProAdapter(
-            octaveCount: 2,
+            octaveCount: octaveCount,
             startOctave: 4,
             highlightedNotes: controller.keyboardSubmitted
                 ? controller.expectedPitchClasses

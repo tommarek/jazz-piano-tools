@@ -1,29 +1,9 @@
 [
   {
-    "id": "circle-of-fourths",
-    "title": "Circle of Fourths",
-    "summary": "Understanding the circle of fourths — the key order, the pattern of moving up by perfect 4ths, and why it is essential for jazz musicians.",
-    "bodyMarkdown": "The circle of fourths (sometimes called the circle of fifths, depending on direction) is one of the most fundamental tools in music theory. Starting from C and moving up by a perfect fourth each time, you get the sequence: C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D, G — and then back to C. Each step adds one flat to the key signature, making it a natural way to organize and memorize all 12 keys.\n\nFor jazz pianists, the circle of fourths is especially important because so much of jazz harmony moves in fourths. The dominant-to-tonic resolution (V to I) is a motion of a perfect fourth upward, and the ubiquitous ii-V-I progression chains two fourth motions together. When you internalize the circle, you begin to see these resolutions everywhere in standards and bebop tunes.\n\nPracticing around the circle of fourths is one of the best ways to build fluency in all 12 keys. Rather than always starting exercises in C major, cycle through keys in fourths order. This ensures you spend equal time in every key and develops the kind of key-agnostic fluency that professional jazz players rely on. Start with simple scales and chords, then graduate to voicings, ii-V-I patterns, and licks around the circle.",
-    "examples": [
-      {
-        "label": "Circle of fourths starting from C",
-        "content": "C → F → Bb → Eb → Ab → Db → Gb → B → E → A → D → G → C"
-      },
-      {
-        "label": "Flats added per step",
-        "content": "C (0 flats) → F (1 flat) → Bb (2 flats) → Eb (3 flats) → Ab (4 flats) → Db (5 flats) → Gb (6 flats)"
-      }
-    ],
-    "tags": ["fundamentals", "keys"],
-    "level": 1,
-    "relatedExerciseIds": ["circle-next-key", "circle-play-chord"],
-    "relatedCardDeckIds": ["circle-of-fourths-deck"]
-  },
-  {
     "id": "intervals-basic",
     "title": "Intervals",
-    "summary": "All 12 intervals within an octave — how to identify them, count semitones, and understand their role as the building blocks of chords and melody.",
-    "bodyMarkdown": "An interval is the distance between two notes, measured in semitones (half steps). Within a single octave there are 12 distinct intervals, from the unison (0 semitones) to the major seventh (11 semitones). Being able to instantly recognize and build any interval is a prerequisite for understanding chords, scales, and voice leading.\n\nThe intervals and their semitone counts are: unison (0), minor 2nd (1), major 2nd (2), minor 3rd (3), major 3rd (4), perfect 4th (5), tritone (6), perfect 5th (7), minor 6th (8), major 6th (9), minor 7th (10), and major 7th (11). Jazz musicians frequently think in terms of these distances because chord qualities are defined by their interval content — for example, a major triad is simply a major 3rd stacked with a minor 3rd on top.\n\nTraining your ear to hear intervals is just as important as knowing them intellectually. Start by associating each interval with the opening notes of a well-known song: a perfect 4th sounds like the beginning of \"Here Comes the Bride,\" a tritone opens \"The Simpsons\" theme, and a minor 7th starts the verses of \"Somewhere\" from West Side Story. Combine ear training with keyboard practice — play an interval, name it, then spell it from a different starting note.\n\nAs you advance, intervals become the lens through which you analyze and construct voicings. When a jazz pianist sees a Cmaj9 chord, they are really thinking about stacking specific intervals: major 3rd, perfect 5th, major 7th, major 9th above the root. Fluency with intervals makes this kind of thinking automatic.",
+    "summary": "All 12 intervals within an octave \u2014 how to identify them, count semitones, and understand their role as the building blocks of chords and melody.",
+    "bodyMarkdown": "An interval is the distance between two notes, measured in semitones (half steps). Within a single octave there are 12 distinct intervals, from the unison (0 semitones) to the major seventh (11 semitones). Being able to instantly recognize and build any interval is a prerequisite for understanding chords, scales, and voice leading.\n\nThe intervals and their semitone counts are: unison (0), minor 2nd (1), major 2nd (2), minor 3rd (3), major 3rd (4), perfect 4th (5), tritone (6), perfect 5th (7), minor 6th (8), major 6th (9), minor 7th (10), and major 7th (11). Jazz musicians frequently think in terms of these distances because chord qualities are defined by their interval content \u2014 for example, a major triad is simply a major 3rd stacked with a minor 3rd on top.\n\nTraining your ear to hear intervals is just as important as knowing them intellectually. Start by associating each interval with the opening notes of a well-known song: a perfect 4th sounds like the beginning of \"Here Comes the Bride,\" a tritone opens \"The Simpsons\" theme, and a minor 7th starts the verses of \"Somewhere\" from West Side Story. Combine ear training with keyboard practice \u2014 play an interval, name it, then spell it from a different starting note.\n\nAs you advance, intervals become the lens through which you analyze and construct voicings. When a jazz pianist sees a Cmaj9 chord, they are really thinking about stacking specific intervals: major 3rd, perfect 5th, major 7th, major 9th above the root. Fluency with intervals makes this kind of thinking automatic.",
     "examples": [
       {
         "label": "Semitone chart",
@@ -31,112 +11,21 @@
       },
       {
         "label": "Interval from C",
-        "content": "C→Db (m2), C→D (M2), C→Eb (m3), C→E (M3), C→F (P4), C→Gb (tritone), C→G (P5), C→Ab (m6), C→A (M6), C→Bb (m7), C→B (M7)"
+        "content": "C\u2192Db (m2), C\u2192D (M2), C\u2192Eb (m3), C\u2192E (M3), C\u2192F (P4), C\u2192Gb (tritone), C\u2192G (P5), C\u2192Ab (m6), C\u2192A (M6), C\u2192Bb (m7), C\u2192B (M7)"
       }
     ],
-    "tags": ["fundamentals", "intervals"],
+    "tags": [
+      "fundamentals",
+      "intervals"
+    ],
     "level": 1,
-    "relatedExerciseIds": ["interval-build"],
-    "relatedCardDeckIds": ["intervals-deck"]
-  },
-  {
-    "id": "triads",
-    "title": "Triads",
-    "summary": "The four triad types — major, minor, diminished, and augmented — their interval formulas, construction, and foundational role in harmony.",
-    "bodyMarkdown": "A triad is a three-note chord built by stacking two thirds. There are four triad qualities, each defined by the combination of major and minor thirds used. A **major triad** stacks a major 3rd (4 semitones) then a minor 3rd (3 semitones), giving the formula 1–3–5. A **minor triad** reverses this: minor 3rd then major 3rd, formula 1–b3–5. A **diminished triad** stacks two minor 3rds (1–b3–b5), and an **augmented triad** stacks two major 3rds (1–3–#5).\n\nTriads are the foundation of all larger chords. Seventh chords are triads with an added seventh, and extended chords (9ths, 11ths, 13ths) build further from there. Before tackling complex jazz voicings, you need to be able to play all four triad types in all 12 keys without hesitation. This means root position and inversions — first inversion (3rd on the bottom) and second inversion (5th on the bottom).\n\nIn jazz, triads appear in several important contexts. Upper-structure triads are a powerful voicing technique where a triad in the right hand is played over a different bass note to create rich extended sounds. For example, playing an E major triad over a C in the bass yields a Cmaj7#11 sound. Triads also form the basis of comping patterns in modal jazz, where simple triad shapes are moved around to create harmonic interest over a static bass note.",
-    "examples": [
-      {
-        "label": "Four triad types from C",
-        "content": "C major: C–E–G | C minor: C–Eb–G | C diminished: C–Eb–Gb | C augmented: C–E–G#"
-      },
-      {
-        "label": "Interval formulas",
-        "content": "Major: M3+m3 | Minor: m3+M3 | Diminished: m3+m3 | Augmented: M3+M3"
-      }
+    "relatedExerciseIds": [
+      "interval-build"
     ],
-    "tags": ["chords", "fundamentals"],
-    "level": 1,
-    "relatedExerciseIds": ["chord-build"],
-    "relatedCardDeckIds": ["major-triads-deck"]
-  },
-  {
-    "id": "seventh-chords",
-    "title": "Seventh Chords",
-    "summary": "The four essential seventh chord types in jazz — major 7th, minor 7th, dominant 7th, and half-diminished — their formulas, sounds, and harmonic roles.",
-    "bodyMarkdown": "Seventh chords are the basic harmonic vocabulary of jazz. While classical music often rests on triads, jazz harmony almost always uses four-note chords that include some form of the seventh. The four most common types are: **major 7th** (1–3–5–7), **minor 7th** (1–b3–5–b7), **dominant 7th** (1–3–5–b7), and **half-diminished** or minor 7th flat 5 (1–b3–b5–b7).\n\nEach seventh chord quality plays a specific role in tonal jazz harmony. In a major key, the I chord is major 7th, the ii chord is minor 7th, the V chord is dominant 7th, and the vii chord is half-diminished. Understanding these roles allows you to read a lead sheet and immediately know what type of seventh chord to play for each Roman numeral. The dominant 7th chord is especially important because it contains a tritone (between the 3rd and b7th) that creates tension demanding resolution — this is the engine that drives jazz harmony forward.\n\nTo build fluency, practice spelling and playing each seventh chord type in all 12 keys. A good method is to go around the circle of fourths: play Cmaj7, Fmaj7, Bbmaj7, Ebmaj7, and so on, then repeat for minor 7th, dominant 7th, and half-diminished. Pay attention to the sound of each quality — major 7th chords sound bright and stable, minor 7ths are warm and mellow, dominant 7ths have a restless tension, and half-diminished chords have a dark, yearning quality.\n\nOnce you are comfortable with root-position seventh chords, begin practicing inversions. In real jazz playing, you rarely play root-position chords because the bass player covers the root. Inversions and voicings that omit the root lead naturally into the concept of shell voicings and beyond.",
-    "examples": [
-      {
-        "label": "Four seventh chord types from C",
-        "content": "Cmaj7: C–E–G–B | Cm7: C–Eb–G–Bb | C7: C–E–G–Bb | Cm7b5: C–Eb–Gb–Bb"
-      },
-      {
-        "label": "Seventh chord roles in C major",
-        "content": "Imaj7 = Cmaj7 | ii-7 = Dm7 | iii-7 = Em7 | IVmaj7 = Fmaj7 | V7 = G7 | vi-7 = Am7 | vii-7b5 = Bm7b5"
-      }
-    ],
-    "tags": ["chords", "harmony"],
-    "level": 2,
-    "relatedExerciseIds": ["chord-build"],
-    "relatedCardDeckIds": ["seventh-chords-deck"]
-  },
-  {
-    "id": "shell-voicings",
-    "title": "Shell Voicings",
-    "summary": "Shell voicings — using just the 3rd and 7th of a chord to create efficient left-hand voicings with smooth voice leading.",
-    "bodyMarkdown": "Shell voicings (also called guide-tone voicings) strip a chord down to its two most harmonically essential notes: the 3rd and the 7th. These two notes define the chord quality — they tell you whether a chord is major 7th, minor 7th, or dominant 7th — while the root is left to the bass player. The result is a lean, clear two-note voicing in the left hand that leaves plenty of room for the right hand to play melody, improvise, or add upper extensions.\n\nThere are two forms for each chord, depending on whether the 3rd or the 7th is on the bottom. For a Dm7 chord, the two shell voicings are F–C (3rd on bottom, 7th on top) and C–F (7th on bottom, 3rd on top). The magic of shells is in the voice leading: when you move from ii to V to I, the notes move by step or stay the same. In the key of C, Dm7 (F–C) resolves to G7 (F–B) — the top voice drops by just a semitone while the bottom voice stays put. This smooth motion is the essence of good jazz voice leading.\n\nTo practice shell voicings, take a ii-V-I progression and play it around the circle of fourths using only shells in the left hand. Start with the 3rd on the bottom for the ii chord and let the voice leading guide you. You will notice the voicings naturally alternate between the two forms as you move through the progression. Once this feels comfortable, play through a jazz standard lead sheet using only shells — tunes like \"Autumn Leaves\" or \"All the Things You Are\" work beautifully because they are built on ii-V-I motion.",
-    "examples": [
-      {
-        "label": "Shell voicings for ii-V-I in C major",
-        "content": "Dm7: F–C (3rd–b7th) → G7: F–B (b7th–3rd) → Cmaj7: E–B (3rd–7th)"
-      },
-      {
-        "label": "Alternate voicing (7th on bottom)",
-        "content": "Dm7: C–F (b7th–3rd) → G7: B–F (3rd–b7th) → Cmaj7: B–E (7th–3rd)"
-      }
-    ],
-    "tags": ["voicings", "harmony", "jazz"],
-    "level": 2,
-    "relatedExerciseIds": ["ii-v-i-shells", "guide-tone-id"],
-    "relatedCardDeckIds": ["shell-voicings-deck"]
-  },
-  {
-    "id": "ii-v-i-major",
-    "title": "ii-V-I in Major Keys",
-    "summary": "The ii-V-I progression — the most common chord movement in jazz, its structure, harmonic function, and how to practice it in all 12 keys.",
-    "bodyMarkdown": "The ii-V-I progression is the backbone of jazz harmony. In a major key, it consists of a minor 7th chord built on the second degree, a dominant 7th chord built on the fifth degree, resolving to a major 7th chord on the first degree. In the key of C, that is Dm7–G7–Cmaj7. This three-chord sequence appears in virtually every jazz standard, sometimes as a full cadence and sometimes as a partial ii-V that tonicizes a new key.\n\nEach chord in the ii-V-I serves a specific harmonic function. The ii chord (subdominant function) creates a sense of departure, the V chord (dominant function) builds tension through its tritone, and the I chord (tonic function) provides resolution. Jazz composers use this tension-and-release cycle as the fundamental unit of harmonic motion. In a tune like \"Autumn Leaves,\" nearly every bar is part of a ii-V-I in either the major or relative minor key. Learning to spot ii-V-I progressions on a lead sheet is one of the first analytical skills a jazz pianist should develop.\n\nPracticing ii-V-I in all 12 keys is essential. Go around the circle of fourths: Dm7–G7–Cmaj7, then Gm7–C7–Fmaj7, then Cm7–F7–Bbmaj7, and so on through all keys. Start with root-position seventh chords, then move to shell voicings, and eventually to rootless voicings. The goal is to be able to drop into any key instantly without thinking. Many jazz educators consider mastery of the ii-V-I in all keys to be the single most important technical milestone for a developing jazz pianist.",
-    "examples": [
-      {
-        "label": "ii-V-I in C major",
-        "content": "Dm7 → G7 → Cmaj7"
-      },
-      {
-        "label": "ii-V-I through first four keys (circle of 4ths)",
-        "content": "Dm7–G7–Cmaj7 | Gm7–C7–Fmaj7 | Cm7–F7–Bbmaj7 | Fm7–Bb7–Ebmaj7"
-      }
-    ],
-    "tags": ["progressions", "jazz", "harmony"],
-    "level": 2,
-    "relatedExerciseIds": ["ii-v-i-shells"],
-    "relatedCardDeckIds": ["shell-voicings-deck"]
-  },
-  {
-    "id": "rootless-voicings-intro",
-    "title": "Rootless Voicings — Introduction",
-    "summary": "An overview of rootless voicings — why jazz pianists omit the root, the two standard forms (Type A and Type B), and how they create a professional combo sound.",
-    "bodyMarkdown": "Rootless voicings are four-note left-hand chord voicings that deliberately omit the root of the chord, leaving it to the bass player. This is one of the defining characteristics of modern jazz piano style, pioneered by players like Bill Evans, Wynton Kelly, and Red Garland. By removing the root, the voicing sits in a comfortable mid-range of the piano (typically around middle C) and avoids the muddy sound that occurs when too many notes are clustered in the low register.\n\nThere are two standard forms, commonly called **Type A** and **Type B**. For a ii-7 chord (e.g., Dm7), Type A voices from the 3rd up: 3–5–b7–9 (F–A–C–E), while Type B voices from the b7th up: b7–9–3–5 (C–E–F–A). For a V7 chord (e.g., G7), Type A is 3–13–b7–9 (B–E–F–A) and Type B is b7–9–3–13 (F–A–B–E). Notice that moving from ii to V, the voicing moves by small intervals — this smooth voice leading is a key benefit of the rootless system.\n\nThe two types exist so that you always have a voicing option that sits in a good range on the keyboard. If Type A for a given chord sits too high, use Type B, and vice versa. In practice, you alternate between the two forms as you move through a tune. When the ii chord uses Type A, the V chord naturally falls into Type B, and so on. This alternation keeps the voicings in a narrow range, which is both ergonomic and musically effective.\n\nMastering rootless voicings takes time because you must internalize two forms for every chord quality in all 12 keys — that is a lot of material. The payoff is enormous: rootless voicings give you the sophisticated, full sound associated with jazz piano trio and combo playing. They also serve as the foundation for adding extensions, alterations, and upper structures that define advanced jazz harmony.",
-    "examples": [
-      {
-        "label": "Type A rootless voicing for Dm7",
-        "content": "F–A–C–E (3rd–5th–b7th–9th)"
-      },
-      {
-        "label": "Type B rootless voicing for Dm7",
-        "content": "C–E–F–A (b7th–9th–3rd–5th)"
-      }
-    ],
-    "tags": ["voicings", "advanced", "jazz"],
-    "level": 3,
-    "relatedExerciseIds": [],
-    "relatedCardDeckIds": []
+    "relatedCardDeckIds": [
+      "intervals-semitones",
+      "intervals-function",
+      "intervals-ear"
+    ]
   }
 ]

@@ -11,7 +11,11 @@
     },
     "acceptanceRules": {},
     "scoringRules": {},
-    "tags": ["intervals", "fundamentals"],
+    "tags": [
+      "intervals",
+      "fundamentals",
+      "track:piano"
+    ],
     "level": 1,
     "estimatedMinutes": 5
   },
@@ -26,7 +30,11 @@
     },
     "acceptanceRules": {},
     "scoringRules": {},
-    "tags": ["intervals", "fundamentals"],
+    "tags": [
+      "intervals",
+      "fundamentals",
+      "track:theory"
+    ],
     "level": 1,
     "estimatedMinutes": 5
   },
@@ -41,100 +49,12 @@
     },
     "acceptanceRules": {},
     "scoringRules": {},
-    "tags": ["intervals", "ear-training"],
+    "tags": [
+      "intervals",
+      "ear-training",
+      "track:theory"
+    ],
     "level": 1,
-    "estimatedMinutes": 5
-  },
-  {
-    "id": "chord-build",
-    "title": "Chords",
-    "mode": "practice",
-    "inputType": "piano",
-    "generatorId": "chord_build",
-    "config": {
-      "qualities": ["Major", "Minor", "Dominant 7th", "Major 7th", "Minor 7th"],
-      "roots": "all"
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["chords"],
-    "level": 1,
-    "estimatedMinutes": 5
-  },
-  {
-    "id": "chord-ear-training",
-    "title": "Chord Ear Training",
-    "mode": "practice",
-    "inputType": "multipleChoice",
-    "generatorId": "chord_ear_training",
-    "config": {
-      "qualities": ["Major", "Minor", "Dominant 7th", "Major 7th", "Minor 7th"]
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["chords", "ear-training"],
-    "level": 1,
-    "estimatedMinutes": 5
-  },
-  {
-    "id": "circle-next-key",
-    "title": "Circle of 4ths: Next Key",
-    "mode": "test",
-    "inputType": "multipleChoice",
-    "generatorId": "circle_of_fourths_next",
-    "config": {
-      "timeLimit": 60
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["circle-of-fourths", "drill"],
-    "level": 1,
-    "estimatedMinutes": 3
-  },
-  {
-    "id": "circle-play-chord",
-    "title": "Circle of 4ths: Play Chord",
-    "mode": "test",
-    "inputType": "piano",
-    "generatorId": "circle_of_fourths_chord",
-    "config": {
-      "subMode": "playChord",
-      "chordQuality": "Dominant 7th"
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["circle-of-fourths", "chords", "drill"],
-    "level": 2,
-    "estimatedMinutes": 5
-  },
-  {
-    "id": "ii-v-i-shells",
-    "title": "ii-V-I Shell Voicings",
-    "mode": "practice",
-    "inputType": "piano",
-    "generatorId": "ii_v_i_shells",
-    "config": {
-      "keys": "all"
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["voicings", "jazz", "progressions"],
-    "level": 2,
-    "estimatedMinutes": 10
-  },
-  {
-    "id": "guide-tone-id",
-    "title": "Guide Tone Identification",
-    "mode": "test",
-    "inputType": "multipleChoice",
-    "generatorId": "guide_tone_identify",
-    "config": {
-      "qualities": ["Dominant 7th", "Major 7th", "Minor 7th"]
-    },
-    "acceptanceRules": {},
-    "scoringRules": {},
-    "tags": ["voicings", "harmony", "drill"],
-    "level": 2,
     "estimatedMinutes": 5
   }
 ]

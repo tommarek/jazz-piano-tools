@@ -97,6 +97,7 @@ class ContentLoader {
       'title': json['title'],
       'tags': json['tags'],
       'sourceConceptId': json['sourceConceptId'],
+      'parentId': json['parentId'],
     };
   }
 }
