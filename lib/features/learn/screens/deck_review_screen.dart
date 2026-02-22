@@ -48,6 +48,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   final _stopwatch = Stopwatch();
 
   AnswerInputController? _controller;
+  bool _autoAdvancing = false;
 
   @override
   void initState() {
@@ -128,6 +129,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     setState(() {
       _currentCard = card;
       _currentState = state;
+      _autoAdvancing = false;
     });
 
     _stopwatch.reset();
@@ -151,9 +153,23 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       onResult: (correct) {
         _stopwatch.stop();
         setState(() {});
+        if (!correct) {
+          _handleIncorrect();
+        }
       },
     );
     setState(() {});
+  }
+
+  Future<void> _handleIncorrect() async {
+    // Re-queue card for another attempt later in the session.
+    setState(() {
+      _autoAdvancing = true;
+      _cardIds.add(_cardIds[_currentIndex]);
+      _totalCards = _cardIds.length;
+    });
+    // Auto-rate as "Again" and advance after 1s.
+    await _rateAndNextWithDelay(0);
   }
 
   Future<void> _rateAndNext(int rating) async {
@@ -319,8 +335,9 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     return ListenableBuilder(
       listenable: ctrl,
       builder: (context, _) {
-        // Feedback phase: always show rating buttons
-        if (ctrl.phase == AnswerPhase.feedback || ctrl.keyboardSubmitted) {
+        // Feedback phase: show rating buttons (unless auto-advancing)
+        if ((ctrl.phase == AnswerPhase.feedback || ctrl.keyboardSubmitted) &&
+            !_autoAdvancing) {
           return AnswerActionBar(
             child: RatingButtons(
               onRate: _rateAndNext,
