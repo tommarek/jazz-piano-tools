@@ -8,6 +8,7 @@ import '../../../core/answer_input/answer_input_mode.dart';
 import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/pitch_class_parser.dart';
 import '../../../core/answer_input/rating_buttons.dart';
+import '../../drill/widgets/session_app_bar_title.dart';
 import '../../../app/providers.dart';
 import '../../../database/app_database.dart' as drift;
 import '../../../domain/models/srs_card.dart';
@@ -269,8 +270,12 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '$modeLabel (${_currentIndex + 1}/${_cardIds.length - _currentIndex})',
+        title: SessionAppBarTitle(
+          title: modeLabel,
+          subtitleParts: [
+            '${_currentIndex + 1} of ${_totalCards}',
+            '${(_totalCards > 0 ? (_correctCount / (_currentIndex > 0 ? _currentIndex : 1) * 100).round() : 0)}% correct',
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),

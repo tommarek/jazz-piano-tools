@@ -17,6 +17,9 @@ class Settings extends Table {
   /// Answer input mode: 'multipleChoice', 'keyboard', or 'none'.
   TextColumn get answerInputMode =>
       text().withDefault(const Constant('keyboard'))();
+  /// Theme mode: 'system', 'light', or 'dark'.
+  TextColumn get themeMode =>
+      text().withDefault(const Constant('system'))();
 
   /// Whether to show SRS interval hints below rating buttons.
   BoolColumn get showIntervalHints =>

@@ -19,4 +19,9 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
       entry.copyWith(id: const Value(1)),
     );
   }
+
+  Stream<Setting?> watchSettings() {
+    return (select(settings)..where((s) => s.id.equals(1)))
+        .watchSingleOrNull();
+  }
 }

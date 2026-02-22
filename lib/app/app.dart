@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../content/providers/content_providers.dart';
+import '../features/settings/providers/settings_provider.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -11,6 +12,10 @@ class JazzPianoToolsApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bootstrap = ref.watch(contentBootstrapProvider);
+    final themeMode = ref.watch(settingsProvider).maybeWhen(
+          data: (settings) => _themeModeFrom(settings?.themeMode),
+          orElse: () => ThemeMode.system,
+        );
     return bootstrap.when(
       data: (_) {
         final router = ref.watch(routerProvider);
@@ -18,7 +23,7 @@ class JazzPianoToolsApp extends ConsumerWidget {
           title: 'Jazz Piano Tools',
           theme: appTheme,
           darkTheme: appDarkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: themeMode,
           routerConfig: router,
         );
       },
@@ -27,7 +32,7 @@ class JazzPianoToolsApp extends ConsumerWidget {
           title: 'Jazz Piano Tools',
           theme: appTheme,
           darkTheme: appDarkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: themeMode,
           home: const _BootstrapScreen(
             title: 'Loading content…',
           ),
@@ -38,7 +43,7 @@ class JazzPianoToolsApp extends ConsumerWidget {
           title: 'Jazz Piano Tools',
           theme: appTheme,
           darkTheme: appDarkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: themeMode,
           home: _BootstrapScreen(
             title: 'Failed to load content',
             error: err,
@@ -46,6 +51,14 @@ class JazzPianoToolsApp extends ConsumerWidget {
         );
       },
     );
+  }
+
+  ThemeMode _themeModeFrom(String? value) {
+    return switch (value) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
   }
 }
 

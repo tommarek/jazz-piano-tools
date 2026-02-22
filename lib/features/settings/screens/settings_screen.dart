@@ -65,6 +65,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showNoteDisplayPicker(),
                 ),
+                ListTile(
+                  title: const Text('Theme'),
+                  subtitle: Text(
+                      _themeLabel(_settings?.themeMode ?? 'system')),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showThemePicker(),
+                ),
                 SwitchListTile(
                   title: const Text('Show notation'),
                   subtitle: const Text('Display staff notation in questions'),
@@ -186,6 +193,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     };
   }
 
+  String _themeLabel(String mode) {
+    return switch (mode) {
+      'light' => 'Light',
+      'dark' => 'Dark',
+      _ => 'System',
+    };
+  }
+
   void _showNoteDisplayPicker() {
     showModalBottomSheet(
       context: context,
@@ -202,6 +217,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {
                   _updateSetting(
                     SettingsCompanion(noteDisplayStyle: Value(style)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showThemePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final mode in ['system', 'light', 'dark'])
+              ListTile(
+                title: Text(_themeLabel(mode)),
+                trailing: (_settings?.themeMode ?? 'system') == mode
+                    ? const Icon(Icons.check)
+                    : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(themeMode: Value(mode)),
                   );
                   Navigator.pop(context);
                 },

@@ -72,7 +72,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -132,6 +132,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 14) {
           await m.addColumn(settings, settings.deckDrillCount);
           await m.addColumn(settings, settings.deckHardnessLevel);
+        }
+        if (from < 15) {
+          await m.addColumn(settings, settings.themeMode);
         }
       },
     );
