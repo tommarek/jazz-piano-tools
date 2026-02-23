@@ -63,45 +63,51 @@ class TodayScreen extends ConsumerWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Estimated time: ${session.sessionEstimateMinutes} min',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
         const SizedBox(height: 24),
 
         // Due reviews card
-        _SessionCard(
-          icon: Icons.flip,
-          iconColor: theme.colorScheme.primary,
-          title: 'Cards to Review',
-          subtitle: session.dueCardCount > 0
-              ? '${session.dueCardCount} cards due'
-              : 'All caught up!',
-          trailing: session.dueCardCount > 0
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    '${session.dueCardCount}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              : Icon(Icons.check_circle, color: Colors.green.shade600),
-          onTap: session.dueCardCount > 0
-              ? () => context.push('/review')
-              : null,
+        Consumer(
+          builder: (context, ref, _) {
+            final countsAsync = ref.watch(todayDashboardCountsProvider);
+            final counts = countsAsync.asData?.value;
+
+            final due = counts?.dueCardCount ?? session.dueCardCount;
+            final learning = counts?.learningDueCount ?? session.learningDueCount;
+            final review = counts?.reviewDueCount ?? session.reviewDueCount;
+            final newLeft = counts?.newCardsRemaining ?? session.newCardsRemaining;
+            final estMin = counts?.estimatedMinutes ?? ((due * 0.5).ceil());
+
+            return _SessionCard(
+              icon: Icons.flip,
+              iconColor: theme.colorScheme.primary,
+              title: 'Cards to Review',
+              subtitle: due > 0
+                  ? '$due due (L$learning · R$review) · ~$estMin min · $newLeft new left'
+                  : newLeft > 0
+                      ? 'All caught up · ~0 min · $newLeft new left'
+                      : 'All caught up · no new cards left today',
+              trailing: due > 0
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '$due',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  : Icon(Icons.check_circle, color: Colors.green.shade600),
+              onTap: due > 0 ? () => context.push('/review') : null,
+            );
+          },
         ),
         const SizedBox(height: 24),
       ],

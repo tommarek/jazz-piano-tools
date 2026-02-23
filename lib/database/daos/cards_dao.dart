@@ -36,6 +36,47 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return query.map((row) => row.readTable(cards)).get();
   }
 
+  Future<List<String>> getDueLearningCardIds(
+    DateTime now, {
+    Duration learnAhead = Duration.zero,
+  }) async {
+    final dueBy = now.add(learnAhead);
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(
+        cardStates.due.isSmallerOrEqualValue(dueBy) &
+            (cardStates.state.equals('learning') |
+                cardStates.state.equals('relearning')),
+      );
+    final rows = await query.get();
+    return rows.map((r) => r.readTable(cards).id).toList();
+  }
+
+  Future<List<String>> getDueReviewCardIds(DateTime now) async {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(
+        cardStates.due.isSmallerOrEqualValue(now) &
+            cardStates.state.equals('review'),
+      );
+    final rows = await query.get();
+    return rows.map((r) => r.readTable(cards).id).toList();
+  }
+
+  Future<List<String>> getNewCardIds({int? limit}) async {
+    final query = select(cards).join([
+      innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+    ])
+      ..where(cardStates.state.equals('new'));
+    if (limit != null) {
+      query.limit(limit);
+    }
+    final rows = await query.get();
+    return rows.map((r) => r.readTable(cards).id).toList();
+  }
+
   Future<void> upsertCardState(CardStatesCompanion companion) {
     return into(cardStates).insertOnConflictUpdate(companion);
   }
@@ -51,6 +92,39 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     query.where(cards.deckId.equals(deckId));
     final result = await query.getSingle();
     return result.read(count)!;
+  }
+
+  Future<int> getLearnedCardCountForDeck(String deckId) async {
+    final count = cards.id.count();
+    final query = selectOnly(cards)
+      ..addColumns([count])
+      ..join([
+        innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+      ])
+      ..where(
+        cards.deckId.equals(deckId) & cardStates.state.isNotValue('new'),
+      );
+    final result = await query.getSingle();
+    return result.read(count) ?? 0;
+  }
+
+  Future<int> getLearnedNotDueCardCountForDeck(
+    String deckId,
+    DateTime now,
+  ) async {
+    final count = cards.id.count();
+    final query = selectOnly(cards)
+      ..addColumns([count])
+      ..join([
+        innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
+      ])
+      ..where(
+        cards.deckId.equals(deckId) &
+            cardStates.state.equals('review') &
+            cardStates.due.isBiggerThanValue(now),
+      );
+    final result = await query.getSingle();
+    return result.read(count) ?? 0;
   }
 
   Future<List<Card>> getDueCardsForDeck(String deckId, DateTime now) {

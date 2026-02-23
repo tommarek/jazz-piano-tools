@@ -237,7 +237,7 @@ class _DeckTreeTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final subtitle =
-        '${node.dueCards} due \u00b7 ${node.newCards} new \u00b7 ${node.totalCards} total';
+        '${node.dueCards} due \u00b7 ${node.learnedCards} learned \u00b7 ${node.totalCards} cards';
     final db = ref.read(appDatabaseProvider);
 
     if (node.children.isEmpty) {

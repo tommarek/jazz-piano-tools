@@ -13,7 +13,10 @@ import '../../../app/providers.dart';
 import '../../../database/app_database.dart' as drift;
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
+import '../../library/providers/library_provider.dart';
+import '../providers/deck_review_provider.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../today/providers/today_session_provider.dart';
 import '../../today/screens/end_summary_screen.dart';
 
 class DeckReviewScreen extends ConsumerStatefulWidget {
@@ -187,6 +190,12 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
           rating,
           _stopwatch.elapsedMilliseconds,
         );
+        ref.invalidate(dueCardIdsProvider);
+        ref.invalidate(dueCardCountProvider);
+        ref.invalidate(todaySessionProvider);
+        ref.invalidate(deckTreeStatsProvider);
+        ref.invalidate(conceptDeckStatsProvider);
+        ref.invalidate(exerciseCountsProvider);
       }
     } catch (_) {
       // Fall through to advance even if SRS write fails.
@@ -208,6 +217,12 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
           rating,
           _stopwatch.elapsedMilliseconds,
         );
+        ref.invalidate(dueCardIdsProvider);
+        ref.invalidate(dueCardCountProvider);
+        ref.invalidate(todaySessionProvider);
+        ref.invalidate(deckTreeStatsProvider);
+        ref.invalidate(conceptDeckStatsProvider);
+        ref.invalidate(exerciseCountsProvider);
       }
     } catch (_) {}
 
@@ -233,6 +248,12 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
           cardsReviewed: _currentIndex,
           correctCount: _correctCount,
           onDone: () {
+            // Refresh due/new/learned counts immediately after session end.
+            ref.invalidate(deckTreeStatsProvider);
+            ref.invalidate(conceptDeckStatsProvider);
+            ref.invalidate(todaySessionProvider);
+            ref.invalidate(dueCardIdsProvider);
+            ref.invalidate(dueCardCountProvider);
             final nav = Navigator.of(context, rootNavigator: true);
             nav.pop();
             nav.pop();

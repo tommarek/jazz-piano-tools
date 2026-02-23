@@ -24,12 +24,18 @@ class ExerciseWithCounts {
 
 class TodaySessionState {
   final int dueCardCount;
+  final int learningDueCount;
+  final int reviewDueCount;
+  final int newCardsRemaining;
   final int completedReviews;
   final List<ExerciseWithCounts> exercises;
   final int sessionEstimateMinutes;
 
   const TodaySessionState({
     this.dueCardCount = 0,
+    this.learningDueCount = 0,
+    this.reviewDueCount = 0,
+    this.newCardsRemaining = 0,
     this.completedReviews = 0,
     this.exercises = const [],
     this.sessionEstimateMinutes = 0,
@@ -37,12 +43,18 @@ class TodaySessionState {
 
   TodaySessionState copyWith({
     int? dueCardCount,
+    int? learningDueCount,
+    int? reviewDueCount,
+    int? newCardsRemaining,
     int? completedReviews,
     List<ExerciseWithCounts>? exercises,
     int? sessionEstimateMinutes,
   }) {
     return TodaySessionState(
       dueCardCount: dueCardCount ?? this.dueCardCount,
+      learningDueCount: learningDueCount ?? this.learningDueCount,
+      reviewDueCount: reviewDueCount ?? this.reviewDueCount,
+      newCardsRemaining: newCardsRemaining ?? this.newCardsRemaining,
       completedReviews: completedReviews ?? this.completedReviews,
       exercises: exercises ?? this.exercises,
       sessionEstimateMinutes:
@@ -53,13 +65,16 @@ class TodaySessionState {
 
 @riverpod
 Future<TodaySessionState> todaySession(TodaySessionRef ref) async {
-  final dueCount = await ref.watch(dueCardCountProvider.future);
   final allExercises = await ref.watch(allExercisesProvider.future);
   final db = ref.watch(appDatabaseProvider);
+  final engine = ref.watch(srsEngineProvider);
+  final queueStats = await engine.getQueueStats();
+  final dueCount = queueStats.totalDue;
 
   final now = DateTime.now();
   final settings = await db.settingsDao.getSettings();
   final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final newCardsRemainingToday = queueStats.newAvailableToday;
 
   // Cache per-topic data to avoid duplicate queries for exercises sharing a topic
   final topicScheduledIds = <String, Set<String>>{};
@@ -128,8 +143,45 @@ Future<TodaySessionState> todaySession(TodaySessionRef ref) async {
 
   return TodaySessionState(
     dueCardCount: dueCount,
+    learningDueCount: queueStats.learningDue,
+    reviewDueCount: queueStats.reviewDue,
+    newCardsRemaining: newCardsRemainingToday,
     completedReviews: 0,
     exercises: exercisesWithCounts,
-    sessionEstimateMinutes: totalEstimate > 0 ? totalEstimate : 5,
+    sessionEstimateMinutes: totalEstimate,
   );
+}
+
+class TodayDashboardCounts {
+  final int dueCardCount;
+  final int learningDueCount;
+  final int reviewDueCount;
+  final int newCardsRemaining;
+  final int estimatedMinutes;
+
+  const TodayDashboardCounts({
+    this.dueCardCount = 0,
+    this.learningDueCount = 0,
+    this.reviewDueCount = 0,
+    this.newCardsRemaining = 0,
+    this.estimatedMinutes = 0,
+  });
+}
+
+@riverpod
+Stream<TodayDashboardCounts> todayDashboardCounts(
+  TodayDashboardCountsRef ref,
+) async* {
+  final engine = ref.watch(srsEngineProvider);
+  while (true) {
+    final queueStats = await engine.getQueueStats();
+    yield TodayDashboardCounts(
+      dueCardCount: queueStats.totalDue,
+      learningDueCount: queueStats.learningDue,
+      reviewDueCount: queueStats.reviewDue,
+      newCardsRemaining: queueStats.newAvailableToday,
+      estimatedMinutes: (queueStats.totalDue * 0.5).ceil(),
+    );
+    await Future<void>.delayed(const Duration(seconds: 30));
+  }
 }

@@ -48,10 +48,17 @@ class FsrsAdapter {
   }
 
   fsrs.Card _toFsrsCard(SrsCardState state) {
+    // Guard against partially initialized/legacy review rows.
+    // FSRS review state expects prior review parameters to exist.
+    final canUseReviewState = state.state == 'review' &&
+        state.stability > 0.0 &&
+        state.difficulty > 0.0 &&
+        state.lastReview != null;
+
     final fsrsState = switch (state.state) {
       'new' => fsrs.State.learning,
       'learning' => fsrs.State.learning,
-      'review' => fsrs.State.review,
+      'review' => canUseReviewState ? fsrs.State.review : fsrs.State.learning,
       'relearning' => fsrs.State.relearning,
       _ => fsrs.State.learning,
     };

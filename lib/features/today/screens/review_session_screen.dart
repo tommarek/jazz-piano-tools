@@ -13,6 +13,7 @@ import '../../../core/answer_input/rating_buttons.dart';
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../providers/today_session_provider.dart';
 
 class ReviewSessionScreen extends ConsumerStatefulWidget {
   const ReviewSessionScreen({super.key});
@@ -50,7 +51,7 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
 
   Future<void> _loadCards() async {
     final engine = ref.read(srsEngineProvider);
-    final ids = await engine.getDueCardIds();
+    final ids = await engine.getStudyQueueCardIds();
     if (!mounted) return;
 
     if (ids.isEmpty) {
@@ -122,6 +123,9 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       rating,
       _stopwatch.elapsedMilliseconds,
     );
+    ref.invalidate(dueCardIdsProvider);
+    ref.invalidate(dueCardCountProvider);
+    ref.invalidate(todaySessionProvider);
 
     if (rating >= 2) {
       _correctCount++;

@@ -9,15 +9,17 @@ class DeckStats {
   final String deckId;
   final String title;
   final int totalCards;
+  final int learnedCards;
   final int dueCards;
-  final int newCards;
+  final int newCardsRemainingToday;
 
   const DeckStats({
     required this.deckId,
     required this.title,
     required this.totalCards,
+    required this.learnedCards,
     required this.dueCards,
-    required this.newCards,
+    required this.newCardsRemainingToday,
   });
 }
 
@@ -25,6 +27,7 @@ class DeckTreeNode {
   final Deck deck;
   final List<DeckTreeNode> children;
   final int totalCards;
+  final int learnedCards;
   final int dueCards;
   final int newCards;
   final int newCardsRaw;
@@ -33,21 +36,24 @@ class DeckTreeNode {
     required this.deck,
     required this.children,
     required this.totalCards,
+    required this.learnedCards,
     required this.dueCards,
     required this.newCards,
     required this.newCardsRaw,
   });
 }
 
-@riverpod
-Future<List<DeckStats>> conceptDeckStats(
-  ConceptDeckStatsRef ref,
+Future<List<DeckStats>> _computeConceptDeckStats(
+  AppDatabase db,
   List<String> deckIds,
 ) async {
-  final db = ref.watch(appDatabaseProvider);
   final now = DateTime.now().toUtc();
   final settings = await db.settingsDao.getSettings();
   final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final globalNewIntroducedToday =
+      await db.reviewsDao.getCardsFirstReviewedToday();
+  final remainingNewSlots =
+      (newCardsPerDay - globalNewIntroducedToday).clamp(0, newCardsPerDay);
 
   final stats = <DeckStats>[];
   for (final deckId in deckIds) {
@@ -55,30 +61,34 @@ Future<List<DeckStats>> conceptDeckStats(
     if (deck == null) continue;
 
     final totalCards = await db.cardsDao.getCardCountForDeck(deckId);
+    final learnedCards =
+        await db.cardsDao.getLearnedNotDueCardCountForDeck(deckId, now);
     final dueCards = await db.cardsDao.getDueCardsForDeck(deckId, now);
-    final newCards = await db.cardsDao.getNewCardsForDeck(deckId);
 
     stats.add(DeckStats(
       deckId: deckId,
       title: deck.title,
       totalCards: totalCards,
+      learnedCards: learnedCards,
       dueCards: dueCards.length,
-      newCards: newCards.length.clamp(0, newCardsPerDay),
+      newCardsRemainingToday: remainingNewSlots,
     ));
   }
 
   return stats;
 }
 
-@riverpod
-Future<List<DeckTreeNode>> deckTreeStats(
-  DeckTreeStatsRef ref,
+Future<List<DeckTreeNode>> _computeDeckTreeStats(
+  AppDatabase db,
   List<String> rootDeckIds,
 ) async {
-  final db = ref.watch(appDatabaseProvider);
   final now = DateTime.now().toUtc();
   final settings = await db.settingsDao.getSettings();
   final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final globalNewIntroducedToday =
+      await db.reviewsDao.getCardsFirstReviewedToday();
+  final remainingNewSlots =
+      (newCardsPerDay - globalNewIntroducedToday).clamp(0, newCardsPerDay);
 
   final decks = await db.decksDao.getAllDecks();
   final deckById = {for (final d in decks) d.id: d};
@@ -89,10 +99,10 @@ Future<List<DeckTreeNode>> deckTreeStats(
 
   Future<DeckTreeNode> buildNode(Deck deck) async {
     final totalCards = await db.cardsDao.getCardCountForDeck(deck.id);
-    final dueCards =
-        await db.cardsDao.getDueCardsForDeck(deck.id, now);
-    final newCards =
-        await db.cardsDao.getNewCardsForDeck(deck.id);
+    final learnedCards =
+        await db.cardsDao.getLearnedNotDueCardCountForDeck(deck.id, now);
+    final dueCards = await db.cardsDao.getDueCardsForDeck(deck.id, now);
+    final newCards = await db.cardsDao.getNewCardsForDeck(deck.id);
 
     final children = <DeckTreeNode>[];
     for (final child in childrenMap[deck.id] ?? const []) {
@@ -101,16 +111,19 @@ Future<List<DeckTreeNode>> deckTreeStats(
 
     final total = totalCards +
         children.fold<int>(0, (sum, n) => sum + n.totalCards);
+    final learned = learnedCards +
+        children.fold<int>(0, (sum, n) => sum + n.learnedCards);
     final due = dueCards.length +
         children.fold<int>(0, (sum, n) => sum + n.dueCards);
     final newRaw = newCards.length +
         children.fold<int>(0, (sum, n) => sum + n.newCardsRaw);
-    final newCapped = newRaw.clamp(0, newCardsPerDay);
+    final newCapped = newRaw.clamp(0, remainingNewSlots);
 
     return DeckTreeNode(
       deck: deck,
       children: children,
       totalCards: total,
+      learnedCards: learned,
       dueCards: due,
       newCards: newCapped,
       newCardsRaw: newRaw,
@@ -124,4 +137,28 @@ Future<List<DeckTreeNode>> deckTreeStats(
     nodes.add(await buildNode(deck));
   }
   return nodes;
+}
+
+@riverpod
+Stream<List<DeckStats>> conceptDeckStats(
+  ConceptDeckStatsRef ref,
+  List<String> deckIds,
+) async* {
+  final db = ref.watch(appDatabaseProvider);
+  while (true) {
+    yield await _computeConceptDeckStats(db, deckIds);
+    await Future<void>.delayed(const Duration(seconds: 30));
+  }
+}
+
+@riverpod
+Stream<List<DeckTreeNode>> deckTreeStats(
+  DeckTreeStatsRef ref,
+  List<String> rootDeckIds,
+) async* {
+  final db = ref.watch(appDatabaseProvider);
+  while (true) {
+    yield await _computeDeckTreeStats(db, rootDeckIds);
+    await Future<void>.delayed(const Duration(seconds: 30));
+  }
 }

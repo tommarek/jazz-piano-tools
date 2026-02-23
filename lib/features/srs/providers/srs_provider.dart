@@ -8,6 +8,16 @@ import '../srs_engine.dart';
 
 part 'srs_provider.g.dart';
 
+@riverpod
+Stream<int> dueRefreshTicker(DueRefreshTickerRef ref) async* {
+  var tick = 0;
+  yield tick;
+  while (true) {
+    await Future<void>.delayed(const Duration(seconds: 30));
+    yield ++tick;
+  }
+}
+
 @Riverpod(keepAlive: true)
 class SrsRetention extends _$SrsRetention {
   @override
@@ -40,15 +50,14 @@ FsrsAdapter fsrsAdapter(FsrsAdapterRef ref) {
 SrsEngine srsEngine(SrsEngineRef ref) {
   final db = ref.watch(appDatabaseProvider);
   final adapter = ref.watch(fsrsAdapterProvider);
-  final engine = SrsEngine(db, adapter);
-  engine.onReviewRecorded = () {
-    ref.invalidate(dueCardIdsProvider);
-  };
-  return engine;
+  return SrsEngine(db, adapter);
 }
 
 @riverpod
 Future<List<String>> dueCardIds(DueCardIdsRef ref) async {
+  // Recompute due cards periodically so cards that become due over time
+  // appear without requiring a write/invalidation event.
+  ref.watch(dueRefreshTickerProvider);
   final engine = ref.watch(srsEngineProvider);
   return engine.getDueCardIds();
 }

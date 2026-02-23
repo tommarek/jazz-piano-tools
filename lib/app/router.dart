@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/today/screens/today_screen.dart';
@@ -17,6 +18,10 @@ import '../features/drill/screens/session_builder_screen.dart';
 import '../features/progression/screens/progression_screen.dart';
 import '../features/statistics/screens/statistics_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
+import '../features/today/providers/today_session_provider.dart';
+import '../features/srs/providers/srs_provider.dart';
+import '../features/learn/providers/deck_review_provider.dart';
+import '../features/library/providers/library_provider.dart';
 
 part 'router.g.dart';
 
@@ -175,7 +180,7 @@ GoRouter router(RouterRef ref) {
   );
 }
 
-class ScaffoldWithBottomNav extends StatelessWidget {
+class ScaffoldWithBottomNav extends ConsumerWidget {
   const ScaffoldWithBottomNav({
     required this.navigationShell,
     super.key,
@@ -184,7 +189,7 @@ class ScaffoldWithBottomNav extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
@@ -194,6 +199,13 @@ class ScaffoldWithBottomNav extends StatelessWidget {
             index,
             initialLocation: index == navigationShell.currentIndex,
           );
+          // Refresh count-heavy providers whenever returning/switching pages.
+          ref.invalidate(todaySessionProvider);
+          ref.invalidate(dueCardIdsProvider);
+          ref.invalidate(dueCardCountProvider);
+          ref.invalidate(deckTreeStatsProvider);
+          ref.invalidate(conceptDeckStatsProvider);
+          ref.invalidate(exerciseCountsProvider);
         },
         destinations: const [
           NavigationDestination(

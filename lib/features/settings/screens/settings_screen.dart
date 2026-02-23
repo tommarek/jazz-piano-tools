@@ -125,6 +125,69 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => _showNewCardsPerDayPicker(),
                 ),
                 ListTile(
+                  title: const Text('Review cards per day'),
+                  subtitle: const Text('Max due review cards to study daily'),
+                  trailing: Text(
+                    '${_settings?.reviewCardsPerDay ?? 200}',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showReviewCardsPerDayPicker(),
+                ),
+                ListTile(
+                  title: const Text('Learn ahead'),
+                  subtitle: const Text('Show learning/relearning cards early'),
+                  trailing: Text(
+                    '${_settings?.learnAheadMinutes ?? 20} min',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showLearnAheadPicker(),
+                ),
+                ListTile(
+                  title: const Text('Day rollover hour'),
+                  subtitle: const Text('When daily limits reset'),
+                  trailing: Text(
+                    '${_settings?.dayRolloverHour ?? 4}:00',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showRolloverHourPicker(),
+                ),
+                ListTile(
+                  title: const Text('Learning steps'),
+                  subtitle: const Text('Minutes between initial learning steps'),
+                  trailing: Text(
+                    _stepsLabel(_settings?.learningStepsMinutes ?? '1,10'),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showLearningStepsPicker(),
+                ),
+                ListTile(
+                  title: const Text('Relearning steps'),
+                  subtitle: const Text('Minutes after lapse before returning to review'),
+                  trailing: Text(
+                    _stepsLabel(_settings?.relearningStepsMinutes ?? '10'),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showRelearningStepsPicker(),
+                ),
+                ListTile(
+                  title: const Text('Graduating interval'),
+                  subtitle: const Text('Days after passing final learning step (Good)'),
+                  trailing: Text(
+                    '${_settings?.graduatingIntervalDays ?? 1} d',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showGraduatingIntervalPicker(),
+                ),
+                ListTile(
+                  title: const Text('Easy interval'),
+                  subtitle: const Text('Days when answering Easy in learning/relearning'),
+                  trailing: Text(
+                    '${_settings?.easyIntervalDays ?? 4} d',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showEasyIntervalPicker(),
+                ),
+                ListTile(
                   title: const Text('Deck drill count'),
                   subtitle: const Text('Default number of cards for drills'),
                   trailing: Text(
@@ -399,6 +462,202 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {
                   _updateSetting(
                     SettingsCompanion(newCardsPerDay: Value(count)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReviewCardsPerDayPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final count in [50, 100, 150, 200, 300, 500, 9999])
+              ListTile(
+                title: Text(count == 9999 ? 'No limit' : '$count reviews'),
+                trailing:
+                    (_settings?.reviewCardsPerDay ?? 200) == count
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(reviewCardsPerDay: Value(count)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLearnAheadPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final minutes in [0, 5, 10, 15, 20, 30, 60])
+              ListTile(
+                title: Text('$minutes min'),
+                trailing:
+                    (_settings?.learnAheadMinutes ?? 20) == minutes
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(learnAheadMinutes: Value(minutes)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRolloverHourPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: 320,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final hour in List<int>.generate(24, (i) => i))
+                ListTile(
+                  title: Text('${hour.toString().padLeft(2, '0')}:00'),
+                  trailing:
+                      (_settings?.dayRolloverHour ?? 4) == hour
+                          ? const Icon(Icons.check)
+                          : null,
+                  onTap: () {
+                    _updateSetting(
+                      SettingsCompanion(dayRolloverHour: Value(hour)),
+                    );
+                    Navigator.pop(context);
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _stepsLabel(String raw) => raw.split(',').map((s) => s.trim()).join(' · ');
+
+  void _showLearningStepsPicker() {
+    const presets = ['1,10', '1,5,10', '10', '15'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final steps in presets)
+              ListTile(
+                title: Text(_stepsLabel(steps)),
+                trailing:
+                    (_settings?.learningStepsMinutes ?? '1,10') == steps
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(learningStepsMinutes: Value(steps)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRelearningStepsPicker() {
+    const presets = ['10', '1,10', '20', '30'];
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final steps in presets)
+              ListTile(
+                title: Text(_stepsLabel(steps)),
+                trailing:
+                    (_settings?.relearningStepsMinutes ?? '10') == steps
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(relearningStepsMinutes: Value(steps)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showGraduatingIntervalPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final days in [1, 2, 3, 4, 7, 10])
+              ListTile(
+                title: Text('$days day${days == 1 ? '' : 's'}'),
+                trailing:
+                    (_settings?.graduatingIntervalDays ?? 1) == days
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(graduatingIntervalDays: Value(days)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEasyIntervalPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final days in [2, 3, 4, 5, 7, 10, 14])
+              ListTile(
+                title: Text('$days days'),
+                trailing:
+                    (_settings?.easyIntervalDays ?? 4) == days
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(easyIntervalDays: Value(days)),
                   );
                   Navigator.pop(context);
                 },

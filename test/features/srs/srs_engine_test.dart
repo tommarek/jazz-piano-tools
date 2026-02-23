@@ -12,7 +12,7 @@ void main() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     engine = SrsEngine(db, FsrsAdapter());
 
-    // Seed test data: deck + 3 cards all due now
+    // Seed test data: deck + 3 review cards all due now
     await db.decksDao.insertDeck(DecksCompanion.insert(
       id: 'deck1',
       title: 'Test',
@@ -30,12 +30,12 @@ void main() {
       await db.cardsDao.upsertCardState(CardStatesCompanion.insert(
         cardId: 'card$i',
         due: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
-        stability: 0.0,
-        difficulty: 0.0,
-        interval: 0,
+        stability: 2.5,
+        difficulty: 4.0,
+        interval: 1,
         lapses: 0,
-        reps: 0,
-        state: 'new',
+        reps: 1,
+        state: 'review',
       ));
     }
   });

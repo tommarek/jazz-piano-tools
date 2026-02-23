@@ -29,6 +29,34 @@ class Settings extends Table {
   IntColumn get newCardsPerDay =>
       integer().withDefault(const Constant(5))();
 
+  /// Maximum number of review cards to study per day.
+  IntColumn get reviewCardsPerDay =>
+      integer().withDefault(const Constant(200))();
+
+  /// Learning/relearning cards due within this many minutes can be shown early.
+  IntColumn get learnAheadMinutes =>
+      integer().withDefault(const Constant(20))();
+
+  /// Hour of day when the study day rolls over (0-23), local time.
+  IntColumn get dayRolloverHour =>
+      integer().withDefault(const Constant(4))();
+
+  /// Comma-separated learning steps in minutes (e.g. "1,10").
+  TextColumn get learningStepsMinutes =>
+      text().withDefault(const Constant('1,10'))();
+
+  /// Comma-separated relearning steps in minutes (e.g. "10").
+  TextColumn get relearningStepsMinutes =>
+      text().withDefault(const Constant('10'))();
+
+  /// First review interval (days) after passing the final learning step with Good.
+  IntColumn get graduatingIntervalDays =>
+      integer().withDefault(const Constant(1))();
+
+  /// First review interval (days) when answering Easy during learning/relearning.
+  IntColumn get easyIntervalDays =>
+      integer().withDefault(const Constant(4))();
+
   /// Desired retention rate for SRS scheduling (0.0–1.0).
   RealColumn get srsDesiredRetention =>
       real().withDefault(const Constant(0.9))();

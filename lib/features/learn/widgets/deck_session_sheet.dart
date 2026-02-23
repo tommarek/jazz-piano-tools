@@ -16,9 +16,8 @@ Future<void> showDeckSessionSheet({
 
   final newCardsPerDay = settings?.newCardsPerDay ?? 5;
   final maxNewAllowed = newCardsPerDay > 20 ? newCardsPerDay : 20;
-  final maxNew = node.newCardsRaw.clamp(0, maxNewAllowed);
-  final defaultNew =
-      maxNew == 0 ? 0 : (newCardsPerDay.clamp(0, maxNew) as int);
+  final maxNew = node.newCards.clamp(0, maxNewAllowed);
+  final defaultNew = maxNew == 0 ? 0 : maxNew;
   final defaultDrillCount = settings?.deckDrillCount ?? 10;
   final hardnessLevel = settings?.deckHardnessLevel ?? 'medium';
 
@@ -78,6 +77,7 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
     final theme = Theme.of(context);
 
     final due = widget.node.dueCards;
+    final learned = widget.node.learnedCards;
     final total = widget.node.totalCards;
 
     return Padding(
@@ -96,7 +96,7 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            '$due due · ${widget.node.newCards} new · $total total',
+            '$due due · $learned learned · $total cards',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -152,7 +152,7 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
 
     if (due > 0) {
       return Text(
-        'Review due cards. New cards are added automatically up to your daily limit.',
+        'Review due cards. New cards are only added if your global daily budget has remaining slots.',
         style: theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
         ),
@@ -161,7 +161,7 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
 
     if (!hasNew) {
       return Text(
-        'No due or new cards available right now.',
+        'No due cards and no global new-card slots remaining today.',
         style: theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
         ),

@@ -72,7 +72,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -82,6 +82,28 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = ON');
       },
       onUpgrade: (m, from, to) async {
+        // Dev reset: wipe and recreate all tables to avoid carrying forward
+        // incompatible scheduler state across local iterations.
+        if (from < 18) {
+          await customStatement('PRAGMA foreign_keys = OFF');
+          await customStatement('DROP TABLE IF EXISTS reviews');
+          await customStatement('DROP TABLE IF EXISTS card_states');
+          await customStatement('DROP TABLE IF EXISTS cards');
+          await customStatement('DROP TABLE IF EXISTS decks');
+          await customStatement('DROP TABLE IF EXISTS concepts');
+          await customStatement('DROP TABLE IF EXISTS exercises');
+          await customStatement('DROP TABLE IF EXISTS exercise_attempts');
+          await customStatement('DROP TABLE IF EXISTS progression_tiers');
+          await customStatement('DROP TABLE IF EXISTS tier_progress');
+          await customStatement('DROP TABLE IF EXISTS question_results');
+          await customStatement('DROP TABLE IF EXISTS settings');
+          await customStatement('DROP TABLE IF EXISTS item_schedules');
+          await customStatement('DROP TABLE IF EXISTS session_templates');
+          await customStatement('PRAGMA foreign_keys = ON');
+          await m.createAll();
+          return;
+        }
+
         if (from < 2) {
           await m.createTable(progressionTiers);
           await m.createTable(tierProgress);
@@ -135,6 +157,17 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 15) {
           await m.addColumn(settings, settings.themeMode);
+        }
+        if (from < 16) {
+          await m.addColumn(settings, settings.reviewCardsPerDay);
+          await m.addColumn(settings, settings.learnAheadMinutes);
+          await m.addColumn(settings, settings.dayRolloverHour);
+          await m.addColumn(settings, settings.learningStepsMinutes);
+          await m.addColumn(settings, settings.relearningStepsMinutes);
+        }
+        if (from < 17) {
+          await m.addColumn(settings, settings.graduatingIntervalDays);
+          await m.addColumn(settings, settings.easyIntervalDays);
         }
       },
     );
