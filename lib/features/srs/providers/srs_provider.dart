@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/constants/refresh_intervals.dart';
+import '../../../core/constants/srs_defaults.dart';
 import '../../../database/app_database.dart';
 import '../fsrs_adapter.dart';
 import '../srs_engine.dart';
@@ -13,7 +15,7 @@ Stream<int> dueRefreshTicker(DueRefreshTickerRef ref) async* {
   var tick = 0;
   yield tick;
   while (true) {
-    await Future<void>.delayed(const Duration(seconds: 30));
+    await Future<void>.delayed(kFastCountRefreshInterval);
     yield ++tick;
   }
 }
@@ -24,7 +26,7 @@ class SrsRetention extends _$SrsRetention {
   double build() {
     // The actual value is loaded asynchronously by the content bootstrap
     // provider, which calls set() before any reviews can happen.
-    return 0.9;
+    return kDefaultSrsDesiredRetention;
   }
 
   void set(double value) {

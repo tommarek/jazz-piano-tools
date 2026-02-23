@@ -8,6 +8,7 @@ import '../../../core/answer_input/answer_input_mode.dart';
 import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/pitch_class_parser.dart';
 import '../../../core/answer_input/rating_buttons.dart';
+import '../../../core/constants/ui_timing.dart';
 import '../../drill/widgets/session_app_bar_title.dart';
 import '../../../app/providers.dart';
 import '../../../database/app_database.dart' as drift;
@@ -166,11 +167,13 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   }
 
   Future<void> _handleIncorrect() async {
-    // Re-queue card for another attempt later in the session.
     setState(() {
       _autoAdvancing = true;
-      _cardIds.add(_cardIds[_currentIndex]);
-      _totalCards = _cardIds.length;
+      if (widget.isRandom) {
+        // Random drill mode is local-session-only and not SRS-driven.
+        _cardIds.add(_cardIds[_currentIndex]);
+        _totalCards = _cardIds.length;
+      }
     });
     // Auto-rate as "Again" and advance after 1s.
     await _rateAndNextWithDelay(0);
@@ -193,6 +196,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardIdsProvider);
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
+        ref.invalidate(todayDashboardCountsProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
         ref.invalidate(exerciseCountsProvider);
@@ -205,7 +209,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       _correctCount++;
     }
 
-    _advanceToNext();
+    await _advanceToNext();
   }
 
   Future<void> _rateAndNextWithDelay(int rating) async {
@@ -220,24 +224,45 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardIdsProvider);
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
+        ref.invalidate(todayDashboardCountsProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
         ref.invalidate(exerciseCountsProvider);
       }
     } catch (_) {}
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(kPostAgainAdvanceDelay);
     if (!mounted) return;
-    _advanceToNext();
+    await _advanceToNext();
   }
 
-  void _advanceToNext() {
+  Future<void> _advanceToNext() async {
     _currentIndex++;
+    if (!widget.isRandom) {
+      await _extendQueueWithNewlyDueDeckCards();
+    }
     if (_currentIndex >= _cardIds.length) {
       _navigateToSummary();
     } else {
-      _loadCurrentCard();
+      await _loadCurrentCard();
     }
+  }
+
+  Future<void> _extendQueueWithNewlyDueDeckCards() async {
+    final db = ref.read(appDatabaseProvider);
+    final dueCards =
+        await db.cardsDao.getDueCardsForDecks(widget.deckIds, DateTime.now().toUtc());
+    if (!mounted || dueCards.isEmpty) return;
+
+    final dueIds = dueCards.map((c) => c.id).toList();
+    final pendingIds = _cardIds.skip(_currentIndex).toSet();
+    final toInsert = dueIds.where((id) => !pendingIds.contains(id)).toList();
+    if (toInsert.isEmpty) return;
+
+    setState(() {
+      _cardIds.insertAll(_currentIndex, toInsert);
+      _totalCards = _cardIds.length;
+    });
   }
 
   void _navigateToSummary() {
@@ -252,6 +277,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
             ref.invalidate(deckTreeStatsProvider);
             ref.invalidate(conceptDeckStatsProvider);
             ref.invalidate(todaySessionProvider);
+            ref.invalidate(todayDashboardCountsProvider);
             ref.invalidate(dueCardIdsProvider);
             ref.invalidate(dueCardCountProvider);
             final nav = Navigator.of(context, rootNavigator: true);

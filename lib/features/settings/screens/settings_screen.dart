@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/constants/settings_options.dart';
+import '../../../core/constants/srs_defaults.dart';
 import '../../../content/providers/content_providers.dart';
 import '../../../database/app_database.dart';
 import '../../learn/providers/deck_review_provider.dart';
@@ -61,14 +63,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   title: const Text('Note display style'),
                   subtitle: Text(_noteDisplayLabel(
-                      _settings?.noteDisplayStyle ?? 'auto')),
+                      _settings?.noteDisplayStyle ?? kNoteDisplayStyleOptions.first)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showNoteDisplayPicker(),
                 ),
                 ListTile(
                   title: const Text('Theme'),
                   subtitle: Text(
-                      _themeLabel(_settings?.themeMode ?? 'system')),
+                      _themeLabel(_settings?.themeMode ?? kThemeModeOptions.first)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showThemePicker(),
                 ),
@@ -119,7 +121,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('New cards per day'),
                   subtitle: const Text('Max new items to introduce daily'),
                   trailing: Text(
-                    '${_settings?.newCardsPerDay ?? 5}',
+                    '${_settings?.newCardsPerDay ?? kDefaultNewCardsPerDay}',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showNewCardsPerDayPicker(),
@@ -128,7 +130,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Review cards per day'),
                   subtitle: const Text('Max due review cards to study daily'),
                   trailing: Text(
-                    '${_settings?.reviewCardsPerDay ?? 200}',
+                    '${_settings?.reviewCardsPerDay ?? kDefaultReviewCardsPerDay}',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showReviewCardsPerDayPicker(),
@@ -137,7 +139,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Learn ahead'),
                   subtitle: const Text('Show learning/relearning cards early'),
                   trailing: Text(
-                    '${_settings?.learnAheadMinutes ?? 20} min',
+                    '${_settings?.learnAheadMinutes ?? kDefaultLearnAheadMinutes} min',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showLearnAheadPicker(),
@@ -146,7 +148,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Day rollover hour'),
                   subtitle: const Text('When daily limits reset'),
                   trailing: Text(
-                    '${_settings?.dayRolloverHour ?? 4}:00',
+                    '${_settings?.dayRolloverHour ?? kDefaultDayRolloverHour}:00',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showRolloverHourPicker(),
@@ -155,7 +157,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Learning steps'),
                   subtitle: const Text('Minutes between initial learning steps'),
                   trailing: Text(
-                    _stepsLabel(_settings?.learningStepsMinutes ?? '1,10'),
+                    _stepsLabel(
+                      _settings?.learningStepsMinutes ??
+                          kDefaultLearningStepsMinutes,
+                    ),
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showLearningStepsPicker(),
@@ -164,7 +169,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Relearning steps'),
                   subtitle: const Text('Minutes after lapse before returning to review'),
                   trailing: Text(
-                    _stepsLabel(_settings?.relearningStepsMinutes ?? '10'),
+                    _stepsLabel(
+                      _settings?.relearningStepsMinutes ??
+                          kDefaultRelearningStepsMinutes,
+                    ),
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showRelearningStepsPicker(),
@@ -173,7 +181,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Graduating interval'),
                   subtitle: const Text('Days after passing final learning step (Good)'),
                   trailing: Text(
-                    '${_settings?.graduatingIntervalDays ?? 1} d',
+                    '${_settings?.graduatingIntervalDays ?? kDefaultGraduatingIntervalDays} d',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showGraduatingIntervalPicker(),
@@ -182,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Easy interval'),
                   subtitle: const Text('Days when answering Easy in learning/relearning'),
                   trailing: Text(
-                    '${_settings?.easyIntervalDays ?? 4} d',
+                    '${_settings?.easyIntervalDays ?? kDefaultEasyIntervalDays} d',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showEasyIntervalPicker(),
@@ -211,7 +219,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle:
                       const Text('Target recall rate for spaced repetition'),
                   trailing: Text(
-                    '${((_settings?.srsDesiredRetention ?? 0.9) * 100).round()}%',
+                    '${((_settings?.srsDesiredRetention ?? kDefaultSrsDesiredRetention) * 100).round()}%',
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showRetentionPicker(),
@@ -271,10 +279,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final style in ['auto', 'sharp', 'flat'])
+            for (final style in kNoteDisplayStyleOptions)
               ListTile(
                 title: Text(_noteDisplayLabel(style)),
-                trailing: (_settings?.noteDisplayStyle ?? 'auto') == style
+                trailing:
+                    (_settings?.noteDisplayStyle ?? kNoteDisplayStyleOptions.first) ==
+                            style
                     ? const Icon(Icons.check)
                     : null,
                 onTap: () {
@@ -297,10 +307,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final mode in ['system', 'light', 'dark'])
+            for (final mode in kThemeModeOptions)
               ListTile(
                 title: Text(_themeLabel(mode)),
-                trailing: (_settings?.themeMode ?? 'system') == mode
+                trailing:
+                    (_settings?.themeMode ?? kThemeModeOptions.first) == mode
                     ? const Icon(Icons.check)
                     : null,
                 onTap: () {
@@ -323,11 +334,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final retention in [0.8, 0.85, 0.9, 0.95])
+            for (final retention in kRetentionOptions)
               ListTile(
                 title: Text('${(retention * 100).round()}%'),
                 trailing:
-                    (_settings?.srsDesiredRetention ?? 0.9) == retention
+                    (_settings?.srsDesiredRetention ??
+                                kDefaultSrsDesiredRetention) ==
+                            retention
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -362,7 +375,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final level in ['strict', 'medium', 'wide'])
+            for (final level in kDeckHardnessOptions)
               ListTile(
                 title: Text(_hardnessLabel(level)),
                 trailing:
@@ -391,7 +404,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final count in [5, 10, 15, 20, 30])
+            for (final count in kDeckDrillCountOptions)
               ListTile(
                 title: Text('$count cards'),
                 trailing: (_settings?.deckDrillCount ?? 10) == count
@@ -425,7 +438,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final mode in ['multipleChoice', 'keyboard', 'none'])
+            for (final mode in kAnswerInputModeOptions)
               ListTile(
                 title: Text(_answerInputLabel(mode)),
                 trailing:
@@ -452,11 +465,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final count in [3, 5, 10, 15, 20, 25, 30, 40, 50])
+            for (final count in kNewCardsPerDayOptions)
               ListTile(
                 title: Text('$count new cards'),
                 trailing:
-                    (_settings?.newCardsPerDay ?? 5) == count
+                    (_settings?.newCardsPerDay ?? kDefaultNewCardsPerDay) ==
+                            count
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -479,11 +493,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final count in [50, 100, 150, 200, 300, 500, 9999])
+            for (final count in kReviewCardsPerDayOptions)
               ListTile(
                 title: Text(count == 9999 ? 'No limit' : '$count reviews'),
                 trailing:
-                    (_settings?.reviewCardsPerDay ?? 200) == count
+                    (_settings?.reviewCardsPerDay ??
+                                kDefaultReviewCardsPerDay) ==
+                            count
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -506,11 +522,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final minutes in [0, 5, 10, 15, 20, 30, 60])
+            for (final minutes in kLearnAheadMinutesOptions)
               ListTile(
                 title: Text('$minutes min'),
                 trailing:
-                    (_settings?.learnAheadMinutes ?? 20) == minutes
+                    (_settings?.learnAheadMinutes ?? kDefaultLearnAheadMinutes) ==
+                            minutes
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -535,11 +552,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              for (final hour in List<int>.generate(24, (i) => i))
+              for (final hour in kDayRolloverHourOptions)
                 ListTile(
                   title: Text('${hour.toString().padLeft(2, '0')}:00'),
                   trailing:
-                      (_settings?.dayRolloverHour ?? 4) == hour
+                      (_settings?.dayRolloverHour ??
+                                  kDefaultDayRolloverHour) ==
+                              hour
                           ? const Icon(Icons.check)
                           : null,
                   onTap: () {
@@ -559,18 +578,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _stepsLabel(String raw) => raw.split(',').map((s) => s.trim()).join(' · ');
 
   void _showLearningStepsPicker() {
-    const presets = ['1,10', '1,5,10', '10', '15'];
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final steps in presets)
+            for (final steps in kLearningStepsPresets)
               ListTile(
                 title: Text(_stepsLabel(steps)),
                 trailing:
-                    (_settings?.learningStepsMinutes ?? '1,10') == steps
+                    (_settings?.learningStepsMinutes ??
+                                kDefaultLearningStepsMinutes) ==
+                            steps
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -587,18 +607,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showRelearningStepsPicker() {
-    const presets = ['10', '1,10', '20', '30'];
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final steps in presets)
+            for (final steps in kRelearningStepsPresets)
               ListTile(
                 title: Text(_stepsLabel(steps)),
                 trailing:
-                    (_settings?.relearningStepsMinutes ?? '10') == steps
+                    (_settings?.relearningStepsMinutes ??
+                                kDefaultRelearningStepsMinutes) ==
+                            steps
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -621,11 +642,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final days in [1, 2, 3, 4, 7, 10])
+            for (final days in kGraduatingIntervalOptions)
               ListTile(
                 title: Text('$days day${days == 1 ? '' : 's'}'),
                 trailing:
-                    (_settings?.graduatingIntervalDays ?? 1) == days
+                    (_settings?.graduatingIntervalDays ??
+                                kDefaultGraduatingIntervalDays) ==
+                            days
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -648,11 +671,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final days in [2, 3, 4, 5, 7, 10, 14])
+            for (final days in kEasyIntervalOptions)
               ListTile(
                 title: Text('$days days'),
                 trailing:
-                    (_settings?.easyIntervalDays ?? 4) == days
+                    (_settings?.easyIntervalDays ?? kDefaultEasyIntervalDays) ==
+                            days
                         ? const Icon(Icons.check)
                         : null,
                 onTap: () {
@@ -675,7 +699,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (final seconds in [60, 90, 120, 180, 300])
+            for (final seconds in kDrillTimeLimitSecondsOptions)
               ListTile(
                 title: Text('${seconds ~/ 60} minute${seconds > 60 ? 's' : ''}'),
                 trailing:

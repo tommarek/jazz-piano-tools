@@ -2,6 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../app/providers.dart';
 import '../../../content/providers/content_providers.dart';
+import '../../../core/constants/refresh_intervals.dart';
+import '../../../core/constants/srs_defaults.dart';
 import '../../../domain/models/exercise.dart';
 import '../../drill/generators/generator_registry.dart';
 import '../../srs/providers/srs_provider.dart';
@@ -73,7 +75,7 @@ Future<TodaySessionState> todaySession(TodaySessionRef ref) async {
 
   final now = DateTime.now();
   final settings = await db.settingsDao.getSettings();
-  final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final newCardsPerDay = settings?.newCardsPerDay ?? kDefaultNewCardsPerDay;
   final newCardsRemainingToday = queueStats.newAvailableToday;
 
   // Cache per-topic data to avoid duplicate queries for exercises sharing a topic
@@ -182,6 +184,6 @@ Stream<TodayDashboardCounts> todayDashboardCounts(
       newCardsRemaining: queueStats.newAvailableToday,
       estimatedMinutes: (queueStats.totalDue * 0.5).ceil(),
     );
-    await Future<void>.delayed(const Duration(seconds: 30));
+    await Future<void>.delayed(kFastCountRefreshInterval);
   }
 }

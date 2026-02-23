@@ -9,6 +9,7 @@ import '../../../core/answer_input/answer_input_mode.dart';
 import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/rating_buttons.dart';
 import '../../../core/audio/audio_provider.dart';
+import '../../../core/constants/ui_timing.dart';
 import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../../../domain/models/srs_card_state.dart';
 import '../../library/providers/library_provider.dart';
@@ -96,7 +97,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       onResult: (correct) {
         setState(() {});
         if (!correct) {
-          Future.delayed(const Duration(milliseconds: 1500), () {
+          Future.delayed(kAutoRevealAgainDelay, () {
             if (mounted) _rateAndAdvance(0);
           });
         }
@@ -179,7 +180,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     setState(() {
       _currentItemState = null;
     });
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(kPostAgainAdvanceDelay);
     if (!mounted) return;
     ref.read(drillSessionProvider(widget.exerciseId).notifier).nextQuestion();
     _loadItemState();

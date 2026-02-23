@@ -5,6 +5,7 @@ import '../../database/app_database.dart';
 import '../../domain/enums/answer_type.dart';
 import '../../domain/models/srs_card.dart' as domain;
 import '../../domain/models/srs_card_state.dart' as domain;
+import '../../core/constants/srs_defaults.dart';
 import 'fsrs_adapter.dart';
 
 class SrsQueueStats {
@@ -75,8 +76,8 @@ class SrsEngine {
   }
 
   Future<int> _newCardsRemainingTodayForSettings(Setting? settings) async {
-    final newCardsPerDay = settings?.newCardsPerDay ?? 5;
-    final rolloverHour = settings?.dayRolloverHour ?? 4;
+    final newCardsPerDay = settings?.newCardsPerDay ?? kDefaultNewCardsPerDay;
+    final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
     final dayStart = _studyDayStartUtc(rolloverHour);
     final introducedToday =
         await _db.reviewsDao.getCardsFirstReviewedSince(dayStart);
@@ -85,8 +86,9 @@ class SrsEngine {
   }
 
   Future<int> _reviewCardsRemainingTodayForSettings(Setting? settings) async {
-    final reviewCardsPerDay = settings?.reviewCardsPerDay ?? 200;
-    final rolloverHour = settings?.dayRolloverHour ?? 4;
+    final reviewCardsPerDay =
+        settings?.reviewCardsPerDay ?? kDefaultReviewCardsPerDay;
+    final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
     final dayStart = _studyDayStartUtc(rolloverHour);
     final reviewsDoneToday = (await _db.reviewsDao.getReviewsSince(dayStart)).length;
     final remaining = reviewCardsPerDay - reviewsDoneToday;
@@ -113,7 +115,9 @@ class SrsEngine {
   Future<List<String>> getStudyQueueCardIds() async {
     final settings = await _db.settingsDao.getSettings();
     final now = DateTime.now().toUtc();
-    final learnAhead = Duration(minutes: settings?.learnAheadMinutes ?? 20);
+    final learnAhead = Duration(
+      minutes: settings?.learnAheadMinutes ?? kDefaultLearnAheadMinutes,
+    );
 
     final learningDue =
         await _db.cardsDao.getDueLearningCardIds(now, learnAhead: Duration.zero);
@@ -203,16 +207,17 @@ class SrsEngine {
     late final domain.SrsCardState newState;
 
     final learningSteps = _parseSteps(
-      settings?.learningStepsMinutes ?? '1,10',
+      settings?.learningStepsMinutes ?? kDefaultLearningStepsMinutes,
       const [1, 10],
     );
     final relearningSteps = _parseSteps(
-      settings?.relearningStepsMinutes ?? '10',
+      settings?.relearningStepsMinutes ?? kDefaultRelearningStepsMinutes,
       const [10],
     );
-    final rolloverHour = settings?.dayRolloverHour ?? 4;
-    final graduatingIntervalDays = settings?.graduatingIntervalDays ?? 1;
-    final easyIntervalDays = settings?.easyIntervalDays ?? 4;
+    final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
+    final graduatingIntervalDays =
+        settings?.graduatingIntervalDays ?? kDefaultGraduatingIntervalDays;
+    final easyIntervalDays = settings?.easyIntervalDays ?? kDefaultEasyIntervalDays;
 
     if (currentState.state == 'new' ||
         currentState.state == 'learning' ||
@@ -254,7 +259,7 @@ class SrsEngine {
           final seeded = _adapter.review(currentState, rating, now: now);
           newState = seeded.copyWith(
             due: _nextStudyDayBoundaryUtc(rolloverHour).add(
-              Duration(days: (easyIntervalDays - 1).clamp(0, 36500)),
+              Duration(days: (easyIntervalDays - 1).clamp(0, kMaxScheduledDays)),
             ),
             state: 'review',
             step: null,
@@ -277,7 +282,9 @@ class SrsEngine {
           final seeded = _adapter.review(currentState, rating, now: now);
           newState = seeded.copyWith(
             due: _nextStudyDayBoundaryUtc(rolloverHour).add(
-              Duration(days: (graduatingIntervalDays - 1).clamp(0, 36500)),
+              Duration(
+                days: (graduatingIntervalDays - 1).clamp(0, kMaxScheduledDays),
+              ),
             ),
             state: 'review',
             step: null,

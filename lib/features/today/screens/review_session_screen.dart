@@ -10,6 +10,7 @@ import '../../../core/answer_input/answer_input_mode.dart';
 import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/pitch_class_parser.dart';
 import '../../../core/answer_input/rating_buttons.dart';
+import '../../../core/constants/ui_timing.dart';
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
 import '../../srs/providers/srs_provider.dart';
@@ -106,7 +107,7 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
         _stopwatch.stop();
         setState(() {});
         if (!correct) {
-          Future.delayed(const Duration(milliseconds: 1500), () {
+          Future.delayed(kAutoRevealAgainDelay, () {
             if (mounted) _rateAndNext(0);
           });
         }
@@ -126,21 +127,38 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     ref.invalidate(dueCardIdsProvider);
     ref.invalidate(dueCardCountProvider);
     ref.invalidate(todaySessionProvider);
+    ref.invalidate(todayDashboardCountsProvider);
 
     if (rating >= 2) {
       _correctCount++;
-    } else {
-      // Re-queue failed cards at the end for another attempt
-      _cardIds.add(cardId);
-      _totalCards = _cardIds.length;
     }
 
     _currentIndex++;
+    await _extendQueueWithNewlyDueCards();
     if (_currentIndex >= _cardIds.length) {
       _navigateToSummary();
-    } else {
-      await _loadCurrentCard();
+      return;
     }
+    await _loadCurrentCard();
+  }
+
+  Future<void> _extendQueueWithNewlyDueCards() async {
+    final engine = ref.read(srsEngineProvider);
+    final dueIds = await engine.getDueCardIds();
+    if (!mounted || dueIds.isEmpty) return;
+
+    // Only avoid duplicates already pending in this session. Cards reviewed
+    // earlier in the session may become due again (learning/relearning steps)
+    // and should be re-added. Insert at the current position so newly due
+    // cards are handled before stale pending tail items (e.g. new cards).
+    final pendingIds = _cardIds.skip(_currentIndex).toSet();
+    final toAppend = dueIds.where((id) => !pendingIds.contains(id)).toList();
+    if (toAppend.isEmpty) return;
+
+    setState(() {
+      _cardIds.insertAll(_currentIndex, toAppend);
+      _totalCards = _cardIds.length;
+    });
   }
 
   void _navigateToSummary() {

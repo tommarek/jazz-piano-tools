@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../core/constants/srs_defaults.dart';
 
 class Settings extends Table {
   IntColumn get id => integer().withDefault(const Constant(1))();
@@ -27,39 +28,39 @@ class Settings extends Table {
 
   /// Maximum number of new (unseen) cards to introduce per day.
   IntColumn get newCardsPerDay =>
-      integer().withDefault(const Constant(5))();
+      integer().withDefault(const Constant(kDefaultNewCardsPerDay))();
 
   /// Maximum number of review cards to study per day.
   IntColumn get reviewCardsPerDay =>
-      integer().withDefault(const Constant(200))();
+      integer().withDefault(const Constant(kDefaultReviewCardsPerDay))();
 
   /// Learning/relearning cards due within this many minutes can be shown early.
   IntColumn get learnAheadMinutes =>
-      integer().withDefault(const Constant(20))();
+      integer().withDefault(const Constant(kDefaultLearnAheadMinutes))();
 
   /// Hour of day when the study day rolls over (0-23), local time.
   IntColumn get dayRolloverHour =>
-      integer().withDefault(const Constant(4))();
+      integer().withDefault(const Constant(kDefaultDayRolloverHour))();
 
   /// Comma-separated learning steps in minutes (e.g. "1,10").
   TextColumn get learningStepsMinutes =>
-      text().withDefault(const Constant('1,10'))();
+      text().withDefault(const Constant(kDefaultLearningStepsMinutes))();
 
   /// Comma-separated relearning steps in minutes (e.g. "10").
   TextColumn get relearningStepsMinutes =>
-      text().withDefault(const Constant('10'))();
+      text().withDefault(const Constant(kDefaultRelearningStepsMinutes))();
 
   /// First review interval (days) after passing the final learning step with Good.
   IntColumn get graduatingIntervalDays =>
-      integer().withDefault(const Constant(1))();
+      integer().withDefault(const Constant(kDefaultGraduatingIntervalDays))();
 
   /// First review interval (days) when answering Easy during learning/relearning.
   IntColumn get easyIntervalDays =>
-      integer().withDefault(const Constant(4))();
+      integer().withDefault(const Constant(kDefaultEasyIntervalDays))();
 
   /// Desired retention rate for SRS scheduling (0.0–1.0).
   RealColumn get srsDesiredRetention =>
-      real().withDefault(const Constant(0.9))();
+      real().withDefault(const Constant(kDefaultSrsDesiredRetention))();
 
   /// Quick start usage count.
   IntColumn get quickStartCount =>

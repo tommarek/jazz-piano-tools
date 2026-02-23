@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/constants/refresh_intervals.dart';
+import '../../../core/constants/srs_defaults.dart';
 import '../../../database/app_database.dart';
 
 part 'deck_review_provider.g.dart';
@@ -49,7 +51,7 @@ Future<List<DeckStats>> _computeConceptDeckStats(
 ) async {
   final now = DateTime.now().toUtc();
   final settings = await db.settingsDao.getSettings();
-  final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final newCardsPerDay = settings?.newCardsPerDay ?? kDefaultNewCardsPerDay;
   final globalNewIntroducedToday =
       await db.reviewsDao.getCardsFirstReviewedToday();
   final remainingNewSlots =
@@ -84,7 +86,7 @@ Future<List<DeckTreeNode>> _computeDeckTreeStats(
 ) async {
   final now = DateTime.now().toUtc();
   final settings = await db.settingsDao.getSettings();
-  final newCardsPerDay = settings?.newCardsPerDay ?? 5;
+  final newCardsPerDay = settings?.newCardsPerDay ?? kDefaultNewCardsPerDay;
   final globalNewIntroducedToday =
       await db.reviewsDao.getCardsFirstReviewedToday();
   final remainingNewSlots =
@@ -147,7 +149,7 @@ Stream<List<DeckStats>> conceptDeckStats(
   final db = ref.watch(appDatabaseProvider);
   while (true) {
     yield await _computeConceptDeckStats(db, deckIds);
-    await Future<void>.delayed(const Duration(seconds: 30));
+    await Future<void>.delayed(kFastCountRefreshInterval);
   }
 }
 
@@ -159,6 +161,6 @@ Stream<List<DeckTreeNode>> deckTreeStats(
   final db = ref.watch(appDatabaseProvider);
   while (true) {
     yield await _computeDeckTreeStats(db, rootDeckIds);
-    await Future<void>.delayed(const Duration(seconds: 30));
+    await Future<void>.delayed(kFastCountRefreshInterval);
   }
 }

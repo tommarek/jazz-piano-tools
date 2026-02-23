@@ -80,6 +80,7 @@ class EndSummaryScreen extends ConsumerWidget {
                     return;
                   }
                   ref.invalidate(todaySessionProvider);
+                  ref.invalidate(todayDashboardCountsProvider);
                   ref.invalidate(dueCardCountProvider);
                   context.go('/today');
                 },
