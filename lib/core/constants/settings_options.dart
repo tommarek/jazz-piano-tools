@@ -16,3 +16,4 @@ const kRelearningStepsPresets = ['10', '1,10', '20', '30'];
 const kGraduatingIntervalOptions = [1, 2, 3, 4, 7, 10];
 const kEasyIntervalOptions = [2, 3, 4, 5, 7, 10, 14];
 const kDrillTimeLimitSecondsOptions = [60, 90, 120, 180, 300];
+const kStreakActivitySourceOptions = ['theory', 'practice', 'both'];

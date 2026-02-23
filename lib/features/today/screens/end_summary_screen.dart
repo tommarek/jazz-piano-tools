@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
 import '../providers/today_session_provider.dart';
 
 class EndSummaryScreen extends ConsumerWidget {
@@ -81,6 +82,7 @@ class EndSummaryScreen extends ConsumerWidget {
                   }
                   ref.invalidate(todaySessionProvider);
                   ref.invalidate(todayDashboardCountsProvider);
+                  ref.invalidate(todayStreakProvider);
                   ref.invalidate(dueCardCountProvider);
                   context.go('/today');
                 },

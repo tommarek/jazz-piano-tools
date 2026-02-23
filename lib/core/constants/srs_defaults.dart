@@ -7,5 +7,6 @@ const kDefaultRelearningStepsMinutes = '10';
 const kDefaultGraduatingIntervalDays = 1;
 const kDefaultEasyIntervalDays = 4;
 const kDefaultSrsDesiredRetention = 0.9;
+const kDefaultStreakActivitySource = 'both';
 
 const kMaxScheduledDays = 36500;

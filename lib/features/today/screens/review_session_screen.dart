@@ -14,6 +14,7 @@ import '../../../core/constants/ui_timing.dart';
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
 import '../providers/today_session_provider.dart';
 
 class ReviewSessionScreen extends ConsumerStatefulWidget {
@@ -128,6 +129,7 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     ref.invalidate(dueCardCountProvider);
     ref.invalidate(todaySessionProvider);
     ref.invalidate(todayDashboardCountsProvider);
+    ref.invalidate(todayStreakProvider);
 
     if (rating >= 2) {
       _correctCount++;

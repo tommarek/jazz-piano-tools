@@ -46,4 +46,18 @@ class QuestionResultsDao extends DatabaseAccessor<AppDatabase>
     final rows = await query.get();
     return rows.map((row) => row.readTable(questionResults)).toList();
   }
+
+  /// Timestamps of attempts with at least one answered question.
+  /// Uses question_results join so opening/quitting a session does not count.
+  Future<List<DateTime>> getAnsweredAttemptTimestamps() async {
+    final rows = await customSelect(
+      '''
+      SELECT DISTINCT a.timestamp AS ts
+      FROM question_results q
+      INNER JOIN exercise_attempts a ON a.id = q.attempt_id
+      ''',
+      readsFrom: {questionResults, exerciseAttempts},
+    ).get();
+    return rows.map((r) => r.read<DateTime>('ts')).toList();
+  }
 }

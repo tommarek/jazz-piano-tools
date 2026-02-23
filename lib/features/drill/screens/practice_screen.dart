@@ -14,6 +14,7 @@ import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../../../domain/models/srs_card_state.dart';
 import '../../library/providers/library_provider.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
 import '../providers/drill_provider.dart';
 import 'drill_screen.dart';
 import 'learn_screen.dart';
@@ -163,6 +164,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     await ref
         .read(drillSessionProvider(widget.exerciseId).notifier)
         .submitAnswer(correct: rating > 0, rating: rating);
+    ref.invalidate(todayStreakProvider);
     if (!mounted) return;
     setState(() {
       _currentItemState = null;
@@ -176,6 +178,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     await ref
         .read(drillSessionProvider(widget.exerciseId).notifier)
         .submitAnswer(correct: false, rating: rating);
+    ref.invalidate(todayStreakProvider);
     if (!mounted) return;
     setState(() {
       _currentItemState = null;

@@ -17,6 +17,7 @@ import '../../../domain/models/srs_card_state.dart';
 import '../../library/providers/library_provider.dart';
 import '../providers/deck_review_provider.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
 import '../../today/providers/today_session_provider.dart';
 import '../../today/screens/end_summary_screen.dart';
 
@@ -197,6 +198,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
         ref.invalidate(todayDashboardCountsProvider);
+        ref.invalidate(todayStreakProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
         ref.invalidate(exerciseCountsProvider);
@@ -225,6 +227,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
         ref.invalidate(todayDashboardCountsProvider);
+        ref.invalidate(todayStreakProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
         ref.invalidate(exerciseCountsProvider);
@@ -278,6 +281,7 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
             ref.invalidate(conceptDeckStatsProvider);
             ref.invalidate(todaySessionProvider);
             ref.invalidate(todayDashboardCountsProvider);
+            ref.invalidate(todayStreakProvider);
             ref.invalidate(dueCardIdsProvider);
             ref.invalidate(dueCardCountProvider);
             final nav = Navigator.of(context, rootNavigator: true);

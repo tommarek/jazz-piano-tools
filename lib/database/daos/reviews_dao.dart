@@ -23,6 +23,11 @@ class ReviewsDao extends DatabaseAccessor<AppDatabase> with _$ReviewsDaoMixin {
         .get();
   }
 
+  Future<List<DateTime>> getAllReviewTimestamps() async {
+    final rows = await (selectOnly(reviews)..addColumns([reviews.timestamp])).get();
+    return rows.map((r) => r.read(reviews.timestamp)!).toList();
+  }
+
   Future<int> getReviewCount() async {
     final count = countAll();
     final query = selectOnly(reviews)..addColumns([count]);

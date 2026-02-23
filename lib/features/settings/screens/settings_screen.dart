@@ -11,6 +11,7 @@ import '../../learn/providers/deck_review_provider.dart';
 import '../../library/providers/library_provider.dart';
 import '../../progression/providers/progression_provider.dart';
 import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
 import '../../today/providers/today_session_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -45,6 +46,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _updateSetting(SettingsCompanion update) async {
     final db = ref.read(appDatabaseProvider);
     await db.settingsDao.upsertSettings(update);
+    ref.invalidate(todayStreakProvider);
     await _loadSettings();
   }
 
@@ -152,6 +154,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showRolloverHourPicker(),
+                ),
+                ListTile(
+                  title: const Text('Daily streak counts'),
+                  subtitle: const Text('Choose which activity keeps your streak alive'),
+                  trailing: Text(
+                    _streakActivityLabel(
+                      _settings?.streakActivitySource ??
+                          kDefaultStreakActivitySource,
+                    ),
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  onTap: () => _showStreakActivitySourcePicker(),
                 ),
                 ListTile(
                   title: const Text('Learning steps'),
@@ -431,6 +445,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     };
   }
 
+  String _streakActivityLabel(String value) {
+    return switch (value) {
+      'theory' => 'Theory only',
+      'practice' => 'Practice only',
+      _ => 'Theory + Practice',
+    };
+  }
+
   void _showAnswerInputPicker() {
     showModalBottomSheet(
       context: context,
@@ -570,6 +592,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showStreakActivitySourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final mode in kStreakActivitySourceOptions)
+              ListTile(
+                title: Text(_streakActivityLabel(mode)),
+                trailing:
+                    (_settings?.streakActivitySource ??
+                                kDefaultStreakActivitySource) ==
+                            mode
+                        ? const Icon(Icons.check)
+                        : null,
+                onTap: () {
+                  _updateSetting(
+                    SettingsCompanion(streakActivitySource: Value(mode)),
+                  );
+                  Navigator.pop(context);
+                },
+              ),
+          ],
         ),
       ),
     );
@@ -751,6 +802,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(deckTreeStatsProvider);
       ref.invalidate(tiersByTopicProvider);
       ref.invalidate(todaySessionProvider);
+      ref.invalidate(todayStreakProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Progress reset.')),

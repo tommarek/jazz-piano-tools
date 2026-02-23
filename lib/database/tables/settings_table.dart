@@ -62,6 +62,10 @@ class Settings extends Table {
   RealColumn get srsDesiredRetention =>
       real().withDefault(const Constant(kDefaultSrsDesiredRetention))();
 
+  /// Which activity sources count toward the daily streak.
+  TextColumn get streakActivitySource =>
+      text().withDefault(const Constant(kDefaultStreakActivitySource))();
+
   /// Quick start usage count.
   IntColumn get quickStartCount =>
       integer().withDefault(const Constant(0))();

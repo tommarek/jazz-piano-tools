@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../streak/providers/streak_provider.dart';
 import '../providers/today_session_provider.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -63,6 +64,14 @@ class TodayScreen extends ConsumerWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        const SizedBox(height: 12),
+        Consumer(
+          builder: (context, ref, _) {
+            final streakAsync = ref.watch(todayStreakProvider);
+            final streak = streakAsync.asData?.value ?? const TodayStreakState();
+            return _StreakChip(streak: streak);
+          },
+        ),
         const SizedBox(height: 24),
 
         // Due reviews card
@@ -111,6 +120,170 @@ class TodayScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
       ],
+    );
+  }
+}
+
+class _StreakChip extends StatelessWidget {
+  final TodayStreakState streak;
+
+  const _StreakChip({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bg = streak.todayComplete
+        ? theme.colorScheme.tertiaryContainer
+        : theme.colorScheme.surfaceContainerHighest;
+    final fg = streak.todayComplete
+        ? theme.colorScheme.onTertiaryContainer
+        : theme.colorScheme.onSurface;
+    final sub = streak.todayComplete
+        ? 'done today'
+        : streak.canContinueToday
+            ? 'continue today'
+            : 'start today';
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            _SevenFlamesStrip(streak: streak),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${streak.currentStreakDays} day streak',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: fg,
+                    ),
+                  ),
+                  Text(
+                    sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (streak.bestStreakDays > 0) ...[
+              const SizedBox(width: 8),
+              Text(
+                'Best ${streak.bestStreakDays}',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SevenFlamesStrip extends StatelessWidget {
+  final TodayStreakState streak;
+
+  const _SevenFlamesStrip({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final days = streak.lastSevenDays;
+    if (days.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final day in days)
+          Padding(
+            padding: const EdgeInsets.only(right: 3),
+            child: _FlameDayDot(
+              isActive: day.isActive,
+              isToday: day.isToday,
+              todayProgress: day.isToday ? streak.todayProgress : 0,
+              todayComplete: streak.todayComplete,
+              colorScheme: theme.colorScheme,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _FlameDayDot extends StatelessWidget {
+  final bool isActive;
+  final bool isToday;
+  final double todayProgress;
+  final bool todayComplete;
+  final ColorScheme colorScheme;
+
+  const _FlameDayDot({
+    required this.isActive,
+    required this.isToday,
+    required this.todayProgress,
+    required this.todayComplete,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final activeColor = isToday ? Colors.orange.shade700 : Colors.orange.shade500;
+    final baseColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.45);
+    final colorProgress = isToday
+        ? (todayComplete ? 1.0 : todayProgress)
+        : (isActive ? 1.0 : 0.0);
+
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (isToday)
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                value: todayComplete ? 1 : todayProgress,
+                strokeWidth: 2,
+                backgroundColor: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.orange.shade400,
+                ),
+              ),
+            ),
+          Icon(
+            Icons.local_fire_department,
+            size: 14,
+            color: baseColor,
+          ),
+          Icon(
+            Icons.local_fire_department,
+            size: 14,
+            color: activeColor.withValues(alpha: colorProgress),
+          ),
+        ],
+      ),
     );
   }
 }

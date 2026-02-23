@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../core/constants/srs_defaults.dart';
 import 'converters.dart';
 import 'tables/decks_table.dart';
 import 'tables/cards_table.dart';
@@ -72,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -168,6 +169,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 17) {
           await m.addColumn(settings, settings.graduatingIntervalDays);
           await m.addColumn(settings, settings.easyIntervalDays);
+        }
+        if (from < 19) {
+          await m.addColumn(settings, settings.streakActivitySource);
         }
       },
     );
