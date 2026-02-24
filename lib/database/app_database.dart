@@ -16,6 +16,7 @@ import 'tables/question_results_table.dart';
 import 'tables/settings_table.dart';
 import 'tables/item_schedules_table.dart';
 import 'tables/session_templates_table.dart';
+import 'tables/daily_completions_table.dart';
 
 import 'daos/cards_dao.dart';
 import 'daos/decks_dao.dart';
@@ -27,6 +28,7 @@ import 'daos/question_results_dao.dart';
 import 'daos/settings_dao.dart';
 import 'daos/item_schedules_dao.dart';
 import 'daos/session_templates_dao.dart';
+import 'daos/daily_completions_dao.dart';
 
 export 'converters.dart';
 
@@ -47,6 +49,7 @@ part 'app_database.g.dart';
     Settings,
     ItemSchedules,
     SessionTemplates,
+    DailyCompletions,
   ],
   daos: [
     CardsDao,
@@ -59,6 +62,7 @@ part 'app_database.g.dart';
     SettingsDao,
     ItemSchedulesDao,
     SessionTemplatesDao,
+    DailyCompletionsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -73,7 +77,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -172,6 +176,12 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 19) {
           await m.addColumn(settings, settings.streakActivitySource);
+        }
+        if (from < 20) {
+          await m.addColumn(decks, decks.excludeFromDailyReview);
+        }
+        if (from < 21) {
+          await m.createTable(dailyCompletions);
         }
       },
     );

@@ -22,6 +22,18 @@ class SrsQueueStats {
   int get totalDue => learningDue + reviewDue;
 }
 
+class SrsDueCategoryStats {
+  final int learningDue;
+  final int reviewDue;
+
+  const SrsDueCategoryStats({
+    this.learningDue = 0,
+    this.reviewDue = 0,
+  });
+
+  int get totalDue => learningDue + reviewDue;
+}
+
 class SrsEngine {
   final AppDatabase _db;
   final FsrsAdapter _adapter;
@@ -75,6 +87,38 @@ class SrsEngine {
     return parsed.isEmpty ? fallback : parsed;
   }
 
+  Future<List<String>> _excludedDeckIds() {
+    return _db.decksDao.getExcludedFromDailyReviewDeckIds();
+  }
+
+  Future<List<String>> _filterCardIdsByCategory(
+    List<String> cardIds,
+    String category,
+  ) async {
+    if (cardIds.isEmpty) return const [];
+    final cards = await _db.cardsDao.getCardsByIds(cardIds);
+    final decks = await _db.decksDao.getDecksByIds(cards.map((c) => c.deckId).toSet().toList());
+    final deckById = {for (final d in decks) d.id: d};
+
+    bool matches(Deck deck) {
+      final isEar = deck.tags.contains('modality:ear');
+      final isTheory = deck.tags.contains('modality:theory');
+      return switch (category) {
+        'ear' => isEar,
+        'learning' => !isEar && isTheory,
+        _ => true,
+      };
+    }
+
+    return cards
+        .where((c) {
+          final deck = deckById[c.deckId];
+          return deck != null && matches(deck);
+        })
+        .map((c) => c.id)
+        .toList();
+  }
+
   Future<int> _newCardsRemainingTodayForSettings(Setting? settings) async {
     final newCardsPerDay = settings?.newCardsPerDay ?? kDefaultNewCardsPerDay;
     final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
@@ -98,9 +142,16 @@ class SrsEngine {
   Future<SrsQueueStats> getQueueStats() async {
     final settings = await _db.settingsDao.getSettings();
     final now = DateTime.now().toUtc();
-    final learningDue =
-        await _db.cardsDao.getDueLearningCardIds(now, learnAhead: Duration.zero);
-    final reviewDue = await _db.cardsDao.getDueReviewCardIds(now);
+    final excludedDeckIds = await _excludedDeckIds();
+    final learningDue = await _db.cardsDao.getDueLearningCardIds(
+      now,
+      learnAhead: Duration.zero,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final reviewDue = await _db.cardsDao.getDueReviewCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
     final reviewRemaining = await _reviewCardsRemainingTodayForSettings(settings);
     final newRemaining = await _newCardsRemainingTodayForSettings(settings);
 
@@ -115,13 +166,20 @@ class SrsEngine {
   Future<List<String>> getStudyQueueCardIds() async {
     final settings = await _db.settingsDao.getSettings();
     final now = DateTime.now().toUtc();
+    final excludedDeckIds = await _excludedDeckIds();
     final learnAhead = Duration(
       minutes: settings?.learnAheadMinutes ?? kDefaultLearnAheadMinutes,
     );
 
-    final learningDue =
-        await _db.cardsDao.getDueLearningCardIds(now, learnAhead: Duration.zero);
-    final reviewDue = await _db.cardsDao.getDueReviewCardIds(now);
+    final learningDue = await _db.cardsDao.getDueLearningCardIds(
+      now,
+      learnAhead: Duration.zero,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final reviewDue = await _db.cardsDao.getDueReviewCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
     final reviewRemaining = await _reviewCardsRemainingTodayForSettings(settings);
     final newRemaining = await _newCardsRemainingTodayForSettings(settings);
 
@@ -131,12 +189,16 @@ class SrsEngine {
       final upcoming = await _db.cardsDao.getDueLearningCardIds(
         now,
         learnAhead: learnAhead,
+        excludedDeckIds: excludedDeckIds,
       );
       effectiveLearning.addAll(upcoming);
     }
 
     final reviewQueue = reviewDue.take(reviewRemaining).toList();
-    final newQueue = await _db.cardsDao.getNewCardIds(limit: newRemaining);
+    final newQueue = await _db.cardsDao.getNewCardIds(
+      limit: newRemaining,
+      excludedDeckIds: excludedDeckIds,
+    );
 
     return <String>[
       ...effectiveLearning,
@@ -147,9 +209,51 @@ class SrsEngine {
 
   Future<List<String>> getDueCardIds() async {
     final now = DateTime.now().toUtc();
-    final learningDue = await _db.cardsDao.getDueLearningCardIds(now);
-    final reviewDue = await _db.cardsDao.getDueReviewCardIds(now);
+    final excludedDeckIds = await _excludedDeckIds();
+    final learningDue = await _db.cardsDao.getDueLearningCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final reviewDue = await _db.cardsDao.getDueReviewCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
     return [...learningDue, ...reviewDue];
+  }
+
+  Future<SrsDueCategoryStats> getDueQueueStatsForCategory(String category) async {
+    final now = DateTime.now().toUtc();
+    final excludedDeckIds = await _excludedDeckIds();
+    final learningDue = await _db.cardsDao.getDueLearningCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final reviewDue = await _db.cardsDao.getDueReviewCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final filteredLearning = await _filterCardIdsByCategory(learningDue, category);
+    final filteredReview = await _filterCardIdsByCategory(reviewDue, category);
+    return SrsDueCategoryStats(
+      learningDue: filteredLearning.length,
+      reviewDue: filteredReview.length,
+    );
+  }
+
+  Future<List<String>> getDueCardIdsForCategory(String category) async {
+    final now = DateTime.now().toUtc();
+    final excludedDeckIds = await _excludedDeckIds();
+    final learningDue = await _db.cardsDao.getDueLearningCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final reviewDue = await _db.cardsDao.getDueReviewCardIds(
+      now,
+      excludedDeckIds: excludedDeckIds,
+    );
+    final filteredLearning = await _filterCardIdsByCategory(learningDue, category);
+    final filteredReview = await _filterCardIdsByCategory(reviewDue, category);
+    return [...filteredLearning, ...filteredReview];
   }
 
   Future<int> getNewCardsRemainingToday() async {

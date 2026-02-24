@@ -10,6 +10,8 @@ import '../../srs/providers/srs_provider.dart';
 
 part 'today_session_provider.g.dart';
 
+enum TodayReviewCategory { learning, ear }
+
 class ExerciseWithCounts {
   final Exercise exercise;
   final int reviewCount;
@@ -170,6 +172,22 @@ class TodayDashboardCounts {
   });
 }
 
+class TodayCategoryDashboardCounts {
+  final TodayReviewCategory category;
+  final int dueCardCount;
+  final int learningDueCount;
+  final int reviewDueCount;
+  final int estimatedMinutes;
+
+  const TodayCategoryDashboardCounts({
+    required this.category,
+    this.dueCardCount = 0,
+    this.learningDueCount = 0,
+    this.reviewDueCount = 0,
+    this.estimatedMinutes = 0,
+  });
+}
+
 @riverpod
 Stream<TodayDashboardCounts> todayDashboardCounts(
   TodayDashboardCountsRef ref,
@@ -183,6 +201,26 @@ Stream<TodayDashboardCounts> todayDashboardCounts(
       reviewDueCount: queueStats.reviewDue,
       newCardsRemaining: queueStats.newAvailableToday,
       estimatedMinutes: (queueStats.totalDue * 0.5).ceil(),
+    );
+    await Future<void>.delayed(kFastCountRefreshInterval);
+  }
+}
+
+@riverpod
+Stream<TodayCategoryDashboardCounts> todayCategoryDashboardCounts(
+  TodayCategoryDashboardCountsRef ref,
+  TodayReviewCategory category,
+) async* {
+  final engine = ref.watch(srsEngineProvider);
+  final key = category.name;
+  while (true) {
+    final stats = await engine.getDueQueueStatsForCategory(key);
+    yield TodayCategoryDashboardCounts(
+      category: category,
+      dueCardCount: stats.totalDue,
+      learningDueCount: stats.learningDue,
+      reviewDueCount: stats.reviewDue,
+      estimatedMinutes: (stats.totalDue * 0.5).ceil(),
     );
     await Future<void>.delayed(kFastCountRefreshInterval);
   }

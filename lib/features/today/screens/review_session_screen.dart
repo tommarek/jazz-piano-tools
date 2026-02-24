@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../../app/providers.dart';
 import '../../../core/answer_input/answer_action_bar.dart';
 import '../../../core/answer_input/answer_input_area.dart';
 import '../../../core/answer_input/answer_input_controller.dart';
@@ -11,14 +12,21 @@ import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/pitch_class_parser.dart';
 import '../../../core/answer_input/rating_buttons.dart';
 import '../../../core/constants/ui_timing.dart';
+import '../../../core/constants/srs_defaults.dart';
+import '../../../core/audio/audio_provider.dart';
+import '../../../core/audio/pitched_note.dart';
+import '../../../core/music/pitch_class.dart';
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
+import '../../../domain/enums/answer_type.dart';
 import '../../srs/providers/srs_provider.dart';
 import '../../streak/providers/streak_provider.dart';
 import '../providers/today_session_provider.dart';
 
 class ReviewSessionScreen extends ConsumerStatefulWidget {
-  const ReviewSessionScreen({super.key});
+  final String? category;
+
+  const ReviewSessionScreen({this.category, super.key});
 
   @override
   ConsumerState<ReviewSessionScreen> createState() =>
@@ -36,6 +44,16 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
   final _stopwatch = Stopwatch();
 
   AnswerInputController? _controller;
+  bool _intervalAudioAnswered = false;
+  bool? _intervalAudioCorrect;
+  String? _intervalAudioSelected;
+  bool _intervalAudioPlaying = false;
+
+  static const _intervalLabels = [
+    'P1', 'm2', 'M2', 'm3',
+    'M3', 'P4', 'TT', 'P5',
+    'm6', 'M6', 'm7', 'M7',
+  ];
 
   @override
   void initState() {
@@ -53,7 +71,9 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
 
   Future<void> _loadCards() async {
     final engine = ref.read(srsEngineProvider);
-    final ids = await engine.getStudyQueueCardIds();
+    final ids = widget.category == null
+        ? await engine.getStudyQueueCardIds()
+        : await engine.getDueCardIdsForCategory(widget.category!);
     if (!mounted) return;
 
     if (ids.isEmpty) {
@@ -84,6 +104,10 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     setState(() {
       _currentCard = card;
       _currentState = state;
+      _intervalAudioAnswered = false;
+      _intervalAudioCorrect = null;
+      _intervalAudioSelected = null;
+      _intervalAudioPlaying = false;
     });
 
     _stopwatch.reset();
@@ -92,6 +116,13 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
   }
 
   void _createController(SrsCard card) {
+    if (card.answerType == AnswerType.intervalAudio) {
+      _controller?.dispose();
+      _controller = null;
+      setState(() {});
+      return;
+    }
+
     _controller?.dispose();
 
     // Use keyboard if answer contains parseable pitch classes, else selfReveal
@@ -117,6 +148,50 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     setState(() {});
   }
 
+  Future<void> _playIntervalAudioCard() async {
+    final card = _currentCard;
+    if (card == null || card.answerType != AnswerType.intervalAudio || _intervalAudioPlaying) {
+      return;
+    }
+    final meta = card.metadata;
+    final rootPc = meta['rootPitchClass'] as int?;
+    final semitones = meta['intervalSemitones'] as int?;
+    final baseOctave = (meta['baseOctave'] as int?) ?? 4;
+    if (rootPc == null || semitones == null) return;
+
+    final root = PitchedNote(PitchClass(rootPc), baseOctave);
+    final top = root.transpose(semitones);
+    final audio = ref.read(audioServiceProvider);
+
+    setState(() => _intervalAudioPlaying = true);
+    try {
+      await audio.playNote(root);
+      await audio.playNote(top);
+      await audio.playNote(root);
+      await audio.playNote(top);
+      await audio.playNote(root);
+    } finally {
+      if (mounted) setState(() => _intervalAudioPlaying = false);
+    }
+  }
+
+  Future<void> _submitIntervalAudioAnswer(String label) async {
+    if (_intervalAudioAnswered) return;
+    _stopwatch.stop();
+    final correct = _currentCard?.expectedAnswer == label;
+    setState(() {
+      _intervalAudioAnswered = true;
+      _intervalAudioCorrect = correct;
+      _intervalAudioSelected = label;
+    });
+    if (!correct) {
+      await Future<void>.delayed(kAutoRevealAgainDelay);
+      if (mounted) {
+        await _rateAndNext(0);
+      }
+    }
+  }
+
   Future<void> _rateAndNext(int rating) async {
     final cardId = _cardIds[_currentIndex];
     final engine = ref.read(srsEngineProvider);
@@ -125,10 +200,13 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       rating,
       _stopwatch.elapsedMilliseconds,
     );
+    await _maybeMarkCategoryCompletion();
     ref.invalidate(dueCardIdsProvider);
     ref.invalidate(dueCardCountProvider);
     ref.invalidate(todaySessionProvider);
     ref.invalidate(todayDashboardCountsProvider);
+    ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+    ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
     ref.invalidate(todayStreakProvider);
 
     if (rating >= 2) {
@@ -146,7 +224,9 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
 
   Future<void> _extendQueueWithNewlyDueCards() async {
     final engine = ref.read(srsEngineProvider);
-    final dueIds = await engine.getDueCardIds();
+    final dueIds = widget.category == null
+        ? await engine.getDueCardIds()
+        : await engine.getDueCardIdsForCategory(widget.category!);
     if (!mounted || dueIds.isEmpty) return;
 
     // Only avoid duplicates already pending in this session. Cards reviewed
@@ -161,6 +241,24 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       _cardIds.insertAll(_currentIndex, toAppend);
       _totalCards = _cardIds.length;
     });
+  }
+
+  Future<void> _maybeMarkCategoryCompletion() async {
+    final category = widget.category;
+    if (category == null) return;
+    final engine = ref.read(srsEngineProvider);
+    final stats = await engine.getDueQueueStatsForCategory(category);
+    if (stats.totalDue > 0) return;
+
+    final db = ref.read(appDatabaseProvider);
+    final settings = await db.settingsDao.getSettings();
+    final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
+    final dayKey = studyDayKeyNow(rolloverHour);
+    await db.dailyCompletionsDao.upsertCompletion(
+      studyDayKey: dayKey,
+      category: category,
+      completedAt: DateTime.now().toUtc(),
+    );
   }
 
   void _navigateToSummary() {
@@ -226,7 +324,67 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     final card = _currentCard;
     final ctrl = _controller;
 
-    if (card == null || ctrl == null) {
+    if (card == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (card.answerType == AnswerType.intervalAudio) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                card.prompt,
+                style: theme.textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.tonalIcon(
+            onPressed: _intervalAudioPlaying ? null : _playIntervalAudioCard,
+            icon: Icon(_intervalAudioPlaying ? Icons.volume_up : Icons.replay),
+            label: Text(_intervalAudioPlaying ? 'Playing...' : 'Play again'),
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.5,
+            children: [
+              for (final label in _intervalLabels)
+                _buildIntervalAnswerButton(label, card.expectedAnswer),
+            ],
+          ),
+          if (_intervalAudioAnswered) ...[
+            const SizedBox(height: 16),
+            Card(
+              color: (_intervalAudioCorrect ?? false)
+                  ? theme.colorScheme.secondaryContainer
+                  : theme.colorScheme.errorContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  (_intervalAudioCorrect ?? false)
+                      ? 'Correct: ${card.expectedAnswer}'
+                      : 'You chose ${_intervalAudioSelected ?? ''} · Correct: ${card.expectedAnswer}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+        ],
+      );
+    }
+
+    if (ctrl == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -254,9 +412,48 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
     );
   }
 
+  Widget _buildIntervalAnswerButton(String label, String correctAnswer) {
+    final selected = _intervalAudioSelected == label;
+    final answered = _intervalAudioAnswered;
+    final isCorrect = label == correctAnswer;
+    final theme = Theme.of(context);
+    Color? bg;
+    Color? fg;
+    if (answered) {
+      if (isCorrect) {
+        bg = theme.colorScheme.secondaryContainer;
+        fg = theme.colorScheme.onSecondaryContainer;
+      } else if (selected) {
+        bg = theme.colorScheme.errorContainer;
+        fg = theme.colorScheme.onErrorContainer;
+      }
+    }
+    return FilledButton.tonal(
+      onPressed: answered ? null : () => _submitIntervalAudioAnswer(label),
+      style: FilledButton.styleFrom(
+        backgroundColor: bg,
+        foregroundColor: fg,
+        padding: EdgeInsets.zero,
+      ),
+      child: Text(label),
+    );
+  }
+
   Widget? _buildBottomBar(BuildContext context) {
     if (_isLoading || _currentCard == null) return null;
     final ctrl = _controller;
+    final card = _currentCard;
+    if (card?.answerType == AnswerType.intervalAudio) {
+      if (_intervalAudioAnswered && _intervalAudioCorrect == true) {
+        return AnswerActionBar(
+          child: RatingButtons(
+            onRate: _rateAndNext,
+            sublabelBuilder: _ratingSublabel,
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
     if (ctrl == null) return null;
 
     return ListenableBuilder(

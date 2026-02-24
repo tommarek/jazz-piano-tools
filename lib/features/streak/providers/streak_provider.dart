@@ -42,18 +42,21 @@ class TodayStreakState {
   });
 }
 
-StreakActivitySource _parseSource(String? raw) {
-  return switch (raw) {
-    'theory' => StreakActivitySource.theory,
-    'practice' => StreakActivitySource.practice,
-    _ => StreakActivitySource.both,
-  };
-}
-
 DateTime _studyDayDateLocal(DateTime timestamp, int rolloverHourLocal) {
   final shifted = timestamp.toLocal().subtract(Duration(hours: rolloverHourLocal));
   return DateTime(shifted.year, shifted.month, shifted.day);
 }
+
+String studyDayKeyForTimestamp(DateTime timestamp, int rolloverHourLocal) {
+  final d = _studyDayDateLocal(timestamp, rolloverHourLocal);
+  final y = d.year.toString().padLeft(4, '0');
+  final m = d.month.toString().padLeft(2, '0');
+  final day = d.day.toString().padLeft(2, '0');
+  return '$y-$m-$day';
+}
+
+String studyDayKeyNow(int rolloverHourLocal) =>
+    studyDayKeyForTimestamp(DateTime.now(), rolloverHourLocal);
 
 double _currentStudyDayProgress(int rolloverHourLocal) {
   final now = DateTime.now();
@@ -69,18 +72,17 @@ double _currentStudyDayProgress(int rolloverHourLocal) {
 }
 
 TodayStreakState _computeStreak({
-  required List<DateTime> timestamps,
+  required List<DateTime> completionTimestamps,
   required int rolloverHourLocal,
-  required StreakActivitySource source,
 }) {
-  final days = timestamps
+  final days = completionTimestamps
       .map((ts) => _studyDayDateLocal(ts, rolloverHourLocal))
       .toSet()
       .toList()
     ..sort();
 
   if (days.isEmpty) {
-    return TodayStreakState(source: source);
+    return const TodayStreakState();
   }
 
   final today = _studyDayDateLocal(DateTime.now(), rolloverHourLocal);
@@ -126,7 +128,7 @@ TodayStreakState _computeStreak({
     todayComplete: todayComplete,
     canContinueToday: canContinueToday,
     lastActiveStudyDayLocal: days.last,
-    source: source,
+    source: StreakActivitySource.both,
     lastSevenDays: lastSeven,
     todayProgress: todayProgress,
   );
@@ -137,23 +139,13 @@ Stream<TodayStreakState> todayStreak(TodayStreakRef ref) async* {
   final db = ref.watch(appDatabaseProvider);
   while (true) {
     final settings = await db.settingsDao.getSettings();
-    final source = _parseSource(settings?.streakActivitySource);
     final rolloverHour = settings?.dayRolloverHour ?? kDefaultDayRolloverHour;
-
-    final timestamps = <DateTime>[];
-    if (source == StreakActivitySource.theory ||
-        source == StreakActivitySource.both) {
-      timestamps.addAll(await db.reviewsDao.getAllReviewTimestamps());
-    }
-    if (source == StreakActivitySource.practice ||
-        source == StreakActivitySource.both) {
-      timestamps.addAll(await db.questionResultsDao.getAnsweredAttemptTimestamps());
-    }
+    final completions = await db.dailyCompletionsDao.getAllCompletions();
+    final timestamps = completions.map((c) => c.completedAt).toList();
 
     yield _computeStreak(
-      timestamps: timestamps,
+      completionTimestamps: timestamps,
       rolloverHourLocal: rolloverHour,
-      source: source,
     );
 
     await Future<void>.delayed(kFastCountRefreshInterval);

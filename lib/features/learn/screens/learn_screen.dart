@@ -29,7 +29,15 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Learn')),
+      appBar: AppBar(
+        title: const Text('Learn'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           // Search bar

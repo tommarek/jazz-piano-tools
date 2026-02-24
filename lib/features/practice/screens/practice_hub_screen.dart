@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../content/providers/content_providers.dart';
 import '../../../domain/models/exercise.dart';
 import '../../drill/generators/generator_registry.dart';
-import '../../library/providers/library_provider.dart';
+import '../providers/exercise_counts_provider.dart';
 
 class PracticeHubScreen extends ConsumerWidget {
   const PracticeHubScreen({super.key});
@@ -18,6 +18,12 @@ class PracticeHubScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Practice'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
       ),
       body: exercisesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -12,7 +12,7 @@ import '../../../core/audio/audio_provider.dart';
 import '../../../core/constants/ui_timing.dart';
 import '../../../core/widgets/notation/simple_sheet_music_adapter.dart';
 import '../../../domain/models/srs_card_state.dart';
-import '../../library/providers/library_provider.dart';
+import '../../practice/providers/exercise_counts_provider.dart';
 import '../../srs/providers/srs_provider.dart';
 import '../../streak/providers/streak_provider.dart';
 import '../providers/drill_provider.dart';

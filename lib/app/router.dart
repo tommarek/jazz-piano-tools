@@ -9,7 +9,7 @@ import '../features/today/screens/end_summary_screen.dart';
 import '../features/learn/screens/learn_screen.dart';
 import '../features/learn/screens/concept_detail_screen.dart';
 import '../features/learn/screens/deck_review_screen.dart';
-import '../features/library/screens/library_screen.dart';
+import '../features/ear/screens/ear_training_screen.dart';
 import '../features/practice/screens/practice_hub_screen.dart';
 import '../features/drill/screens/drill_screen.dart';
 import '../features/drill/screens/learn_screen.dart';
@@ -21,15 +21,14 @@ import '../features/settings/screens/settings_screen.dart';
 import '../features/today/providers/today_session_provider.dart';
 import '../features/srs/providers/srs_provider.dart';
 import '../features/learn/providers/deck_review_provider.dart';
-import '../features/library/providers/library_provider.dart';
 
 part 'router.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _todayNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'today');
 final _learnNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'learn');
+final _earNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'ear');
 final _practiceNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'practice');
-final _libraryNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'library');
 
 @Riverpod(keepAlive: true)
 GoRouter router(RouterRef ref) {
@@ -71,20 +70,20 @@ GoRouter router(RouterRef ref) {
             ],
           ),
           StatefulShellBranch(
+            navigatorKey: _earNavigatorKey,
+            routes: [
+              GoRoute(
+                path: '/ear',
+                builder: (context, state) => const EarTrainingScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
             navigatorKey: _practiceNavigatorKey,
             routes: [
               GoRoute(
                 path: '/practice-hub',
                 builder: (context, state) => const PracticeHubScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            navigatorKey: _libraryNavigatorKey,
-            routes: [
-              GoRoute(
-                path: '/library',
-                builder: (context, state) => const LibraryScreen(),
               ),
             ],
           ),
@@ -94,7 +93,9 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/review',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const ReviewSessionScreen(),
+        builder: (context, state) => ReviewSessionScreen(
+          category: state.extra is String ? state.extra as String : null,
+        ),
       ),
       GoRoute(
         path: '/session-builder/:exerciseId',
@@ -203,9 +204,10 @@ class ScaffoldWithBottomNav extends ConsumerWidget {
           ref.invalidate(todaySessionProvider);
           ref.invalidate(dueCardIdsProvider);
           ref.invalidate(dueCardCountProvider);
+          ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+          ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
           ref.invalidate(deckTreeStatsProvider);
           ref.invalidate(conceptDeckStatsProvider);
-          ref.invalidate(exerciseCountsProvider);
         },
         destinations: const [
           NavigationDestination(
@@ -219,14 +221,14 @@ class ScaffoldWithBottomNav extends ConsumerWidget {
             label: 'Learn',
           ),
           NavigationDestination(
+            icon: Icon(Icons.hearing_outlined),
+            selectedIcon: Icon(Icons.hearing),
+            label: 'Ear',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.piano_outlined),
             selectedIcon: Icon(Icons.piano),
             label: 'Practice',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.library_music_outlined),
-            selectedIcon: Icon(Icons.library_music),
-            label: 'Library',
           ),
         ],
       ),

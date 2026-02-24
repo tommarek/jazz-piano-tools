@@ -74,49 +74,18 @@ class TodayScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        // Due reviews card
-        Consumer(
-          builder: (context, ref, _) {
-            final countsAsync = ref.watch(todayDashboardCountsProvider);
-            final counts = countsAsync.asData?.value;
-
-            final due = counts?.dueCardCount ?? session.dueCardCount;
-            final learning = counts?.learningDueCount ?? session.learningDueCount;
-            final review = counts?.reviewDueCount ?? session.reviewDueCount;
-            final newLeft = counts?.newCardsRemaining ?? session.newCardsRemaining;
-            final estMin = counts?.estimatedMinutes ?? ((due * 0.5).ceil());
-
-            return _SessionCard(
-              icon: Icons.flip,
-              iconColor: theme.colorScheme.primary,
-              title: 'Cards to Review',
-              subtitle: due > 0
-                  ? '$due due (L$learning · R$review) · ~$estMin min · $newLeft new left'
-                  : newLeft > 0
-                      ? 'All caught up · ~0 min · $newLeft new left'
-                      : 'All caught up · no new cards left today',
-              trailing: due > 0
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        '$due',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  : Icon(Icons.check_circle, color: Colors.green.shade600),
-              onTap: due > 0 ? () => context.push('/review') : null,
-            );
-          },
+        _CategoryReviewCard(
+          title: 'Learning to Review',
+          category: TodayReviewCategory.learning,
+          icon: Icons.school,
+          iconColor: theme.colorScheme.primary,
+        ),
+        const SizedBox(height: 12),
+        _CategoryReviewCard(
+          title: 'Ear Training to Review',
+          category: TodayReviewCategory.ear,
+          icon: Icons.hearing,
+          iconColor: theme.colorScheme.tertiary,
         ),
         const SizedBox(height: 24),
       ],
@@ -138,11 +107,7 @@ class _StreakChip extends StatelessWidget {
     final fg = streak.todayComplete
         ? theme.colorScheme.onTertiaryContainer
         : theme.colorScheme.onSurface;
-    final sub = streak.todayComplete
-        ? 'done today'
-        : streak.canContinueToday
-            ? 'continue today'
-            : 'start today';
+    final sub = streak.todayComplete ? 'done today' : 'finish Learning or Ear today';
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -249,9 +214,7 @@ class _FlameDayDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeColor = isToday ? Colors.orange.shade700 : Colors.orange.shade500;
     final baseColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.45);
-    final colorProgress = isToday
-        ? (todayComplete ? 1.0 : todayProgress)
-        : (isActive ? 1.0 : 0.0);
+    final colorProgress = isToday ? (todayComplete ? 1.0 : 0.0) : (isActive ? 1.0 : 0.0);
 
     return SizedBox(
       width: 20,
@@ -284,6 +247,57 @@ class _FlameDayDot extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CategoryReviewCard extends ConsumerWidget {
+  final String title;
+  final TodayReviewCategory category;
+  final IconData icon;
+  final Color iconColor;
+
+  const _CategoryReviewCard({
+    required this.title,
+    required this.category,
+    required this.icon,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final countsAsync = ref.watch(todayCategoryDashboardCountsProvider(category));
+    final counts = countsAsync.asData?.value;
+    final due = counts?.dueCardCount ?? 0;
+    final learning = counts?.learningDueCount ?? 0;
+    final review = counts?.reviewDueCount ?? 0;
+    final estMin = counts?.estimatedMinutes ?? 0;
+
+    return _SessionCard(
+      icon: icon,
+      iconColor: iconColor,
+      title: title,
+      subtitle: due > 0
+          ? '$due due (L$learning · R$review) · ~$estMin min'
+          : 'All caught up',
+      trailing: due > 0
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                '$due',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          : Icon(Icons.check_circle, color: Colors.green.shade600),
+      onTap: due > 0 ? () => context.push('/review', extra: category.name) : null,
     );
   }
 }

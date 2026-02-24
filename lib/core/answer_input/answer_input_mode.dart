@@ -25,6 +25,7 @@ extension AnswerInputModeX on AnswerInputMode {
       case AnswerType.text:
       case AnswerType.chordName:
       case AnswerType.intervalName:
+      case AnswerType.intervalAudio:
         return AnswerInputMode.selfReveal;
     }
   }

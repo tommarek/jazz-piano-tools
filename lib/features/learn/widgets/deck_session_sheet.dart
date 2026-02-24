@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../content/providers/content_providers.dart';
 import '../../../database/app_database.dart';
+import '../../practice/providers/exercise_counts_provider.dart';
 import '../providers/deck_review_provider.dart';
 import '../screens/deck_review_screen.dart';
+import '../../srs/providers/srs_provider.dart';
+import '../../streak/providers/streak_provider.dart';
+import '../../today/providers/today_session_provider.dart';
 
 Future<void> showDeckSessionSheet({
   required BuildContext context,
+  required WidgetRef ref,
   required AppDatabase db,
   required DeckTreeNode node,
   required List<String> deckIds,
@@ -28,6 +35,7 @@ Future<void> showDeckSessionSheet({
     builder: (context) {
       return _DeckSessionSheet(
         db: db,
+        ref: ref,
         node: node,
         deckIds: deckIds,
         maxNew: maxNew,
@@ -45,6 +53,7 @@ enum _DrillMode { random, hard }
 
 class _DeckSessionSheet extends StatefulWidget {
   final AppDatabase db;
+  final WidgetRef ref;
   final DeckTreeNode node;
   final List<String> deckIds;
   final int maxNew;
@@ -54,6 +63,7 @@ class _DeckSessionSheet extends StatefulWidget {
 
   const _DeckSessionSheet({
     required this.db,
+    required this.ref,
     required this.node,
     required this.deckIds,
     required this.maxNew,
@@ -122,9 +132,81 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
+          const SizedBox(height: 8),
+          const Divider(),
+          TextButton(
+            onPressed: _toggleDailyReviewInclusion,
+            child: Text(
+              widget.node.deck.excludeFromDailyReview
+                  ? 'Add To Daily Review (incl. subdecks)'
+                  : 'Remove From Daily Review (incl. subdecks)',
+            ),
+          ),
+          TextButton(
+            onPressed: _confirmResetDeckProgress,
+            child: const Text('Reset Deck Progress (cards only)'),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _toggleDailyReviewInclusion() async {
+    final repo = widget.ref.read(contentRepositoryProvider);
+    await repo.setDeckExcludedFromDailyReview(
+      widget.node.deck.id,
+      !widget.node.deck.excludeFromDailyReview,
+      includeSubdecks: true,
+    );
+    _invalidateCounts();
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _confirmResetDeckProgress() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset deck progress?'),
+        content: Text(
+          'Reset SRS progress for cards in "${widget.node.deck.title}"'
+          '${widget.node.children.isNotEmpty ? ' and its subdecks' : ''}? '
+          'This resets card review history and scheduling for those cards only.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    final repo = widget.ref.read(contentRepositoryProvider);
+    await repo.resetDeckCardProgress(widget.node.deck.id, includeSubdecks: true);
+    _invalidateCounts(includeStreak: true);
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  void _invalidateCounts({bool includeStreak = false}) {
+    widget.ref.invalidate(deckTreeStatsProvider);
+    widget.ref.invalidate(conceptDeckStatsProvider);
+    widget.ref.invalidate(todaySessionProvider);
+    widget.ref.invalidate(todayDashboardCountsProvider);
+    widget.ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+    widget.ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
+    widget.ref.invalidate(dueCardIdsProvider);
+    widget.ref.invalidate(dueCardCountProvider);
+    widget.ref.invalidate(exerciseCountsProvider);
+    if (includeStreak) {
+      widget.ref.invalidate(todayStreakProvider);
+    }
   }
 
   Widget _buildModeToggle(ThemeData theme) {

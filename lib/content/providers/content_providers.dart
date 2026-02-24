@@ -93,6 +93,8 @@ Future<List<domain.Deck>> allDecks(AllDecksRef ref) async {
           title: r.title,
           tags: r.tags,
           sourceConceptId: r.sourceConceptId,
+          parentId: r.parentId,
+          excludeFromDailyReview: r.excludeFromDailyReview,
         ),
       )
       .toList();

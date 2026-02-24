@@ -8,7 +8,7 @@ import '../../../core/constants/srs_defaults.dart';
 import '../../../content/providers/content_providers.dart';
 import '../../../database/app_database.dart';
 import '../../learn/providers/deck_review_provider.dart';
-import '../../library/providers/library_provider.dart';
+import '../../practice/providers/exercise_counts_provider.dart';
 import '../../progression/providers/progression_provider.dart';
 import '../../srs/providers/srs_provider.dart';
 import '../../streak/providers/streak_provider.dart';
@@ -802,6 +802,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(deckTreeStatsProvider);
       ref.invalidate(tiersByTopicProvider);
       ref.invalidate(todaySessionProvider);
+      ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+      ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
       ref.invalidate(todayStreakProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

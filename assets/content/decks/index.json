@@ -2085,14 +2085,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-P1",
+        "id": "intervals-ear-P1-C",
         "deckId": "intervals-ear-P1",
-        "prompt": "Identify the interval: P1",
+        "prompt": "What interval is this?",
         "expectedAnswer": "P1",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "P1",
-          "semitones": 0
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-Db",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-D",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-Eb",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-E",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-F",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-Gb",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-G",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-Ab",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-A",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-Bb",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P1-B",
+        "deckId": "intervals-ear-P1",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P1",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P1",
+          "intervalLabel": "P1",
+          "intervalSemitones": 0,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -2299,14 +2480,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-m2",
+        "id": "intervals-ear-m2-C",
         "deckId": "intervals-ear-m2",
-        "prompt": "Identify the interval: m2",
+        "prompt": "What interval is this?",
         "expectedAnswer": "m2",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "m2",
-          "semitones": 1
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-Db",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-D",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-Eb",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-E",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-F",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-Gb",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-G",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-Ab",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-A",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-Bb",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m2-B",
+        "deckId": "intervals-ear-m2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m2",
+          "intervalLabel": "m2",
+          "intervalSemitones": 1,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -2513,14 +2875,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-M2",
+        "id": "intervals-ear-M2-C",
         "deckId": "intervals-ear-M2",
-        "prompt": "Identify the interval: M2",
+        "prompt": "What interval is this?",
         "expectedAnswer": "M2",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "M2",
-          "semitones": 2
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-Db",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-D",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-Eb",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-E",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-F",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-Gb",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-G",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-Ab",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-A",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-Bb",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M2-B",
+        "deckId": "intervals-ear-M2",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M2",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M2",
+          "intervalLabel": "M2",
+          "intervalSemitones": 2,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -2727,14 +3270,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-m3",
+        "id": "intervals-ear-m3-C",
         "deckId": "intervals-ear-m3",
-        "prompt": "Identify the interval: m3",
+        "prompt": "What interval is this?",
         "expectedAnswer": "m3",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "m3",
-          "semitones": 3
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-Db",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-D",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-Eb",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-E",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-F",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-Gb",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-G",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-Ab",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-A",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-Bb",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m3-B",
+        "deckId": "intervals-ear-m3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m3",
+          "intervalLabel": "m3",
+          "intervalSemitones": 3,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -2941,14 +3665,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-M3",
+        "id": "intervals-ear-M3-C",
         "deckId": "intervals-ear-M3",
-        "prompt": "Identify the interval: M3",
+        "prompt": "What interval is this?",
         "expectedAnswer": "M3",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "M3",
-          "semitones": 4
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-Db",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-D",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-Eb",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-E",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-F",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-Gb",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-G",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-Ab",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-A",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-Bb",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M3-B",
+        "deckId": "intervals-ear-M3",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M3",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M3",
+          "intervalLabel": "M3",
+          "intervalSemitones": 4,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -3155,14 +4060,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-P4",
+        "id": "intervals-ear-P4-C",
         "deckId": "intervals-ear-P4",
-        "prompt": "Identify the interval: P4",
+        "prompt": "What interval is this?",
         "expectedAnswer": "P4",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "P4",
-          "semitones": 5
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-Db",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-D",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-Eb",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-E",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-F",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-Gb",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-G",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-Ab",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-A",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-Bb",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P4-B",
+        "deckId": "intervals-ear-P4",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P4",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P4",
+          "intervalLabel": "P4",
+          "intervalSemitones": 5,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -3369,14 +4455,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-TT",
+        "id": "intervals-ear-TT-C",
         "deckId": "intervals-ear-TT",
-        "prompt": "Identify the interval: TT",
+        "prompt": "What interval is this?",
         "expectedAnswer": "TT",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "TT",
-          "semitones": 6
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-Db",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-D",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-Eb",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-E",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-F",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-Gb",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-G",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-Ab",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-A",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-Bb",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-TT-B",
+        "deckId": "intervals-ear-TT",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "TT",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "TT",
+          "intervalLabel": "TT",
+          "intervalSemitones": 6,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -3583,14 +4850,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-P5",
+        "id": "intervals-ear-P5-C",
         "deckId": "intervals-ear-P5",
-        "prompt": "Identify the interval: P5",
+        "prompt": "What interval is this?",
         "expectedAnswer": "P5",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "P5",
-          "semitones": 7
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-Db",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-D",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-Eb",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-E",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-F",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-Gb",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-G",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-Ab",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-A",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-Bb",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-P5-B",
+        "deckId": "intervals-ear-P5",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "P5",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "P5",
+          "intervalLabel": "P5",
+          "intervalSemitones": 7,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -3797,14 +5245,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-m6",
+        "id": "intervals-ear-m6-C",
         "deckId": "intervals-ear-m6",
-        "prompt": "Identify the interval: m6",
+        "prompt": "What interval is this?",
         "expectedAnswer": "m6",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "m6",
-          "semitones": 8
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-Db",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-D",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-Eb",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-E",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-F",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-Gb",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-G",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-Ab",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-A",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-Bb",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m6-B",
+        "deckId": "intervals-ear-m6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m6",
+          "intervalLabel": "m6",
+          "intervalSemitones": 8,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -4011,14 +5640,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-M6",
+        "id": "intervals-ear-M6-C",
         "deckId": "intervals-ear-M6",
-        "prompt": "Identify the interval: M6",
+        "prompt": "What interval is this?",
         "expectedAnswer": "M6",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "M6",
-          "semitones": 9
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-Db",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-D",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-Eb",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-E",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-F",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-Gb",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-G",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-Ab",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-A",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-Bb",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M6-B",
+        "deckId": "intervals-ear-M6",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M6",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M6",
+          "intervalLabel": "M6",
+          "intervalSemitones": 9,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -4225,14 +6035,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-m7",
+        "id": "intervals-ear-m7-C",
         "deckId": "intervals-ear-m7",
-        "prompt": "Identify the interval: m7",
+        "prompt": "What interval is this?",
         "expectedAnswer": "m7",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "m7",
-          "semitones": 10
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-Db",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-D",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-Eb",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-E",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-F",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-Gb",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-G",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-Ab",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-A",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-Bb",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-m7-B",
+        "deckId": "intervals-ear-m7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "m7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "m7",
+          "intervalLabel": "m7",
+          "intervalSemitones": 10,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]
@@ -4439,14 +6430,195 @@
     "parentId": "intervals-ear",
     "cards": [
       {
-        "id": "intervals-ear-M7",
+        "id": "intervals-ear-M7-C",
         "deckId": "intervals-ear-M7",
-        "prompt": "Identify the interval: M7",
+        "prompt": "What interval is this?",
         "expectedAnswer": "M7",
-        "answerType": "intervalName",
+        "answerType": "intervalAudio",
         "metadata": {
           "interval": "M7",
-          "semitones": 11
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "C",
+          "rootPitchClass": 0,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-Db",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "Db",
+          "rootPitchClass": 1,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-D",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "D",
+          "rootPitchClass": 2,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-Eb",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "Eb",
+          "rootPitchClass": 3,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-E",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "E",
+          "rootPitchClass": 4,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-F",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "F",
+          "rootPitchClass": 5,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-Gb",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "Gb",
+          "rootPitchClass": 6,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-G",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "G",
+          "rootPitchClass": 7,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-Ab",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "Ab",
+          "rootPitchClass": 8,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-A",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "A",
+          "rootPitchClass": 9,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-Bb",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "Bb",
+          "rootPitchClass": 10,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
+        }
+      },
+      {
+        "id": "intervals-ear-M7-B",
+        "deckId": "intervals-ear-M7",
+        "prompt": "What interval is this?",
+        "expectedAnswer": "M7",
+        "answerType": "intervalAudio",
+        "metadata": {
+          "interval": "M7",
+          "intervalLabel": "M7",
+          "intervalSemitones": 11,
+          "root": "B",
+          "rootPitchClass": 11,
+          "baseOctave": 4,
+          "audioPattern": "asc-unison-desc"
         }
       }
     ]

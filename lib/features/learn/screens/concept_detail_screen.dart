@@ -4,14 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../providers/concepts_provider.dart';
-import '../../../content/providers/content_providers.dart';
 import '../../../domain/models/concept.dart';
-import '../../../domain/models/exercise.dart';
-import '../../../domain/enums/input_type.dart';
 import '../providers/deck_review_provider.dart';
 import '../widgets/deck_session_sheet.dart';
-import '../../drill/screens/session_builder_screen.dart';
-import '../../library/providers/library_provider.dart';
 
 class ConceptDetailScreen extends ConsumerStatefulWidget {
   final String conceptId;
@@ -124,19 +119,6 @@ class _ConceptDetailScreenState extends ConsumerState<ConceptDetailScreen> {
           ),
           const SizedBox(height: 12),
           _DecksSection(deckIds: concept.relatedCardDeckIds),
-        ] else if (concept.relatedExerciseIds.isNotEmpty) ...[
-          const Divider(),
-          const SizedBox(height: 16),
-          Text(
-            'Exercises',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _PracticeSection(
-            exerciseIds: concept.relatedExerciseIds,
-          ),
         ],
       ],
     );
@@ -158,9 +140,6 @@ class _DecksSection extends ConsumerWidget {
       error: (error, _) => Text('Error: $error'),
       data: (nodes) {
         final theory = nodes.where((n) => _hasTag(n, 'modality:theory')).toList();
-        final ear = nodes.where((n) => _hasTag(n, 'modality:ear')).toList();
-        final piano = nodes.where((n) => _hasTag(n, 'modality:piano')).toList();
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -168,12 +147,6 @@ class _DecksSection extends ConsumerWidget {
               title: 'Theory',
               nodes: theory,
               emptyLabel: 'No theory decks yet.',
-            ),
-            const SizedBox(height: 16),
-            _DeckSection(
-              title: 'Ear Training',
-              nodes: ear,
-              emptyLabel: 'No ear training decks yet.',
             ),
           ],
         );
@@ -254,6 +227,7 @@ class _DeckTreeTile extends ConsumerWidget {
           trailing: FilledButton.tonal(
             onPressed: () => showDeckSessionSheet(
               context: context,
+              ref: ref,
               db: db,
               node: node,
               deckIds: _collectDeckIds(node),
@@ -277,6 +251,7 @@ class _DeckTreeTile extends ConsumerWidget {
         trailing: FilledButton.tonal(
           onPressed: () => showDeckSessionSheet(
             context: context,
+            ref: ref,
             db: db,
             node: node,
             deckIds: _collectDeckIds(node),
@@ -374,160 +349,6 @@ extension on _ConceptDetailScreenState {
                 const SizedBox(height: 8),
               ],
             ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PracticeSection extends ConsumerWidget {
-  final List<String> exerciseIds;
-
-  const _PracticeSection({required this.exerciseIds});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final exercisesAsync = ref.watch(allExercisesProvider);
-
-    return exercisesAsync.when(
-      loading: () => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      error: (error, _) => Text('Error: $error'),
-      data: (allExercises) {
-        final matched = exerciseIds
-            .map((id) => allExercises.where((e) => e.id == id).firstOrNull)
-            .whereType<Exercise>()
-            .toList();
-        final theoryExercises = matched.where(_isTheoryExercise).toList();
-        final practiceExercises = matched.where(_isPracticeExercise).toList();
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (theoryExercises.isNotEmpty) ...[
-              Text(
-                'Learn',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              for (var i = 0; i < theoryExercises.length; i++) ...[
-                if (i > 0) const SizedBox(height: 12),
-                _ExercisePracticeCard(
-                  exercise: theoryExercises[i],
-                  actionLabel: 'Start Learn',
-                ),
-              ],
-              const SizedBox(height: 24),
-            ],
-            if (practiceExercises.isNotEmpty) ...[
-              Text(
-                'Practice',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              for (var i = 0; i < practiceExercises.length; i++) ...[
-                if (i > 0) const SizedBox(height: 12),
-                _ExercisePracticeCard(
-                  exercise: practiceExercises[i],
-                  actionLabel: 'Start Practice',
-                ),
-              ],
-            ],
-          ],
-        );
-      },
-    );
-  }
-
-  bool _isTheoryExercise(Exercise exercise) {
-    final tags = exercise.tags;
-    if (tags.contains('track:theory')) return true;
-    if (tags.contains('track:piano')) return false;
-    return exercise.inputType != InputType.piano;
-  }
-
-  bool _isPracticeExercise(Exercise exercise) {
-    final tags = exercise.tags;
-    if (tags.contains('track:piano')) return true;
-    if (tags.contains('track:theory')) return false;
-    return exercise.inputType == InputType.piano;
-  }
-}
-
-class _ExercisePracticeCard extends ConsumerWidget {
-  final Exercise exercise;
-  final String actionLabel;
-
-  const _ExercisePracticeCard({
-    required this.exercise,
-    required this.actionLabel,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final countsAsync = ref.watch(exerciseCountsProvider(exercise.id));
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              exercise.title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            countsAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-              data: (counts) {
-                final hasDue =
-                    counts.reviewCount > 0 || counts.newCount > 0;
-                final parts = <String>[];
-                if (counts.reviewCount > 0) {
-                  parts.add('${counts.reviewCount} due');
-                }
-                if (counts.newCount > 0) {
-                  parts.add('${counts.newCount} new');
-                }
-                final subtitle = hasDue
-                    ? parts.join(' + ')
-                    : counts.availableNew > 0
-                        ? 'All caught up \u00b7 ${counts.availableNew} to explore'
-                        : 'All caught up';
-                return Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => Navigator.of(context, rootNavigator: true).push(
-                MaterialPageRoute(
-                  builder: (_) => SessionBuilderScreen(
-                    exerciseId: exercise.id,
-                  ),
-                ),
-              ),
-              child: Text(actionLabel),
-            ),
           ],
         ),
       ),

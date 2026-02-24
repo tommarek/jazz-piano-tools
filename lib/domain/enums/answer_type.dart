@@ -1,1 +1,1 @@
-enum AnswerType { pitch, chordName, intervalName, text, multipleChoice }
+enum AnswerType { pitch, chordName, intervalName, intervalAudio, text, multipleChoice }

@@ -9,7 +9,7 @@ import 'package:collection/collection.dart';
 
 import '../../../app/providers.dart';
 import '../../../database/app_database.dart' hide Card;
-import '../../library/providers/library_provider.dart';
+import '../../practice/providers/exercise_counts_provider.dart';
 import '../providers/drill_provider.dart';
 import '../providers/session_templates_provider.dart';
 import '../widgets/session_summary_card.dart';

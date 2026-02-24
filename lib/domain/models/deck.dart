@@ -11,6 +11,7 @@ abstract class Deck with _$Deck {
     @Default([]) List<String> tags,
     String? sourceConceptId,
     String? parentId,
+    @Default(false) bool excludeFromDailyReview,
   }) = _Deck;
 
   factory Deck.fromJson(Map<String, dynamic> json) => _$DeckFromJson(json);

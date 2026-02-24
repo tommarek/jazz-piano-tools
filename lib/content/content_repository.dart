@@ -10,7 +10,7 @@ class ContentRepository {
   final ContentLoader _loader;
 
   /// Bump this when exercise/content JSON changes to trigger re-seed.
-  static const int currentContentVersion = 7;
+  static const int currentContentVersion = 8;
 
   ContentRepository(this._db, this._loader);
 
@@ -127,6 +127,7 @@ class ContentRepository {
             tags: d.tags,
             sourceConceptId: Value(d.sourceConceptId),
             parentId: Value(d.parentId),
+            excludeFromDailyReview: const Value(false),
           ),
         );
       }
@@ -232,5 +233,53 @@ class ContentRepository {
         }
       });
     });
+  }
+
+  Future<void> resetDeckCardProgress(
+    String deckId, {
+    bool includeSubdecks = true,
+  }) async {
+    final deckIds = includeSubdecks
+        ? await _db.decksDao.getDescendantDeckIdsInclusive(deckId)
+        : [deckId];
+    final cardIds = await _db.cardsDao.getCardIdsForDecks(deckIds);
+    if (cardIds.isEmpty) return;
+
+    final now = DateTime.now().toUtc();
+    await _db.transaction(() async {
+      await (_db.delete(_db.reviews)..where((r) => r.cardId.isIn(cardIds))).go();
+      await (_db.delete(_db.cardStates)..where((s) => s.cardId.isIn(cardIds))).go();
+
+      await _db.batch((batch) {
+        for (final cardId in cardIds) {
+          batch.insert(
+            _db.cardStates,
+            CardStatesCompanion.insert(
+              cardId: cardId,
+              due: now,
+              stability: 0.0,
+              difficulty: 0.0,
+              interval: 0,
+              lapses: 0,
+              reps: 0,
+              state: 'new',
+              lastReview: const Value(null),
+              step: const Value(null),
+            ),
+          );
+        }
+      });
+    });
+  }
+
+  Future<void> setDeckExcludedFromDailyReview(
+    String deckId,
+    bool excluded, {
+    bool includeSubdecks = true,
+  }) async {
+    final deckIds = includeSubdecks
+        ? await _db.decksDao.getDescendantDeckIdsInclusive(deckId)
+        : [deckId];
+    await _db.decksDao.setExcludedFromDailyReviewForDeckIds(deckIds, excluded);
   }
 }

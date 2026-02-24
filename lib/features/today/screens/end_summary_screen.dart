@@ -82,6 +82,8 @@ class EndSummaryScreen extends ConsumerWidget {
                   }
                   ref.invalidate(todaySessionProvider);
                   ref.invalidate(todayDashboardCountsProvider);
+                  ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+                  ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
                   ref.invalidate(todayStreakProvider);
                   ref.invalidate(dueCardCountProvider);
                   context.go('/today');

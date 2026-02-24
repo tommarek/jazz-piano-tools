@@ -21,6 +21,11 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return (select(cards)..where((c) => c.deckId.equals(deckId))).get();
   }
 
+  Future<List<Card>> getCardsByIds(List<String> ids) {
+    if (ids.isEmpty) return Future.value(const []);
+    return (select(cards)..where((c) => c.id.isIn(ids))).get();
+  }
+
   Future<void> insertCard(CardsCompanion companion) {
     return into(cards).insert(companion);
   }
@@ -39,6 +44,7 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   Future<List<String>> getDueLearningCardIds(
     DateTime now, {
     Duration learnAhead = Duration.zero,
+    List<String> excludedDeckIds = const [],
   }) async {
     final dueBy = now.add(learnAhead);
     final query = select(cards).join([
@@ -47,29 +53,46 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
       ..where(
         cardStates.due.isSmallerOrEqualValue(dueBy) &
             (cardStates.state.equals('learning') |
-                cardStates.state.equals('relearning')),
+                cardStates.state.equals('relearning')) &
+            (excludedDeckIds.isEmpty
+                ? const Constant(true)
+                : cards.deckId.isNotIn(excludedDeckIds)),
       );
     final rows = await query.get();
     return rows.map((r) => r.readTable(cards).id).toList();
   }
 
-  Future<List<String>> getDueReviewCardIds(DateTime now) async {
+  Future<List<String>> getDueReviewCardIds(
+    DateTime now, {
+    List<String> excludedDeckIds = const [],
+  }) async {
     final query = select(cards).join([
       innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
     ])
       ..where(
         cardStates.due.isSmallerOrEqualValue(now) &
-            cardStates.state.equals('review'),
+            cardStates.state.equals('review') &
+            (excludedDeckIds.isEmpty
+                ? const Constant(true)
+                : cards.deckId.isNotIn(excludedDeckIds)),
       );
     final rows = await query.get();
     return rows.map((r) => r.readTable(cards).id).toList();
   }
 
-  Future<List<String>> getNewCardIds({int? limit}) async {
+  Future<List<String>> getNewCardIds({
+    int? limit,
+    List<String> excludedDeckIds = const [],
+  }) async {
     final query = select(cards).join([
       innerJoin(cardStates, cardStates.cardId.equalsExp(cards.id)),
     ])
-      ..where(cardStates.state.equals('new'));
+      ..where(
+        cardStates.state.equals('new') &
+            (excludedDeckIds.isEmpty
+                ? const Constant(true)
+                : cards.deckId.isNotIn(excludedDeckIds)),
+      );
     if (limit != null) {
       query.limit(limit);
     }
@@ -79,6 +102,16 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
 
   Future<void> upsertCardState(CardStatesCompanion companion) {
     return into(cardStates).insertOnConflictUpdate(companion);
+  }
+
+  Future<List<String>> getCardIdsForDecks(List<String> deckIds) async {
+    if (deckIds.isEmpty) return const [];
+    final rows =
+        await (selectOnly(cards)
+              ..addColumns([cards.id])
+              ..where(cards.deckId.isIn(deckIds)))
+            .get();
+    return rows.map((r) => r.read(cards.id)!).toList();
   }
 
   Future<CardState?> getCardState(String cardId) {

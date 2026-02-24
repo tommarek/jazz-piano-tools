@@ -8,13 +8,17 @@ import '../../../core/answer_input/answer_input_mode.dart';
 import '../../../core/answer_input/duration_formatter.dart';
 import '../../../core/answer_input/pitch_class_parser.dart';
 import '../../../core/answer_input/rating_buttons.dart';
+import '../../../core/audio/audio_provider.dart';
+import '../../../core/audio/pitched_note.dart';
 import '../../../core/constants/ui_timing.dart';
+import '../../../core/music/pitch_class.dart';
 import '../../drill/widgets/session_app_bar_title.dart';
 import '../../../app/providers.dart';
 import '../../../database/app_database.dart' as drift;
+import '../../../domain/enums/answer_type.dart';
 import '../../../domain/models/srs_card.dart';
 import '../../../domain/models/srs_card_state.dart';
-import '../../library/providers/library_provider.dart';
+import '../../practice/providers/exercise_counts_provider.dart';
 import '../providers/deck_review_provider.dart';
 import '../../srs/providers/srs_provider.dart';
 import '../../streak/providers/streak_provider.dart';
@@ -55,6 +59,15 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
 
   AnswerInputController? _controller;
   bool _autoAdvancing = false;
+  bool _intervalAudioAnswered = false;
+  bool? _intervalAudioCorrect;
+  String? _intervalAudioSelected;
+  bool _intervalAudioPlaying = false;
+  static const _intervalLabels = [
+    'P1', 'm2', 'M2', 'm3',
+    'M3', 'P4', 'TT', 'P5',
+    'm6', 'M6', 'm7', 'M7',
+  ];
 
   @override
   void initState() {
@@ -136,6 +149,10 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       _currentCard = card;
       _currentState = state;
       _autoAdvancing = false;
+      _intervalAudioAnswered = false;
+      _intervalAudioCorrect = null;
+      _intervalAudioSelected = null;
+      _intervalAudioPlaying = false;
     });
 
     _stopwatch.reset();
@@ -144,6 +161,12 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   }
 
   void _createController(SrsCard card) {
+    if (card.answerType == AnswerType.intervalAudio) {
+      _controller?.dispose();
+      _controller = null;
+      setState(() {});
+      return;
+    }
     _controller?.dispose();
 
     // Use keyboard if answer contains parseable pitch classes, else selfReveal
@@ -165,6 +188,47 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       },
     );
     setState(() {});
+  }
+
+  Future<void> _playIntervalAudioCard() async {
+    final card = _currentCard;
+    if (card == null || card.answerType != AnswerType.intervalAudio || _intervalAudioPlaying) {
+      return;
+    }
+    final meta = card.metadata;
+    final rootPc = meta['rootPitchClass'] as int?;
+    final semitones = meta['intervalSemitones'] as int?;
+    final baseOctave = (meta['baseOctave'] as int?) ?? 4;
+    if (rootPc == null || semitones == null) return;
+    final audio = ref.read(audioServiceProvider);
+    final root = PitchedNote(PitchClass(rootPc), baseOctave);
+    final top = root.transpose(semitones);
+    setState(() => _intervalAudioPlaying = true);
+    try {
+      await audio.playNote(root);
+      await audio.playNote(top);
+      await audio.playNote(root);
+      await audio.playNote(top);
+      await audio.playNote(root);
+    } finally {
+      if (mounted) setState(() => _intervalAudioPlaying = false);
+    }
+  }
+
+  Future<void> _submitIntervalAudioAnswer(String label) async {
+    if (_intervalAudioAnswered) return;
+    _stopwatch.stop();
+    final correct = _currentCard?.expectedAnswer == label;
+    setState(() {
+      _intervalAudioAnswered = true;
+      _intervalAudioCorrect = correct;
+      _intervalAudioSelected = label;
+    });
+    if (!correct) {
+      setState(() => _autoAdvancing = true);
+      await Future<void>.delayed(kAutoRevealAgainDelay);
+      if (mounted) await _rateAndNextWithDelay(0);
+    }
   }
 
   Future<void> _handleIncorrect() async {
@@ -198,6 +262,8 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
         ref.invalidate(todayDashboardCountsProvider);
+        ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+        ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
         ref.invalidate(todayStreakProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
@@ -227,6 +293,8 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         ref.invalidate(dueCardCountProvider);
         ref.invalidate(todaySessionProvider);
         ref.invalidate(todayDashboardCountsProvider);
+        ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+        ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
         ref.invalidate(todayStreakProvider);
         ref.invalidate(deckTreeStatsProvider);
         ref.invalidate(conceptDeckStatsProvider);
@@ -281,6 +349,8 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
             ref.invalidate(conceptDeckStatsProvider);
             ref.invalidate(todaySessionProvider);
             ref.invalidate(todayDashboardCountsProvider);
+            ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.learning));
+            ref.invalidate(todayCategoryDashboardCountsProvider(TodayReviewCategory.ear));
             ref.invalidate(todayStreakProvider);
             ref.invalidate(dueCardIdsProvider);
             ref.invalidate(dueCardCountProvider);
@@ -356,7 +426,69 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     final card = _currentCard;
     final ctrl = _controller;
 
-    if (card == null || ctrl == null) {
+    if (card == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (card.answerType == AnswerType.intervalAudio) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                card.prompt,
+                style: theme.textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.tonalIcon(
+            onPressed: _intervalAudioPlaying ? null : _playIntervalAudioCard,
+            icon: Icon(_intervalAudioPlaying ? Icons.volume_up : Icons.replay),
+            label: Text(_intervalAudioPlaying ? 'Playing...' : 'Play again'),
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.5,
+            children: [
+              for (final label in _intervalLabels)
+                FilledButton.tonal(
+                  onPressed: _intervalAudioAnswered
+                      ? null
+                      : () => _submitIntervalAudioAnswer(label),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _intervalButtonBg(label, card.expectedAnswer, theme),
+                    foregroundColor: _intervalButtonFg(label, card.expectedAnswer, theme),
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: Text(label),
+                ),
+            ],
+          ),
+          if (_intervalAudioAnswered) ...[
+            const SizedBox(height: 12),
+            Text(
+              (_intervalAudioCorrect ?? false)
+                  ? 'Correct: ${card.expectedAnswer}'
+                  : 'You chose ${_intervalAudioSelected ?? ''} · Correct: ${card.expectedAnswer}',
+              textAlign: TextAlign.center,
+            ),
+          ],
+          const Spacer(),
+        ],
+      );
+    }
+
+    if (ctrl == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -385,6 +517,18 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
 
   Widget? _buildBottomBar(BuildContext context) {
     if (_isLoading || _currentCard == null) return null;
+    final card = _currentCard;
+    if (card?.answerType == AnswerType.intervalAudio) {
+      if (_intervalAudioAnswered && _intervalAudioCorrect == true && !_autoAdvancing) {
+        return AnswerActionBar(
+          child: RatingButtons(
+            onRate: _rateAndNext,
+            sublabelBuilder: widget.isRandom ? null : _ratingSublabel,
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
     final ctrl = _controller;
     if (ctrl == null) return null;
 
@@ -422,6 +566,20 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
         return const SizedBox.shrink();
       },
     );
+  }
+
+  Color? _intervalButtonBg(String label, String correct, ThemeData theme) {
+    if (!_intervalAudioAnswered) return null;
+    if (label == correct) return theme.colorScheme.secondaryContainer;
+    if (_intervalAudioSelected == label) return theme.colorScheme.errorContainer;
+    return null;
+  }
+
+  Color? _intervalButtonFg(String label, String correct, ThemeData theme) {
+    if (!_intervalAudioAnswered) return null;
+    if (label == correct) return theme.colorScheme.onSecondaryContainer;
+    if (_intervalAudioSelected == label) return theme.colorScheme.onErrorContainer;
+    return null;
   }
 
   Future<void> _showExitConfirmation(BuildContext context) async {
