@@ -27,16 +27,20 @@ import '../../today/screens/end_summary_screen.dart';
 
 class DeckReviewScreen extends ConsumerStatefulWidget {
   final List<String> deckIds;
+  final List<List<String>>? newCardPriorityGroups;
   final int questionCount;
   final bool isRandom;
+  final bool shuffleOrder;
   final int? newCardCount;
   final List<String>? cardIdsOverride;
   final String? modeLabel;
 
   const DeckReviewScreen({
     required this.deckIds,
+    this.newCardPriorityGroups,
     required this.questionCount,
     this.isRandom = false,
+    this.shuffleOrder = true,
     this.newCardCount,
     this.cardIdsOverride,
     this.modeLabel,
@@ -63,10 +67,11 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   bool? _intervalAudioCorrect;
   String? _intervalAudioSelected;
   bool _intervalAudioPlaying = false;
+  String? _autoPlayedIntervalAudioCardId;
   static const _intervalLabels = [
-    'P1', 'm2', 'M2', 'm3',
-    'M3', 'P4', 'TT', 'P5',
-    'm6', 'M6', 'm7', 'M7',
+    'm2', 'M2', 'm3', 'M3',
+    'P4', 'TT', 'P5', 'm6',
+    'M6', 'm7', 'M7', 'P8',
   ];
 
   @override
@@ -88,7 +93,10 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     List<drift.Card> cards;
 
     if (widget.cardIdsOverride != null) {
-      final ids = widget.cardIdsOverride!;
+      final ids = widget.cardIdsOverride!.toList();
+      if (widget.shuffleOrder) {
+        ids.shuffle();
+      }
       if (ids.isEmpty) {
         _navigateToSummary();
         return;
@@ -111,10 +119,13 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
           await db.cardsDao.getDueCardsForDecks(widget.deckIds, now);
       final settings = await db.settingsDao.getSettings();
       final newCardsPerDay = settings?.newCardsPerDay ?? 5;
-      final newCards = await db.cardsDao.getNewCardsForDecks(widget.deckIds);
       final limit = widget.newCardCount ?? newCardsPerDay;
-      final cappedNew = newCards.take(limit).toList();
-      cards = [...dueCards, ...cappedNew]..shuffle();
+      final cappedNew = await _selectNewCardsForReview(db, limit);
+      cards = [...dueCards, ...cappedNew];
+    }
+
+    if (widget.shuffleOrder) {
+      cards.shuffle();
     }
 
     final ids = cards.take(widget.questionCount).map((c) => c.id).toList();
@@ -132,6 +143,36 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
     });
 
     await _loadCurrentCard();
+  }
+
+  Future<List<drift.Card>> _selectNewCardsForReview(
+    drift.AppDatabase db,
+    int limit,
+  ) async {
+    if (limit <= 0) return const [];
+
+    final groups = widget.newCardPriorityGroups;
+    if (groups == null || groups.isEmpty) {
+      final newCards = await db.cardsDao.getNewCardsForDecks(widget.deckIds);
+      if (widget.shuffleOrder) {
+        newCards.shuffle();
+      }
+      return newCards.take(limit).toList();
+    }
+
+    final selected = <drift.Card>[];
+    for (final groupDeckIds in groups) {
+      if (selected.length >= limit) break;
+      if (groupDeckIds.isEmpty) continue;
+      final groupNew = await db.cardsDao.getNewCardsForDecks(groupDeckIds);
+      if (groupNew.isEmpty) continue;
+      if (widget.shuffleOrder) {
+        groupNew.shuffle();
+      }
+      final remaining = limit - selected.length;
+      selected.addAll(groupNew.take(remaining));
+    }
+    return selected;
   }
 
   Future<void> _loadCurrentCard() async {
@@ -153,11 +194,13 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
       _intervalAudioCorrect = null;
       _intervalAudioSelected = null;
       _intervalAudioPlaying = false;
+      _autoPlayedIntervalAudioCardId = null;
     });
 
     _stopwatch.reset();
     _stopwatch.start();
     _createController(card);
+    _autoPlayIntervalAudioIfNeeded(card);
   }
 
   void _createController(SrsCard card) {
@@ -191,28 +234,79 @@ class _DeckReviewScreenState extends ConsumerState<DeckReviewScreen> {
   }
 
   Future<void> _playIntervalAudioCard() async {
+    await _playIntervalAudioCardInternal();
+  }
+
+  Future<bool> _playIntervalAudioCardInternal() async {
     final card = _currentCard;
     if (card == null || card.answerType != AnswerType.intervalAudio || _intervalAudioPlaying) {
-      return;
+      return false;
     }
     final meta = card.metadata;
     final rootPc = meta['rootPitchClass'] as int?;
     final semitones = meta['intervalSemitones'] as int?;
     final baseOctave = (meta['baseOctave'] as int?) ?? 4;
-    if (rootPc == null || semitones == null) return;
+    if (rootPc == null || semitones == null) return false;
     final audio = ref.read(audioServiceProvider);
     final root = PitchedNote(PitchClass(rootPc), baseOctave);
     final top = root.transpose(semitones);
+    final pattern = (meta['audioPattern'] as String?) ?? 'asc-unison-desc';
     setState(() => _intervalAudioPlaying = true);
     try {
-      await audio.playNote(root);
-      await audio.playNote(top);
-      await audio.playNote(root);
-      await audio.playNote(top);
-      await audio.playNote(root);
+      switch (pattern) {
+        case 'ascending':
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          break;
+        case 'harmonic':
+          await audio.playChord(
+            [root, top],
+            durationMs: kIntervalAudioHarmonicChordMs,
+          );
+          break;
+        case 'descending':
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          break;
+        default:
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 180));
+          await audio.playChord(
+            [root, top],
+            durationMs: kIntervalAudioHarmonicChordMs,
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 120));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+      }
     } finally {
       if (mounted) setState(() => _intervalAudioPlaying = false);
     }
+    return true;
+  }
+
+  void _autoPlayIntervalAudioIfNeeded(SrsCard card) {
+    if (card.answerType != AnswerType.intervalAudio) return;
+    if (_autoPlayedIntervalAudioCardId == card.id) return;
+    _autoPlayedIntervalAudioCardId = card.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoPlayIntervalAudioDeferred(card.id);
+    });
+  }
+
+  Future<void> _autoPlayIntervalAudioDeferred(String cardId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 140));
+    if (!mounted || _currentCard?.id != cardId) return;
+    final started = await _playIntervalAudioCardInternal();
+    if (started) return;
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    if (!mounted || _currentCard?.id != cardId) return;
+    await _playIntervalAudioCardInternal();
   }
 
   Future<void> _submitIntervalAudioAnswer(String label) async {

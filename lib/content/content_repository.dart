@@ -10,7 +10,7 @@ class ContentRepository {
   final ContentLoader _loader;
 
   /// Bump this when exercise/content JSON changes to trigger re-seed.
-  static const int currentContentVersion = 8;
+  static const int currentContentVersion = 14;
 
   ContentRepository(this._db, this._loader);
 

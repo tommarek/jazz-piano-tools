@@ -79,6 +79,8 @@ class _DeckSessionSheet extends StatefulWidget {
 class _DeckSessionSheetState extends State<_DeckSessionSheet> {
   _DeckSessionMode _mode = _DeckSessionMode.review;
   _DrillMode _drillMode = _DrillMode.random;
+  late bool _randomize = widget.node.deck.tags.contains('modality:ear');
+  bool _ignoreDailyNewLimit = false;
   late int _newCount = widget.defaultNew;
   late int _drillCount = widget.defaultDrillCount;
 
@@ -113,6 +115,8 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
           ),
           const SizedBox(height: 16),
           _buildModeToggle(theme),
+          const SizedBox(height: 16),
+          _buildRandomizeToggle(theme),
           const SizedBox(height: 16),
           if (_mode == _DeckSessionMode.review)
             _buildReviewOptions(theme)
@@ -229,8 +233,14 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
 
   Widget _buildReviewOptions(ThemeData theme) {
     final due = widget.node.dueCards;
-    final maxNew = widget.maxNew;
-    final hasNew = maxNew > 0;
+    final cappedMaxNew = widget.maxNew;
+    final rawMaxNew = widget.node.newCardsRaw;
+    final uncappedKeepLearningMax = rawMaxNew > 20 ? 20 : rawMaxNew;
+    final effectiveMaxNew = _ignoreDailyNewLimit
+        ? uncappedKeepLearningMax
+        : cappedMaxNew;
+    final hasNew = effectiveMaxNew > 0;
+    final hasExtraBeyondDaily = rawMaxNew > cappedMaxNew;
 
     if (due > 0) {
       return Text(
@@ -242,11 +252,41 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
     }
 
     if (!hasNew) {
-      return Text(
-        'No due cards and no global new-card slots remaining today.',
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'No due cards and no global new-card slots remaining today.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          if (hasExtraBeyondDaily) ...[
+            const SizedBox(height: 8),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: _ignoreDailyNewLimit,
+              onChanged: (value) {
+                setState(() {
+                  _ignoreDailyNewLimit = value;
+                  if (value && _newCount == 0) {
+                    _newCount = 1;
+                  }
+                  if (!value) {
+                    _newCount = _newCount.clamp(0, cappedMaxNew);
+                  }
+                });
+              },
+              title: const Text('Keep learning past daily limit'),
+              subtitle: Text(
+                'Allow extra new cards from this deck today',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ],
       );
     }
 
@@ -254,6 +294,34 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('New cards to add', style: theme.textTheme.titleSmall),
+        if (hasExtraBeyondDaily) ...[
+          const SizedBox(height: 8),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            value: _ignoreDailyNewLimit,
+            onChanged: (value) {
+              setState(() {
+                _ignoreDailyNewLimit = value;
+                if (_newCount > (_ignoreDailyNewLimit ? uncappedKeepLearningMax : cappedMaxNew)) {
+                  _newCount =
+                      (_ignoreDailyNewLimit ? uncappedKeepLearningMax : cappedMaxNew);
+                }
+                if (value && _newCount == 0 && rawMaxNew > 0) {
+                  _newCount = 1;
+                }
+              });
+            },
+            title: const Text('Keep learning past daily limit'),
+            subtitle: Text(
+              _ignoreDailyNewLimit
+                  ? 'Using deck total new cards'
+                  : 'Using global daily new-card budget',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         Row(
           children: [
@@ -261,8 +329,8 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
               child: Slider(
                 value: _newCount.toDouble(),
                 min: 0,
-                max: maxNew.toDouble(),
-                divisions: maxNew == 0 ? 1 : maxNew,
+                max: effectiveMaxNew.toDouble(),
+                divisions: effectiveMaxNew == 0 ? 1 : effectiveMaxNew,
                 label: '$_newCount',
                 onChanged: (value) {
                   setState(() => _newCount = value.round());
@@ -280,12 +348,29 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
           ],
         ),
         Text(
-          'Max today: $maxNew',
+          _ignoreDailyNewLimit
+              ? 'Deck new cards available: $rawMaxNew (adding up to 20 this round)'
+              : 'Max today: $cappedMaxNew',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildRandomizeToggle(ThemeData theme) {
+    return SwitchListTile.adaptive(
+      contentPadding: EdgeInsets.zero,
+      value: _randomize,
+      onChanged: (value) => setState(() => _randomize = value),
+      title: const Text('Randomize'),
+      subtitle: Text(
+        'Shuffle card order for this session',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
     );
   }
 
@@ -344,10 +429,12 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
   bool _canStartReview(int due) {
     if (_mode == _DeckSessionMode.drill) return true;
     if (due > 0) return true;
-    return widget.maxNew > 0 && _newCount > 0;
+    final maxNew = _ignoreDailyNewLimit ? widget.node.newCardsRaw : widget.maxNew;
+    return maxNew > 0 && _newCount > 0;
   }
 
   Future<void> _startSession(BuildContext context) async {
+    final newCardPriorityGroups = _buildNewCardPriorityGroups(widget.node);
     if (_mode == _DeckSessionMode.review) {
       final due = widget.node.dueCards;
       final count = due + (due == 0 ? _newCount : widget.maxNew);
@@ -356,7 +443,9 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
         MaterialPageRoute(
           builder: (_) => DeckReviewScreen(
             deckIds: widget.deckIds,
+            newCardPriorityGroups: newCardPriorityGroups,
             questionCount: count,
+            shuffleOrder: _randomize,
             newCardCount: due == 0 ? _newCount : null,
           ),
         ),
@@ -375,8 +464,10 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
         MaterialPageRoute(
           builder: (_) => DeckReviewScreen(
             deckIds: widget.deckIds,
+            newCardPriorityGroups: newCardPriorityGroups,
             questionCount: _drillCount,
             isRandom: true,
+            shuffleOrder: _randomize,
             modeLabel: 'Drill',
           ),
         ),
@@ -395,13 +486,15 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
     Navigator.of(context).pop();
     Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
-        builder: (_) => DeckReviewScreen(
-          deckIds: widget.deckIds,
-          questionCount: ids.length,
-          isRandom: true,
-          cardIdsOverride: ids,
-          modeLabel: 'Drill (Hard)',
-        ),
+          builder: (_) => DeckReviewScreen(
+            deckIds: widget.deckIds,
+            newCardPriorityGroups: newCardPriorityGroups,
+            questionCount: ids.length,
+            isRandom: true,
+            shuffleOrder: _randomize,
+            cardIdsOverride: ids,
+            modeLabel: 'Drill (Hard)',
+          ),
       ),
     );
   }
@@ -420,5 +513,28 @@ class _DeckSessionSheetState extends State<_DeckSessionSheet> {
       'wide' => 5.0,
       _ => 3.5,
     };
+  }
+
+  List<List<String>> _buildNewCardPriorityGroups(DeckTreeNode node) {
+    if (node.children.isEmpty) {
+      return [
+        [node.deck.id],
+      ];
+    }
+
+    final groups = <List<String>>[];
+    for (final child in node.children) {
+      groups.add(_collectLeafDeckIds(child));
+    }
+    return groups;
+  }
+
+  List<String> _collectLeafDeckIds(DeckTreeNode node) {
+    if (node.children.isEmpty) return [node.deck.id];
+    final ids = <String>[];
+    for (final child in node.children) {
+      ids.addAll(_collectLeafDeckIds(child));
+    }
+    return ids;
   }
 }

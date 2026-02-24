@@ -48,11 +48,12 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
   bool? _intervalAudioCorrect;
   String? _intervalAudioSelected;
   bool _intervalAudioPlaying = false;
+  String? _autoPlayedIntervalAudioCardId;
 
   static const _intervalLabels = [
-    'P1', 'm2', 'M2', 'm3',
-    'M3', 'P4', 'TT', 'P5',
-    'm6', 'M6', 'm7', 'M7',
+    'm2', 'M2', 'm3', 'M3',
+    'P4', 'TT', 'P5', 'm6',
+    'M6', 'm7', 'M7', 'P8',
   ];
 
   @override
@@ -108,11 +109,13 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
       _intervalAudioCorrect = null;
       _intervalAudioSelected = null;
       _intervalAudioPlaying = false;
+      _autoPlayedIntervalAudioCardId = null;
     });
 
     _stopwatch.reset();
     _stopwatch.start();
     _createController(card);
+    _autoPlayIntervalAudioIfNeeded(card);
   }
 
   void _createController(SrsCard card) {
@@ -149,30 +152,82 @@ class _ReviewSessionScreenState extends ConsumerState<ReviewSessionScreen> {
   }
 
   Future<void> _playIntervalAudioCard() async {
+    await _playIntervalAudioCardInternal();
+  }
+
+  Future<bool> _playIntervalAudioCardInternal() async {
     final card = _currentCard;
     if (card == null || card.answerType != AnswerType.intervalAudio || _intervalAudioPlaying) {
-      return;
+      return false;
     }
     final meta = card.metadata;
     final rootPc = meta['rootPitchClass'] as int?;
     final semitones = meta['intervalSemitones'] as int?;
     final baseOctave = (meta['baseOctave'] as int?) ?? 4;
-    if (rootPc == null || semitones == null) return;
+    if (rootPc == null || semitones == null) return false;
 
     final root = PitchedNote(PitchClass(rootPc), baseOctave);
     final top = root.transpose(semitones);
     final audio = ref.read(audioServiceProvider);
+    final pattern = (meta['audioPattern'] as String?) ?? 'asc-unison-desc';
 
     setState(() => _intervalAudioPlaying = true);
     try {
-      await audio.playNote(root);
-      await audio.playNote(top);
-      await audio.playNote(root);
-      await audio.playNote(top);
-      await audio.playNote(root);
+      switch (pattern) {
+        case 'ascending':
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          break;
+        case 'harmonic':
+          await audio.playChord(
+            [root, top],
+            durationMs: kIntervalAudioHarmonicChordMs,
+          );
+          break;
+        case 'descending':
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          break;
+        default:
+          // Backward-compatible fallback for older seeded cards.
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 180));
+          await audio.playChord(
+            [root, top],
+            durationMs: kIntervalAudioHarmonicChordMs,
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 120));
+          await audio.playNote(top, durationMs: kIntervalAudioMelodicNoteMs);
+          await Future<void>.delayed(const Duration(milliseconds: 60));
+          await audio.playNote(root, durationMs: kIntervalAudioMelodicNoteMs);
+      }
     } finally {
       if (mounted) setState(() => _intervalAudioPlaying = false);
     }
+    return true;
+  }
+
+  void _autoPlayIntervalAudioIfNeeded(SrsCard card) {
+    if (card.answerType != AnswerType.intervalAudio) return;
+    if (_autoPlayedIntervalAudioCardId == card.id) return;
+    _autoPlayedIntervalAudioCardId = card.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoPlayIntervalAudioDeferred(card.id);
+    });
+  }
+
+  Future<void> _autoPlayIntervalAudioDeferred(String cardId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 140));
+    if (!mounted || _currentCard?.id != cardId) return;
+    final started = await _playIntervalAudioCardInternal();
+    if (started) return;
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    if (!mounted || _currentCard?.id != cardId) return;
+    await _playIntervalAudioCardInternal();
   }
 
   Future<void> _submitIntervalAudioAnswer(String label) async {

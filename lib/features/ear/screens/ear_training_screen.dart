@@ -1,17 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../app/providers.dart';
 import '../../../content/providers/content_providers.dart';
 import '../../learn/providers/deck_review_provider.dart';
 import '../../learn/widgets/deck_session_sheet.dart';
 
-class EarTrainingScreen extends ConsumerWidget {
+class EarTrainingScreen extends ConsumerStatefulWidget {
   const EarTrainingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EarTrainingScreen> createState() => _EarTrainingScreenState();
+}
+
+class _EarTrainingScreenState extends ConsumerState<EarTrainingScreen> {
+  List<String> _stableRootEarDeckIds = const [];
+
+  List<String> _stabilizeRootIds(List<String> ids) {
+    if (listEquals(_stableRootEarDeckIds, ids)) {
+      return _stableRootEarDeckIds;
+    }
+    _stableRootEarDeckIds = List.unmodifiable(ids);
+    return _stableRootEarDeckIds;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bootstrapAsync = ref.watch(contentBootstrapProvider);
     final decksAsync = ref.watch(allDecksProvider);
     final theme = Theme.of(context);
 
@@ -25,17 +42,24 @@ class EarTrainingScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: decksAsync.when(
+      body: bootstrapAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Failed to load decks: $error')),
-        data: (decks) {
-          final rootEarDeckIds = decks
+        error: (error, _) =>
+            Center(child: Text('Failed to load content: $error')),
+        data: (_) => decksAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) =>
+              Center(child: Text('Failed to load decks: $error')),
+          data: (decks) {
+          final rootEarDeckIds = _stabilizeRootIds(
+            decks
               .where(
                 (d) => d.parentId == null && d.tags.contains('modality:ear'),
               )
               .map((d) => d.id)
               .toList()
-            ..sort();
+              ..sort(),
+          );
 
           if (rootEarDeckIds.isEmpty) {
             return Center(
@@ -82,7 +106,8 @@ class EarTrainingScreen extends ConsumerWidget {
               );
             },
           );
-        },
+          },
+        ),
       ),
     );
   }
