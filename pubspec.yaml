@@ -45,4 +45,5 @@ flutter:
     - assets/content/exercises/
     - assets/content/decks/
     - assets/content/progression/
+    - assets/licenses/
     - assets/soundfonts/

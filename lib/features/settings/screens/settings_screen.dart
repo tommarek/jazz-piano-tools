@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/constants/settings_options.dart';
@@ -245,6 +246,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: theme.textTheme.bodyLarge,
                   ),
                   onTap: () => _showTimeLimitPicker(),
+                ),
+                const Divider(),
+                const _SectionHeader(title: 'Legal'),
+                ListTile(
+                  title: const Text('Third-party software & assets'),
+                  subtitle: const Text(
+                    'SoundFont attribution and package licenses',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/third-party-assets'),
                 ),
                 const Divider(),
                 const _SectionHeader(title: 'Data'),

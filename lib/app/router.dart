@@ -18,6 +18,7 @@ import '../features/drill/screens/session_builder_screen.dart';
 import '../features/progression/screens/progression_screen.dart';
 import '../features/statistics/screens/statistics_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
+import '../features/settings/screens/third_party_assets_screen.dart';
 import '../features/today/providers/today_session_provider.dart';
 import '../features/srs/providers/srs_provider.dart';
 import '../features/learn/providers/deck_review_provider.dart';
@@ -146,6 +147,11 @@ GoRouter router(RouterRef ref) {
         path: '/settings',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/third-party-assets',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ThirdPartyAssetsScreen(),
       ),
       GoRoute(
         path: '/deck-review',
