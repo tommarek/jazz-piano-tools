@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+/* Matches the palette of the selfhosted homepage so the stack looks like one thing. */
+@theme {
+	--color-bg: #0f1117;
+	--color-surface: #1a1d27;
+	--color-surface-2: #222634;
+	--color-line: #2a2d3a;
+	--color-ink: #e4e6eb;
+	--color-muted: #8b8fa3;
+	/* Accent has two steps on purpose: the bright one is only ever ink or a mark
+	   on a dark surface (5.2:1), the solid one is the only one that carries white
+	   text on top of it (4.7:1). Using the bright step as a button fill would sit
+	   at 3.2:1 and fail AA. */
+	--color-accent: #4f8cff;
+	--color-accent-solid: #2f6fe0;
+	--color-good: #22c55e;
+	--color-bad: #f87171;
+	--color-warn: #eab308;
+	--color-hot: #f97316;
+
+	--font-sans:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+	background: var(--color-bg);
+	color-scheme: dark;
+	/* Stop iOS double-tap zoom from eating fast repeated key taps. */
+	touch-action: manipulation;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	background: var(--color-bg);
+	color: var(--color-ink);
+	font-family: var(--font-sans);
+	overscroll-behavior-y: none;
+	min-height: 100dvh;
+}
+
+/* The keyboard is tapped fast and repeatedly; selection highlights get in the way. */
+.no-select {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}

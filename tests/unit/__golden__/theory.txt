@@ -1,0 +1,73 @@
+C7         ♭9=D♭ ♯9=D♯ ♯11=F♯ 13=A ♭13=A♭
+Cmaj7      9=D ♯11=F♯
+Cm7        9=D 11=F
+Cm7b5      11=F ♭13=A♭
+CmMaj7     9=D
+Db7        ♭9=E♭♭ ♯9=E ♯11=G 13=B♭ ♭13=B♭♭
+Dbmaj7     9=E♭ ♯11=G
+Dbm7       9=E♭ 11=G♭
+Dbm7b5     11=G♭ ♭13=B♭♭
+DbmMaj7    9=E♭
+D7         ♭9=E♭ ♯9=E♯ ♯11=G♯ 13=B ♭13=B♭
+Dmaj7      9=E ♯11=G♯
+Dm7        9=E 11=G
+Dm7b5      11=G ♭13=B♭
+DmMaj7     9=E
+Eb7        ♭9=F♭ ♯9=F♯ ♯11=A 13=C ♭13=C♭
+Ebmaj7     9=F ♯11=A
+Ebm7       9=F 11=A♭
+Ebm7b5     11=A♭ ♭13=C♭
+EbmMaj7    9=F
+E7         ♭9=F ♯9=F♯♯ ♯11=A♯ 13=C♯ ♭13=C
+Emaj7      9=F♯ ♯11=A♯
+Em7        9=F♯ 11=A
+Em7b5      11=A ♭13=C
+EmMaj7     9=F♯
+F7         ♭9=G♭ ♯9=G♯ ♯11=B 13=D ♭13=D♭
+Fmaj7      9=G ♯11=B
+Fm7        9=G 11=B♭
+Fm7b5      11=B♭ ♭13=D♭
+FmMaj7     9=G
+F#7        ♭9=G ♯9=G♯♯ ♯11=B♯ 13=D♯ ♭13=D
+F#maj7     9=G♯ ♯11=B♯
+F#m7       9=G♯ 11=B
+F#m7b5     11=B ♭13=D
+F#mMaj7    9=G♯
+G7         ♭9=A♭ ♯9=A♯ ♯11=C♯ 13=E ♭13=E♭
+Gmaj7      9=A ♯11=C♯
+Gm7        9=A 11=C
+Gm7b5      11=C ♭13=E♭
+GmMaj7     9=A
+Ab7        ♭9=B♭♭ ♯9=B ♯11=D 13=F ♭13=F♭
+Abmaj7     9=B♭ ♯11=D
+Abm7       9=B♭ 11=D♭
+Abm7b5     11=D♭ ♭13=F♭
+AbmMaj7    9=B♭
+A7         ♭9=B♭ ♯9=B♯ ♯11=D♯ 13=F♯ ♭13=F
+Amaj7      9=B ♯11=D♯
+Am7        9=B 11=D
+Am7b5      11=D ♭13=F
+AmMaj7     9=B
+Bb7        ♭9=C♭ ♯9=C♯ ♯11=E 13=G ♭13=G♭
+Bbmaj7     9=C ♯11=E
+Bbm7       9=C 11=E♭
+Bbm7b5     11=E♭ ♭13=G♭
+BbmMaj7    9=C
+B7         ♭9=C ♯9=C♯♯ ♯11=E♯ 13=G♯ ♭13=G
+Bmaj7      9=C♯ ♯11=E♯
+Bm7        9=C♯ 11=E
+Bm7b5      11=E ♭13=G
+BmMaj7     9=C♯
+
+C   P5=G P4=F m3=E♭ M3=E m6=A♭ M6=A m2=D♭ M2=D m7=B♭ M7=B d5=G♭
+Db  P5=A♭ P4=G♭ m3=F♭ M3=F m6=B♭♭ M6=B♭ m2=E♭♭ M2=E♭ m7=C♭ M7=C d5=A♭♭
+D   P5=A P4=G m3=F M3=F♯ m6=B♭ M6=B m2=E♭ M2=E m7=C M7=C♯ d5=A♭
+Eb  P5=B♭ P4=A♭ m3=G♭ M3=G m6=C♭ M6=C m2=F♭ M2=F m7=D♭ M7=D d5=B♭♭
+E   P5=B P4=A m3=G M3=G♯ m6=C M6=C♯ m2=F M2=F♯ m7=D M7=D♯ d5=B♭
+F   P5=C P4=B♭ m3=A♭ M3=A m6=D♭ M6=D m2=G♭ M2=G m7=E♭ M7=E d5=C♭
+F#  P5=C♯ P4=B m3=A M3=A♯ m6=D M6=D♯ m2=G M2=G♯ m7=E M7=E♯ d5=C
+G   P5=D P4=C m3=B♭ M3=B m6=E♭ M6=E m2=A♭ M2=A m7=F M7=F♯ d5=D♭
+Ab  P5=E♭ P4=D♭ m3=C♭ M3=C m6=F♭ M6=F m2=B♭♭ M2=B♭ m7=G♭ M7=G d5=E♭♭
+A   P5=E P4=D m3=C M3=C♯ m6=F M6=F♯ m2=B♭ M2=B m7=G M7=G♯ d5=E♭
+Bb  P5=F P4=E♭ m3=D♭ M3=D m6=G♭ M6=G m2=C♭ M2=C m7=A♭ M7=A d5=F♭
+B   P5=F♯ P4=E m3=D M3=D♯ m6=G M6=G♯ m2=C M2=C♯ m7=A M7=A♯ d5=F

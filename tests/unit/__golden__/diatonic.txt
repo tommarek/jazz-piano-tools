@@ -1,0 +1,12 @@
+C   I=Cmaj7 ii=Dm7 iii=Em7 IV=Fmaj7 V=G7 vi=Am7 vii=Bm7♭5
+Db  I=D♭maj7 ii=E♭m7 iii=Fm7 IV=G♭maj7 V=A♭7 vi=B♭m7 vii=Cm7♭5
+D   I=Dmaj7 ii=Em7 iii=F♯m7 IV=Gmaj7 V=A7 vi=Bm7 vii=C♯m7♭5
+Eb  I=E♭maj7 ii=Fm7 iii=Gm7 IV=A♭maj7 V=B♭7 vi=Cm7 vii=Dm7♭5
+E   I=Emaj7 ii=F♯m7 iii=G♯m7 IV=Amaj7 V=B7 vi=C♯m7 vii=D♯m7♭5
+F   I=Fmaj7 ii=Gm7 iii=Am7 IV=B♭maj7 V=C7 vi=Dm7 vii=Em7♭5
+Gb  I=G♭maj7 ii=A♭m7 iii=B♭m7 IV=C♭maj7 V=D♭7 vi=E♭m7 vii=Fm7♭5
+G   I=Gmaj7 ii=Am7 iii=Bm7 IV=Cmaj7 V=D7 vi=Em7 vii=F♯m7♭5
+Ab  I=A♭maj7 ii=B♭m7 iii=Cm7 IV=D♭maj7 V=E♭7 vi=Fm7 vii=Gm7♭5
+A   I=Amaj7 ii=Bm7 iii=C♯m7 IV=Dmaj7 V=E7 vi=F♯m7 vii=G♯m7♭5
+Bb  I=B♭maj7 ii=Cm7 iii=Dm7 IV=E♭maj7 V=F7 vi=Gm7 vii=Am7♭5
+B   I=Bmaj7 ii=C♯m7 iii=D♯m7 IV=Emaj7 V=F♯7 vi=G♯m7 vii=A♯m7♭5

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Voicings</string>
+    <string name="title_activity_main">Voicings</string>
+    <string name="package_name">online.markovi.voicings</string>
+    <string name="custom_url_scheme">online.markovi.voicings</string>
+</resources>

@@ -1,0 +1,53 @@
+{
+  "name": "voicing-trainer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "icons": "node scripts/make-icons.mjs",
+    "sync": "npm run build && npx cap sync",
+    "ios": "npm run build && npx cap sync ios && npx cap open ios",
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "apk": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "postinstall": "node scripts/patch-capacitor-spm.mjs",
+    "ios:mirrors": "bash scripts/setup-ios-spm-mirrors.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
+    "@playwright/test": "^1.61.1",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.70.1",
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/sql.js": "^1.4.11",
+    "sirv-cli": "^3.0.1",
+    "svelte": "^5.56.7",
+    "svelte-check": "^4.7.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.4.2",
+    "sql.js": "^1.14.1",
+    "ts-fsrs": "^5.4.1"
+  }
+}

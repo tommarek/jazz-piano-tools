@@ -1,0 +1,13 @@
+{
+  "object" : [
+    {
+      "mirror" : "file:///Users/tom/.spm-local-mirrors/SQLCipher.swift",
+      "original" : "https://github.com/sqlcipher/SQLCipher.swift.git"
+    },
+    {
+      "mirror" : "file:///Users/tom/.spm-local-mirrors/capacitor-swift-pm",
+      "original" : "https://github.com/ionic-team/capacitor-swift-pm.git"
+    }
+  ],
+  "version" : 1
+}
