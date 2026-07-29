@@ -134,7 +134,8 @@ major falls a semitone — the feedback derives the interval rather than assumin
 - **"No idea"** sits next to Check on every card. It reveals the answer without
   making you guess randomly first, and grades as Again.
 - **"Explain this"** opens the relevant reference topic as a sheet over the
-  session, so the queue survives. Ten topics, also browsable from the Reference tab.
+  session, so the queue survives. Eleven topics, also browsable from the Reference
+  tab.
 
 It is deliberately **not** reachable mid-attempt. Looking a card up before
 answering turns a retrieval test into a reading exercise.

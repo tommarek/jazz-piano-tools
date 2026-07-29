@@ -3,12 +3,66 @@ import { answerCurrent, currentCardId, expectedFor, reset, tapKeys } from './hel
 import { CHORD_ROOTS } from '../../src/lib/music/voicings';
 import { parseNote, pitchClass } from '../../src/lib/music/theory';
 
+/**
+ * A Web Audio stand-in stuck at 'suspended' — the state iOS hands back until a
+ * user gesture unlocks the session. It accepts everything scheduled on it, so
+ * playback succeeds; it just is not audible yet. Runs as an init script, so it
+ * must be self-contained.
+ */
+function gateAudioBehindAGesture() {
+	const param = () => ({
+		value: 1,
+		setValueAtTime() {},
+		exponentialRampToValueAtTime() {},
+		setTargetAtTime() {},
+		cancelScheduledValues() {}
+	});
+	class GatedAudioContext {
+		state = 'suspended';
+		currentTime = 0;
+		destination = { connect() {} };
+		onstatechange: (() => void) | null = null;
+		createGain() {
+			return { gain: param(), connect() {} };
+		}
+		createBiquadFilter() {
+			return { type: 'lowpass', frequency: { value: 0 }, Q: { value: 0 }, connect() {} };
+		}
+		createOscillator() {
+			return {
+				type: 'sine',
+				frequency: { value: 0 },
+				detune: { value: 0 },
+				onended: null,
+				connect() {},
+				start() {},
+				stop() {}
+			};
+		}
+		// Never resolves: the gesture the app is waiting for is the Play tap the
+		// test is about to make, and the context stays suspended either way.
+		resume() {
+			return new Promise<void>(() => {});
+		}
+	}
+	Object.defineProperty(window, 'AudioContext', { value: GatedAudioContext });
+	Object.defineProperty(window, 'webkitAudioContext', { value: GatedAudioContext });
+}
+
 test.describe('theory drills', () => {
 	for (const [name, type] of [
 		['chord tones & extensions', 'ext'],
 		['intervals', 'ivl'],
 		['diatonic harmony', 'dia'],
-		['scales & modes', 'mode']
+		['scales & modes', 'mode'],
+		// vl, gtc and rlc are the types that pre-light `given` keys, and rlc is an
+		// ordered answer — none of that was driven anywhere until these were added,
+		// while the docs claimed every drill type was covered.
+		['voice leading', 'vl'],
+		['guide tones', 'gt'],
+		['guide tones → symbol', 'gtn'],
+		['guide-tone comping', 'gtc'],
+		['rootless comping', 'rlc']
 	] as const) {
 		test(`${name} can be answered right and wrong`, async ({ page }) => {
 			await reset(page, { activeCardTypes: [type], newCardsPerDay: 4, sessionCardCap: 4 });
@@ -113,12 +167,12 @@ test.describe('ear training', () => {
 		// iOS only unlocks audio inside a user gesture, so a session opening on an
 		// ear card cannot sound it. The button becomes the prompt — and the wait
 		// for that tap is not thinking time, so the clock restarts when it lands.
-		// Removing Web Audio entirely is the only honest way to reach that path in
-		// a browser that allows autoplay.
-		await page.addInitScript(() => {
-			Object.defineProperty(window, 'AudioContext', { value: undefined });
-			Object.defineProperty(window, 'webkitAudioContext', { value: undefined });
-		});
+		//
+		// A context parked at 'suspended' is that browser: it accepts everything
+		// scheduled on it and speaks the moment the gesture lands. This used to be
+		// tested by deleting Web Audio outright, which is the other case entirely
+		// — nothing ever sounds — and is the test below.
+		await page.addInitScript(gateAudioBehindAGesture);
 		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 4, sessionCardCap: 4 });
 		await page.goto('/session');
 		await expect(page.getByTestId('card-title')).toBeVisible();
@@ -138,6 +192,36 @@ test.describe('ear training', () => {
 		const feedback = await page.getByTestId('feedback').textContent();
 		const seconds = Number(/(\d+\.\d)s/.exec(feedback ?? '')?.[1]);
 		expect(seconds).toBeLessThan(1);
+	});
+
+	test('own up when the device has no sound at all, rather than faking a replay', async ({
+		page
+	}) => {
+		// An ear card has no prompt but its sound. If playback silently fails and
+		// the button still flips to "Play it again", the learner is left with a
+		// card that insists it asked a question they never heard and no way out of
+		// it. Deleting Web Audio is the real thing, not a stand-in: old WebViews
+		// genuinely ship without it.
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'AudioContext', { value: undefined });
+			Object.defineProperty(window, 'webkitAudioContext', { value: undefined });
+		});
+		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 4, sessionCardCap: 4 });
+		await page.goto('/session');
+		await expect(page.getByTestId('card-title')).toBeVisible();
+
+		await page.getByTestId('play-prompt').click();
+		await expect(page.getByTestId('play-prompt')).not.toContainText('again');
+		await expect(page.getByTestId('play-prompt')).toContainText('No sound');
+		// Both ways out are named: the escape hatch for this card, and the setting
+		// that takes the ear drills out of the deck for good.
+		const hint = page.getByTestId('prompt-hint');
+		await expect(hint).toContainText('No idea');
+		await expect(hint).toContainText('Settings');
+
+		// And the named escape hatch actually works.
+		await page.getByTestId('give-up').click();
+		await expect(page.getByTestId('feedback')).toBeVisible();
 	});
 
 	test('do not claim you played an interval after "No idea"', async ({ page }) => {

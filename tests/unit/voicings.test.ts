@@ -101,6 +101,28 @@ describe('rootless voicings', () => {
 		}
 	});
 
+	it('sits in the C3–C5 register the reference topic teaches', () => {
+		// "Keep the whole thing between roughly C3 and C5. Lower than that and
+		// four notes turn to mud." Before the stack was normalised, a B form —
+		// built up from a root pinned at ROOT_OCTAVE and starting on the ♭7 —
+		// landed most of a 7th above its own A form, and B7's topped out at A♭5.
+		const low = midi(parseNote('C', 3));
+		const high = midi(parseNote('C', 5));
+		const outside: string[] = [];
+		for (const root of CHORD_ROOTS) {
+			for (const quality of ROOTLESS_QUALITIES) {
+				for (const form of ROOTLESS_FORMS) {
+					const v = buildRootless(root, quality, form);
+					const midis = v.notes.map(midi);
+					if (midis[0] < low || midis[3] > high) {
+						outside.push(`${chordSymbol(root, quality)} ${form}: ${v.names.join('+')}`);
+					}
+				}
+			}
+		}
+		expect(outside).toEqual([]);
+	});
+
 	it('never includes the root, except m7♭5 where the root replaces the ♭9', () => {
 		// Half-diminished is the one textbook exception: the ♭9 is the avoid
 		// tension there, so its stack is ♭3–♭5–♭7–1 — see ROOTLESS_A_STACK.

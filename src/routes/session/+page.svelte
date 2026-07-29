@@ -58,6 +58,10 @@
 	/** Whether this card's sound has actually played — an ear card that could not
 	 *  autoplay has to say so, or it reads as a dead card. */
 	let heard = $state(false);
+	/** Set when a Play tap reached the synth and still produced nothing. An ear
+	 *  card has no prompt but its sound, so this is the difference between a
+	 *  card the learner can answer and one they can only stare at. */
+	let noSound = $state(false);
 
 	let attemptSeq = 0;
 	let lastAdvanceAt = 0;
@@ -131,16 +135,22 @@
 		// Autoplay then a tap, or two taps of ♪, would otherwise overdub two
 		// copies of the same prompt on top of each other.
 		stopAll();
+		const firstEarPlay = !!card?.promptIsSound && !heard && phase === 'answer';
+		// A chain's three chords need room to be heard as three chords; a single
+		// voicing does not, and waiting on it just delays the Next tap.
+		const played = playSequence(groups, groups.length > 2 ? { gapMs: 900 } : {});
+		// `heard` follows what the synth did, not what we asked it to do: flipping
+		// the button to "Play it again" when nothing sounded tells a learner the
+		// question was asked when it never was.
+		noSound = !played;
+		if (!played) return;
 		// The first sounding of an ear prompt is often the Play tap, because iOS
 		// would not let it autoplay — and the wait for that tap is not thinking
 		// time. On the autoplay path this rewrites the same millisecond.
-		if (card?.promptIsSound && !heard && phase === 'answer') {
+		if (firstEarPlay) {
 			startedAt = Date.now();
 			clock = startedAt;
 		}
-		// A chain's three chords need room to be heard as three chords; a single
-		// voicing does not, and waiting on it just delays the Next tap.
-		playSequence(groups, groups.length > 2 ? { gapMs: 900 } : {});
 		heard = true;
 	}
 
@@ -173,6 +183,7 @@
 		pickMode = null;
 		pickInterval = null;
 		heard = false;
+		noSound = false;
 		lastResult = null;
 		saveError = null;
 		// Invalidate any in-flight write's token: a late failure from the card we
@@ -645,19 +656,29 @@
 				     and with the same thumb. On reveal it yields its space to the
 				     feedback panel, whose own ♪ button replays the same sound. -->
 				<div class="mb-3">
+					<!-- Still tappable when sound has failed: a device can gain an audio
+					     session between one tap and the next, and a button that has gone
+					     inert offers a learner nothing to try. -->
 					<button
 						type="button"
-						class="min-h-[64px] w-full rounded-xl border border-accent bg-surface-2 text-base font-semibold text-accent"
+						class="min-h-[64px] w-full rounded-xl border bg-surface-2 text-base font-semibold {noSound
+							? 'border-line text-muted'
+							: 'border-accent text-accent'}"
 						onclick={playCardSound}
 						data-testid="play-prompt"
 					>
-						<span aria-hidden="true">▶</span>
-						{heard ? 'Play it again' : 'Play'}
+						<span aria-hidden="true">{noSound ? '🔇' : '▶'}</span>
+						{noSound ? 'No sound on this device' : heard ? 'Play it again' : 'Play'}
 					</button>
 					<p class="mt-1 text-center text-[11px] text-muted" data-testid="prompt-hint">
-						{heard
-							? 'Play it as often as you like — listening again is the drill.'
-							: 'Tap to hear it.'}
+						{#if noSound}
+							This card is only a sound, so there is nothing here to answer. Tap "No idea" to move
+							on, or turn Sound off in Settings to drop the ear drills from your deck.
+						{:else if heard}
+							Play it as often as you like — listening again is the drill.
+						{:else}
+							Tap to hear it.
+						{/if}
 					</p>
 				</div>
 			{/if}

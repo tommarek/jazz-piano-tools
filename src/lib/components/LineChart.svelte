@@ -27,6 +27,8 @@
 		 */
 		domain?: [number | null, number | null] | null;
 		label: string;
+		/** Shown instead of the chart when nothing has been recorded yet. */
+		emptyLabel?: string;
 	}
 
 	let {
@@ -36,7 +38,8 @@
 		height = 120,
 		target = null,
 		domain = null,
-		label
+		label,
+		emptyLabel = 'No reviews yet.'
 	}: Props = $props();
 
 	let width = $state(320);
@@ -115,101 +118,115 @@
 </script>
 
 <div class="relative" bind:clientWidth={width}>
-	<svg
-		{width}
-		{height}
-		viewBox="0 0 {width} {height}"
-		role="img"
-		aria-label="{label}. {last ? `Latest ${format(last.y)}` : 'No data yet'}"
-		onpointermove={onMove}
-		onpointerleave={() => (hoverIndex = null)}
-		class="touch-none"
-	>
-		<!-- Recessive grid: three lines, no box -->
-		{#each [0, 0.5, 1] as t (t)}
-			<line
-				x1={PAD.left}
-				x2={width - PAD.right}
-				y1={PAD.top + t * plotH}
-				y2={PAD.top + t * plotH}
-				stroke="var(--color-line)"
-				stroke-width="1"
-			/>
-		{/each}
-
-		<text x="2" y={PAD.top + 4} font-size="9" fill="var(--color-muted)">
-			{format(bounds.max)}
-		</text>
-		<text x="2" y={PAD.top + plotH + 4} font-size="9" fill="var(--color-muted)">
-			{format(bounds.min)}
-		</text>
-
-		{#if target}
-			<line
-				x1={PAD.left}
-				x2={width - PAD.right}
-				y1={yAt(target.value)}
-				y2={yAt(target.value)}
-				stroke="var(--color-muted)"
-				stroke-width="1"
-				stroke-dasharray="3 3"
-			/>
-			<!-- Left-anchored: the right edge belongs to the series' end label,
-			     and the two collided into an unreadable smudge when both sat there. -->
-			<text
-				x={PAD.left + 3}
-				y={yAt(target.value) - 5}
-				font-size="9"
-				text-anchor="start"
-				fill="var(--color-muted)">{target.label}</text
-			>
-		{/if}
-
-		{#each segments as seg, si (si)}
-			{#if seg.length > 1}
-				<path
-					d={seg.map((p, k) => `${k === 0 ? 'M' : 'L'}${xAt(p.i)},${yAt(p.y)}`).join(' ')}
-					fill="none"
-					stroke={color}
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+	{#if withData.length === 0}
+		<!-- An axis fitted to nothing still prints numbers and a target line, and at
+		     a glance reads as a measurement that happens to be flat. On a fresh
+		     install there is no measurement at all, and every other empty state in
+		     the app says so outright rather than drawing furniture around it. -->
+		<p
+			class="flex items-center justify-center text-xs text-muted"
+			style="height: {height}px"
+			data-testid="chart-empty"
+		>
+			{emptyLabel}
+		</p>
+	{:else}
+		<svg
+			{width}
+			{height}
+			viewBox="0 0 {width} {height}"
+			role="img"
+			aria-label="{label}. {last ? `Latest ${format(last.y)}` : 'No data yet'}"
+			onpointermove={onMove}
+			onpointerleave={() => (hoverIndex = null)}
+			class="touch-none"
+		>
+			<!-- Recessive grid: three lines, no box -->
+			{#each [0, 0.5, 1] as t (t)}
+				<line
+					x1={PAD.left}
+					x2={width - PAD.right}
+					y1={PAD.top + t * plotH}
+					y2={PAD.top + t * plotH}
+					stroke="var(--color-line)"
+					stroke-width="1"
 				/>
-			{:else}
-				<circle cx={xAt(seg[0].i)} cy={yAt(seg[0].y)} r="2.5" fill={color} />
+			{/each}
+
+			<text x="2" y={PAD.top + 4} font-size="9" fill="var(--color-muted)">
+				{format(bounds.max)}
+			</text>
+			<text x="2" y={PAD.top + plotH + 4} font-size="9" fill="var(--color-muted)">
+				{format(bounds.min)}
+			</text>
+
+			{#if target}
+				<line
+					x1={PAD.left}
+					x2={width - PAD.right}
+					y1={yAt(target.value)}
+					y2={yAt(target.value)}
+					stroke="var(--color-muted)"
+					stroke-width="1"
+					stroke-dasharray="3 3"
+				/>
+				<!-- Left-anchored: the right edge belongs to the series' end label,
+				     and the two collided into an unreadable smudge when both sat there. -->
+				<text
+					x={PAD.left + 3}
+					y={yAt(target.value) - 5}
+					font-size="9"
+					text-anchor="start"
+					fill="var(--color-muted)">{target.label}</text
+				>
 			{/if}
-		{/each}
 
-		{#if hovered && hovered.y !== null && hoverIndex !== null}
-			<line
-				x1={xAt(hoverIndex)}
-				x2={xAt(hoverIndex)}
-				y1={PAD.top}
-				y2={PAD.top + plotH}
-				stroke="var(--color-muted)"
-				stroke-width="1"
-			/>
-			<circle
-				cx={xAt(hoverIndex)}
-				cy={yAt(hovered.y)}
-				r="5"
-				fill={color}
-				stroke="var(--color-surface)"
-				stroke-width="2"
-			/>
-		{/if}
+			{#each segments as seg, si (si)}
+				{#if seg.length > 1}
+					<path
+						d={seg.map((p, k) => `${k === 0 ? 'M' : 'L'}${xAt(p.i)},${yAt(p.y)}`).join(' ')}
+						fill="none"
+						stroke={color}
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				{:else}
+					<circle cx={xAt(seg[0].i)} cy={yAt(seg[0].y)} r="2.5" fill={color} />
+				{/if}
+			{/each}
 
-		{#if last && lastIndex >= 0}
-			<circle
-				cx={xAt(lastIndex)}
-				cy={yAt(last.y)}
-				r="4"
-				fill={color}
-				stroke="var(--color-surface)"
-				stroke-width="2"
-			/>
-		{/if}
-	</svg>
+			{#if hovered && hovered.y !== null && hoverIndex !== null}
+				<line
+					x1={xAt(hoverIndex)}
+					x2={xAt(hoverIndex)}
+					y1={PAD.top}
+					y2={PAD.top + plotH}
+					stroke="var(--color-muted)"
+					stroke-width="1"
+				/>
+				<circle
+					cx={xAt(hoverIndex)}
+					cy={yAt(hovered.y)}
+					r="5"
+					fill={color}
+					stroke="var(--color-surface)"
+					stroke-width="2"
+				/>
+			{/if}
+
+			{#if last && lastIndex >= 0}
+				<circle
+					cx={xAt(lastIndex)}
+					cy={yAt(last.y)}
+					r="4"
+					fill={color}
+					stroke="var(--color-surface)"
+					stroke-width="2"
+				/>
+			{/if}
+		</svg>
+	{/if}
 
 	{#if hovered}
 		<div

@@ -5,8 +5,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { useMemoryDb } from './helpers/db';
 import { db } from '../../src/lib/db';
-import { buildQueue, eligibleIds, spreadAcrossTypes } from '../../src/lib/data/queue';
-import { DEFAULT_SETTINGS } from '../../src/lib/data/settings';
+import { buildQueue, eligibleIds, queueSummary, spreadAcrossTypes } from '../../src/lib/data/queue';
+import { DEFAULT_SETTINGS, saveSettings } from '../../src/lib/data/settings';
 import { CARD_TYPES } from '../../src/lib/music/cards';
 
 beforeAll(async () => {
@@ -58,6 +58,70 @@ describe('eligibility', () => {
 		// The plain guide-tone card does name its quality, so it still filters.
 		expect(ids.has('gt:C:m7')).toBe(true);
 		expect(ids.has('gt:C:maj7')).toBe(false);
+	});
+
+	it('drops a minor progression when the qualities it is made of are off', async () => {
+		// A minor ii–V–i is iiø, V7, i(m maj7). Someone who has switched m7♭5 and
+		// m(maj7) off cannot be dealt a single m7♭5 shell, so dealing them a chain
+		// whose answers are two of those chords is the same card by another route.
+		const ids = await eligibleIds({
+			...ALL_STAGES,
+			activeQualities: ['maj7', 'm7', '7', 'dim7']
+		});
+		expect(ids.has('s2n:C:m7b5:r3')).toBe(false);
+		expect(ids.has('chain:C:737:minor')).toBe(false);
+		expect(ids.has('vl:C:737:ii-V:minor')).toBe(false);
+		expect(ids.has('gtc:C:ii-V:minor')).toBe(false);
+		// The major chain is m7, 7 and maj7 throughout, so it stays.
+		expect(ids.has('chain:C:737')).toBe(true);
+		expect(ids.has('vl:C:737:ii-V')).toBe(true);
+		expect(ids.has('gtc:C:ii-V')).toBe(true);
+	});
+
+	it('keeps a chain only while all three of its chords are drilled', async () => {
+		// Unlike gtn and n2s, a chain is not answered by picking one reading: all
+		// three chords have to be produced, so one switched-off quality is enough
+		// to make the card unanswerable as configured.
+		const major = await eligibleIds({
+			...ALL_STAGES,
+			activeQualities: ['maj7', 'm7', '7', 'dim7']
+		});
+		expect(major.has('chain:C:737')).toBe(true);
+		// Rootless comping is major-only, so it follows the major chain.
+		expect(major.has('rlc:C:ii-V:A')).toBe(true);
+
+		const noDominant = await eligibleIds({ ...ALL_STAGES, activeQualities: ['maj7', 'm7'] });
+		expect(noDominant.has('chain:C:737')).toBe(false);
+		expect(noDominant.has('chain:C:737:minor')).toBe(false);
+		expect(noDominant.has('rlc:C:ii-V:A')).toBe(false);
+		// And a shell of a still-active quality is untouched by all this.
+		expect(noDominant.has('s2n:C:m7:r3')).toBe(true);
+	});
+
+	it('judges a transition card on the two chords it actually contains', async () => {
+		// vl, gtc and rlc cover one step of the ii–V–I, not the whole thing:
+		// vl:C:737:ii-V is Dm7 → G7 and has no maj7 in it anywhere, so demanding
+		// the tonic's quality withheld a card the user can answer perfectly well.
+		const noTonic = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7', '7'] });
+		expect(noTonic.has('vl:C:737:ii-V')).toBe(true);
+		expect(noTonic.has('gtc:C:ii-V')).toBe(true);
+		expect(noTonic.has('rlc:C:ii-V:A')).toBe(true);
+		expect(noTonic.has('vl:C:737:V-I')).toBe(false);
+		expect(noTonic.has('gtc:C:V-I')).toBe(false);
+		expect(noTonic.has('rlc:C:V-I:A')).toBe(false);
+		// The chain is the one that really does ask for all three.
+		expect(noTonic.has('chain:C:737')).toBe(false);
+
+		// The other end: with the ii off, V–I survives and ii–V does not.
+		const noSupertonic = await eligibleIds({ ...ALL_STAGES, activeQualities: ['7', 'maj7'] });
+		expect(noSupertonic.has('vl:C:737:V-I')).toBe(true);
+		expect(noSupertonic.has('vl:C:737:ii-V')).toBe(false);
+
+		// Minor transitions read their own chords: iiø–V is m7♭5 and 7.
+		const minorFirstHalf = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7b5', '7'] });
+		expect(minorFirstHalf.has('vl:C:737:ii-V:minor')).toBe(true);
+		expect(minorFirstHalf.has('vl:C:737:V-I:minor')).toBe(false);
+		expect(minorFirstHalf.has('gtc:C:ii-V:minor')).toBe(true);
 	});
 });
 
@@ -141,5 +205,30 @@ describe('spreading new cards across the types', () => {
 		seenByType.set('rlc', 0);
 		const picked = spreadAcrossTypes(deck(), 1, seenByType);
 		expect(picked[0].type).toBe('rlc');
+	});
+});
+
+describe('the Today summary', () => {
+	async function clean(settings: Partial<typeof DEFAULT_SETTINGS>) {
+		const conn = await db();
+		await conn.exec('DELETE FROM reviews; DELETE FROM card_state; DELETE FROM settings;');
+		await saveSettings({ ...DEFAULT_SETTINGS, ...settings });
+	}
+
+	it('flags a zero new-card budget, which no amount of waiting fixes', async () => {
+		// "Come back tomorrow" is false forever here: tomorrow's reset of the
+		// introduced count changes nothing, because the budget is a setting.
+		await clean({ newCardsPerDay: 0 });
+		const summary = await queueSummary();
+		expect(summary.total).toBe(0);
+		expect(summary.deckEmpty).toBe(false);
+		expect(summary.newBudgetZero).toBe(true);
+	});
+
+	it('does not flag it when new cards are still on offer', async () => {
+		await clean({ newCardsPerDay: 8 });
+		const summary = await queueSummary();
+		expect(summary.new).toBeGreaterThan(0);
+		expect(summary.newBudgetZero).toBe(false);
 	});
 });

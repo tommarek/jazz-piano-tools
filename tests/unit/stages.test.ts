@@ -118,6 +118,44 @@ describe('the path', () => {
 		expect(stages.next).toBeNull();
 	});
 
+	it('says which qualities withhold the chain instead of freezing at no counter', async () => {
+		// The chain criteria and the headline are computed over MAJOR chains only,
+		// so switching one of m7/7/maj7 off freezes them at null for good while
+		// minor chains keep being dealt. The type is still ticked, so the type-off
+		// label would be a lie — the two causes must read differently.
+		await reset();
+		await masterShellKeys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+		await saveSettings({
+			activeQualities: DEFAULT_SETTINGS.activeQualities.filter((q) => q !== 'maj7')
+		});
+		const stages = await evaluateStages();
+		expect(stages.next?.n).toBe(3);
+		expect(stages.chainBlocked).toBe('qualities');
+		const label = stages.next!.criteria[0].label;
+		expect(label).toContain('maj7');
+		expect(label).toContain('Settings');
+		expect(label).not.toContain('per chord');
+		expect(label).not.toContain('chain drill on');
+	});
+
+	it('keeps the type-off label distinguishable from the quality-off one', async () => {
+		await reset();
+		await masterShellKeys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+		await saveSettings({
+			activeCardTypes: DEFAULT_SETTINGS.activeCardTypes.filter((t) => t !== 'chain')
+		});
+		const stages = await evaluateStages();
+		expect(stages.chainBlocked).toBe('type');
+		expect(stages.next?.criteria[0].label).toContain('chain drill on');
+	});
+
+	it('reports no block while the chain is dealable, whatever the times say', async () => {
+		// The headline says "no chain cards answered yet" off this: it must not
+		// blame a filter for what is simply a deck nobody has practised yet.
+		await reset();
+		expect((await evaluateStages()).chainBlocked).toBeNull();
+	});
+
 	it('never skips a rung: fast chains alone open nothing', async () => {
 		await reset();
 		// Chains under 2s but no automatic shells — stage 2's criterion unmet.
@@ -210,6 +248,60 @@ describe('the path', () => {
 		const conn = await db();
 		await conn.exec('DELETE FROM reviews; DELETE FROM card_state; DELETE FROM settings;');
 		expect((await getSettings()).unlockedStages).toBe(1);
+	});
+});
+
+describe('a stage opened by hand', () => {
+	it('lets the ladder carry on from where the user actually is', async () => {
+		// Settings actively offers "Start it anyway". Re-judging stage 2 after the
+		// user took that offer pinned `earned` at 1, so stage 3 could never open —
+		// while Today rendered stage 3's fully ticked checklist and did nothing.
+		await reset();
+		await saveSettings({ unlockedStages: 2, stageAutoUnlock: false });
+		await recordChainReviews(25, 2400);
+
+		// Auto-unlock off first, so the checklist Today would draw is visible.
+		const shown = await evaluateStages();
+		expect(shown.unlocked).toBe(2);
+		expect(shown.next?.n).toBe(3);
+		expect(shown.next?.criteria.every((c) => c.met)).toBe(true);
+
+		await saveSettings({ stageAutoUnlock: true });
+		const stages = await evaluateStages();
+		expect(stages.unlocked).toBe(3);
+		expect(stages.justUnlocked).toBe(3);
+		expect((await getSettings()).unlockedStages).toBe(3);
+	});
+
+	it('never leaves a met checklist showing with nothing behind it', async () => {
+		// What the checklist shows is exactly what `earned` is judged on, so an
+		// earlier stage can no longer be the silent blocker.
+		await reset();
+		await saveSettings({ unlockedStages: 3 });
+		await recordChainReviews(GATE_MIN_SAMPLE, 5400);
+
+		const stages = await evaluateStages();
+		expect(stages.next?.n).toBe(4);
+		expect(stages.next?.criteria.some((c) => !c.met)).toBe(true);
+		expect(stages.unlocked).toBe(3);
+	});
+});
+
+describe('an earlier criterion that regresses', () => {
+	it('does not freeze the ladder for someone who already earned the stage', async () => {
+		// Stage 2 earned with all twelve keys automatic, then the shell mastery of
+		// one key is lost — the key count drops back under 12. Stage 3 must still
+		// be reachable; it was not, because `earned` restarted at 1 every time.
+		await reset();
+		await masterShellKeys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+		expect((await evaluateStages()).unlocked).toBeGreaterThanOrEqual(2);
+
+		const conn = await db();
+		await conn.exec("DELETE FROM card_state WHERE card_id LIKE 's2n:C:%'");
+		await recordChainReviews(25, 2400);
+
+		const stages = await evaluateStages();
+		expect(stages.unlocked).toBeGreaterThanOrEqual(3);
 	});
 });
 

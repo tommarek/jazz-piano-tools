@@ -302,16 +302,45 @@ export function buildRootless(
 		return note;
 	}) as [Note, Note, Note, Note];
 
+	const placed = intoTaughtRegister(notes);
+
 	return {
 		root,
 		quality,
 		form,
 		symbol: chordSymbol(root, quality),
-		notes,
-		pitchClasses: notes.map(pitchClass),
-		names: notes.map(noteName),
+		notes: placed,
+		pitchClasses: placed.map(pitchClass),
+		names: placed.map(noteName),
 		stackLabel: ROOTLESS_STACK_LABEL[quality][form === 'A' ? 0 : 1]
 	};
+}
+
+/** The window the reference topic teaches: below C3 four notes turn to mud. */
+const ROOTLESS_LOW = midi(parseNote('C', 3));
+const ROOTLESS_HIGH = midi(parseNote('C', 5));
+
+/**
+ * Octave-shift the whole stack into C3–C5.
+ *
+ * Every voice is transposed up from a root pinned at ROOT_OCTAVE, so a B form —
+ * which starts on the ♭7 — lands most of a 7th above its own A form, and the
+ * offset compounds with the root: B7's B form used to top out at A♭5, a fourth
+ * above the register the app's own reference sheet tells the learner to stay in.
+ *
+ * The shift is applied to the stack as a unit. Voice ORDER is the graded answer
+ * for A against B, and the two forms share a pitch-class set, so moving a single
+ * voice would change what the card is asking.
+ */
+function intoTaughtRegister(notes: [Note, Note, Note, Note]): [Note, Note, Note, Note] {
+	const low = midi(notes[0]);
+	const high = midi(notes[notes.length - 1]);
+	let shift = 0;
+	while (high + shift > ROOTLESS_HIGH && low + shift - 12 >= ROOTLESS_LOW) shift -= 12;
+	while (low + shift < ROOTLESS_LOW && high + shift + 12 <= ROOTLESS_HIGH) shift += 12;
+	if (shift === 0) return notes;
+	const octaves = shift / 12;
+	return notes.map((n) => ({ ...n, octave: n.octave + octaves })) as [Note, Note, Note, Note];
 }
 
 // ---------------------------------------------------------------------------
@@ -345,7 +374,7 @@ export interface Chain {
  * a minor ii–V–i resolve. The tonic is m(maj7); m6 is the other common choice
  * but has no seventh for a shell to use.
  */
-const CHAIN_QUALITIES: Record<ChainMode, [Quality, Quality, Quality]> = {
+export const CHAIN_QUALITIES: Record<ChainMode, [Quality, Quality, Quality]> = {
 	major: ['m7', '7', 'maj7'],
 	minor: ['m7b5', '7', 'mMaj7']
 };

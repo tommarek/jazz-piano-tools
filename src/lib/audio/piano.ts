@@ -127,33 +127,42 @@ export function isAudioReady(): boolean {
 	return ctx !== null && ctx.state === 'running';
 }
 
-/** Simultaneous notes — a chord or a voicing. */
+/**
+ * Simultaneous notes — a chord or a voicing.
+ *
+ * @returns whether anything was actually scheduled. See playSequence.
+ */
 export function playNotes(
 	midiNumbers: number[],
 	opts: { durationMs?: number; velocity?: number } = {}
-): void {
-	playSequence([midiNumbers], opts);
+): boolean {
+	return playSequence([midiNumbers], opts);
 }
 
 /**
  * Successive groups: the three chords of a ii–V–I, or the two notes of an
  * interval played melodically. Everything is scheduled on the audio clock in
  * one go, so a busy main thread cannot smear the rhythm.
+ *
+ * @returns whether voices were scheduled. Callers for whom the sound is a
+ * nicety can ignore it, but an ear card's prompt IS the sound — it has to be
+ * able to tell "played" from "silently gave up", or it shows a learner a
+ * question they cannot hear while insisting it already asked it.
  */
 export function playSequence(
 	groups: number[][],
 	opts: { gapMs?: number; durationMs?: number; velocity?: number } = {}
-): void {
+): boolean {
 	initAudio();
-	if (!ctx || !master) return;
+	if (!ctx || !master) return false;
 	// A suspended context keeps its clock frozen and resumes where it stopped, so
 	// notes scheduled now still speak once resume() lands — that is the ordinary
 	// first-gesture path. An interrupted one may never come back, and scheduling
 	// into a clock that is not advancing rings nothing at all.
-	if (ctx.state !== 'running' && ctx.state !== 'suspended') return;
+	if (ctx.state !== 'running' && ctx.state !== 'suspended') return false;
 
 	const schedule = sequenceSchedule(groups, opts);
-	if (schedule.length === 0) return;
+	if (schedule.length === 0) return false;
 
 	const durationSec = (opts.durationMs ?? DEFAULT_DURATION_MS) / 1000;
 	const velocity = Math.min(1, Math.max(0.05, opts.velocity ?? 0.8));
@@ -168,7 +177,9 @@ export function playSequence(
 	} catch {
 		// A scheduling failure mid-chord leaves half a voicing ringing; clear it.
 		stopAll();
+		return false;
 	}
+	return true;
 }
 
 /** Kill everything ringing or scheduled. Safe before init and after teardown. */

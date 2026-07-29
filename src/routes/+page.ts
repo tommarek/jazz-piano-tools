@@ -20,8 +20,10 @@ export const load: PageLoad = async () => {
 	};
 };
 
-function lastSevenDays(byDay: { date: string; reviews: number }[], now: number) {
-	const map = new Map(byDay.map((d) => [d.date, d.reviews]));
+// The strip answers "did you practise", so it counts every attempt including
+// speed rounds — not daily_stats' sprint-free quality column.
+function lastSevenDays(byDay: { date: string; attempts: number }[], now: number) {
+	const map = new Map(byDay.map((d) => [d.date, d.attempts]));
 	const out: { date: string; label: string; reviews: number }[] = [];
 	for (let i = 6; i >= 0; i--) {
 		// Calendar-day steps, not now − i·24h: a DST day would duplicate or skip

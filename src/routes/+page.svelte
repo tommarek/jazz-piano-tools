@@ -47,7 +47,16 @@
 	</div>
 	<p class="mt-2 text-xs text-muted">
 		{#if perChord === null}
-			No chain cards answered yet.
+			<!-- The metric counts major chains only, so an empty one usually means
+			     "not yet" but can equally mean "your filters withhold them" — and
+			     only one of those gets better by practising. -->
+			{#if data.stages.chainBlocked === 'qualities'}
+				No major chains in the deck: the ii–V–I needs m7, 7 and maj7 (see Settings).
+			{:else if data.stages.chainBlocked === 'type'}
+				The ii–V–I chain drill is switched off in Settings.
+			{:else}
+				No chain cards answered yet.
+			{/if}
 		{:else if onTarget}
 			Under target over your last {data.headline.chainSampleSize} correct chains
 			{#if data.stages.unlocked === 4 && data.stages.rootlessActive}
@@ -94,10 +103,21 @@
 		aria-disabled={nothingDue}
 		data-testid="start-session"
 	>
-		{nothingDue ? 'Nothing due' : 'Start'}
+		{data.summary.deckEmpty ? 'Deck is empty' : nothingDue ? 'Nothing due' : 'Start'}
 	</a>
 
-	{#if nothingDue}
+	{#if data.summary.deckEmpty}
+		<p class="mt-2 text-center text-xs text-muted" data-testid="deck-empty">
+			Your drill and quality switches leave nothing to deal, so tomorrow will look the same.
+			<a href="/settings" class="text-accent underline">Settings</a> is where to widen it.
+		</p>
+	{:else if nothingDue && data.summary.newBudgetZero}
+		<p class="mt-2 text-center text-xs text-muted" data-testid="new-budget-zero">
+			Nothing due, and new cards per day is 0 — so tomorrow will look the same. Raise it in
+			<a href="/settings" class="text-accent underline">Settings</a>, or run a
+			<a href="/session?mode=speed" class="text-accent underline">speed round</a>.
+		</p>
+	{:else if nothingDue}
 		<p class="mt-2 text-center text-xs text-muted">
 			Come back tomorrow, or run a <a href="/session?mode=speed" class="text-accent underline"
 				>speed round</a

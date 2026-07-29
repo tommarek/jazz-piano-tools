@@ -16,10 +16,15 @@
 
 	// Single-hue sequential ramp: on a dark surface, more mastery = more light.
 	const RAMP = ['#232733', '#17402c', '#176b3d', '#1ea854', '#45c97e'];
+	// The top two steps are light enough that the page ink reads at 2.5:1 and
+	// 1.7:1 on them — a well-learned key would have been the unreadable one. The
+	// foreground is chosen with the background instead: ink on the dark steps
+	// (11.9 / 9.3 / 5.2), and the page background on the bright ones (6.1 / 8.9).
+	const RAMP_INK = ['#e4e6eb', '#e4e6eb', '#e4e6eb', '#0f1117', '#0f1117'];
 
-	function rampColor(score: number, total: number): string {
-		if (total === 0) return RAMP[0];
-		return RAMP[Math.min(RAMP.length - 1, Math.round(score * (RAMP.length - 1)))];
+	function rampStep(score: number, total: number): number {
+		if (total === 0) return 0;
+		return Math.min(RAMP.length - 1, Math.round(score * (RAMP.length - 1)));
 	}
 
 	let showTable = $state(false);
@@ -76,9 +81,10 @@
 	</p>
 	<div class="grid grid-cols-4 gap-1.5" data-testid="heatmap">
 		{#each data.heatmap as cell (cell.pitchClass)}
+			{@const step = rampStep(cell.score, cell.total)}
 			<div
 				class="rounded-lg border border-line p-2 text-center"
-				style="background: {rampColor(cell.score, cell.total)}"
+				style="background: {RAMP[step]}; color: {RAMP_INK[step]}"
 				title="{cell.label}: {cell.automatic}/{cell.total} automatic{cell.medianResponseMs
 					? `, median ${secs(cell.medianResponseMs)}`
 					: ''}"
@@ -86,7 +92,8 @@
 				data-score={cell.score.toFixed(2)}
 			>
 				<div class="text-sm font-bold">{cell.label}</div>
-				<div class="text-[10px] opacity-80 tabular-nums">
+				<!-- No dimming: at 80% the percentage drops under AA on the mid step. -->
+				<div class="text-[10px] tabular-nums">
 					{Math.round(cell.score * 100)}%
 				</div>
 			</div>
@@ -109,16 +116,20 @@
 <section class="mb-4 rounded-xl border border-line bg-surface p-4">
 	<h2 class="text-[11px] uppercase tracking-wider text-muted">Accuracy</h2>
 	<p class="mb-2 text-[11px] text-muted">Per day, all attempts; speed rounds excluded.</p>
+	<!-- No target line. targetRetention is the scheduler's desired recall on a
+	     scheduled review of an already-known card — the population retentionOf()
+	     builds and the Retention tile above reports. This series counts every
+	     attempt, first-ever sightings of brand-new cards included, and those are
+	     meant to be wrong; drawing the scheduler's bar across them judges a
+	     healthy learner against a number that was never about them. Moving the
+	     line to the retention population would need a per-day retention series
+	     the app does not compute, and the tile already states that figure. -->
 	<LineChart
 		points={accuracySeries}
 		format={pct}
 		label="Accuracy per day"
 		color="#1ea854"
 		domain={[null, 1]}
-		target={{
-			value: data.targetRetention,
-			label: `${Math.round(data.targetRetention * 100)}% target`
-		}}
 	/>
 </section>
 

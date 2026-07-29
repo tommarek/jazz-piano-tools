@@ -20,6 +20,11 @@ export function isNative(): boolean {
  * here, at the single shared connection, means *every* caller queues
  * (reviews, settings, gate auto-unlock, export/import) instead of each write
  * path needing its own chain.
+ *
+ * Only conn.tx queues. Both drivers hold one connection, so a bare run() that
+ * lands while somebody's BEGIN is open runs inside that transaction and shares
+ * its fate — which is why every write in the app goes through tx(), even the
+ * single-statement ones that look like they need no atomicity of their own.
  */
 function serialiseTx(conn: Db): Db {
 	let txChain: Promise<unknown> = Promise.resolve();
@@ -111,12 +116,17 @@ export async function syncCatalogue(conn: Db, now = Date.now()): Promise<number>
 /** Wipes all progress. Used by the in-app reset and by the test harness. */
 export async function resetAll(): Promise<void> {
 	const conn = await db();
-	await conn.exec(`
-		DELETE FROM reviews;
-		DELETE FROM card_state;
-		DELETE FROM sessions;
-		DELETE FROM daily_stats;
-		DELETE FROM settings;
-	`);
+	// Through conn.tx, not bare: a plain exec() resolving while somebody else's
+	// BEGIN is open would execute inside *their* transaction and be committed or
+	// rolled back with it. Only conn.tx queues on the serialised chain.
+	await conn.tx(async () => {
+		await conn.exec(`
+			DELETE FROM reviews;
+			DELETE FROM card_state;
+			DELETE FROM sessions;
+			DELETE FROM daily_stats;
+			DELETE FROM settings;
+		`);
+	});
 	await conn.persist();
 }

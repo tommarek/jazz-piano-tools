@@ -1,17 +1,12 @@
 import { getStats } from '$lib/data/stats';
-import { getSettings } from '$lib/data/settings';
 import { QUALITY_LABEL, type Quality } from '$lib/music/voicings';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	const now = Date.now();
 	const stats = await getStats(now, 30);
-	const settings = await getSettings();
 	return {
 		...stats,
-		// The accuracy chart is judged against the retention the scheduler is
-		// actually aiming for, not a hardcoded 90%.
-		targetRetention: settings.targetRetention,
 		// Fill in the days with no reviews so gaps read as gaps, not as flat lines.
 		series: densify(stats.byDay, now, 30),
 		qualityLabels: Object.fromEntries(

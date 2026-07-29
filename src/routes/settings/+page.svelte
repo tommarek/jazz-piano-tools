@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { saveSettings } from '$lib/data/settings';
+	import { effectiveCardTypes, saveSettings } from '$lib/data/settings';
+	import { eligibleIds } from '$lib/data/queue';
 	import { GATE_PER_CHORD_MS } from '$lib/data/stages';
 	import { downloadExport, importExport } from '$lib/data/export';
 	import { resetAll } from '$lib/db';
 	import type { Quality } from '$lib/music/voicings';
-	import type { CardType } from '$lib/music/cards';
+	import { EAR_TYPES, type CardType } from '$lib/music/cards';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -23,17 +24,46 @@
 
 	async function save(event: SubmitEvent) {
 		event.preventDefault();
-		if (s.activeQualities.length === 0) {
+		const pending = $state.snapshot(s);
+		if (pending.activeQualities.length === 0) {
 			status = { kind: 'error', text: 'Keep at least one chord quality.' };
 			return;
 		}
-		if (s.activeCardTypes.length === 0) {
+		if (pending.activeCardTypes.length === 0) {
 			status = { kind: 'error', text: 'Keep at least one drill type.' };
+			return;
+		}
+		// What the deck actually draws from is narrower than the ticked list: a
+		// drill in an unopened stage is not dealt, and the ear drills are the
+		// sound. Guarding the ticked list alone let both empty the deck for good,
+		// with nothing on Today able to say why it never has anything for you.
+		const live = effectiveCardTypes(pending).filter(
+			(t) => pending.soundEnabled || !EAR_TYPES.includes(t)
+		);
+		if (live.length === 0) {
+			const unreachable = effectiveCardTypes(pending).length === 0;
+			status = {
+				kind: 'error',
+				text: unreachable
+					? 'Every drill left on belongs to a stage that is not open yet, so the deck would be empty. Keep one from an open stage, or open the stage below.'
+					: 'The only drills left on are the ear ones, and "Play the answer" is off — they leave the deck with it, so the deck would be empty.'
+			};
 			return;
 		}
 		busy = true;
 		try {
-			const saved = await saveSettings($state.snapshot(s));
+			// Types and qualities are ticked in two separate lists but filter one
+			// deck, and which qualities a drill can even reach depends on the drill:
+			// chain alone with maj7 off leaves no ii–V–I at all, so both lists pass
+			// their own check and the deck is still empty. Ask the deck itself.
+			if ((await eligibleIds(pending)).size === 0) {
+				status = {
+					kind: 'error',
+					text: 'No card matches both the drills and the chord qualities you kept, so the deck would be empty. Turn another chord quality back on, or another drill.'
+				};
+				return;
+			}
+			const saved = await saveSettings(pending);
 			s = { ...saved };
 			status = { kind: 'ok', text: 'Saved.' };
 			await invalidateAll();
@@ -170,6 +200,7 @@
 					<input
 						type="checkbox"
 						value={q.value}
+						data-testid="quality-{q.value}"
 						checked={s.activeQualities.includes(q.value)}
 						onchange={(e) =>
 							(s.activeQualities = toggle(
@@ -192,11 +223,15 @@
 					{#if stage.n > s.unlockedStages}<span class="normal-case">· not yet</span>{/if}
 				</div>
 				{#each stage.types as t (t.value)}
-					<label class="flex min-h-[44px] items-start gap-2 py-1">
+					{@const locked = stage.n > s.unlockedStages}
+					<label class="flex min-h-[44px] items-start gap-2 py-1" class:opacity-60={locked}>
+						<!-- A locked drill is not dealt whatever this says, so leaving it
+						     tickable let it stand in for a real choice and empty the deck. -->
 						<input
 							type="checkbox"
 							value={t.value}
 							checked={s.activeCardTypes.includes(t.value)}
+							disabled={locked}
 							onchange={(e) =>
 								(s.activeCardTypes = toggle(
 									s.activeCardTypes,

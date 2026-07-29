@@ -1,10 +1,12 @@
 node_modules/
-build/
-.svelte-kit/
-.tmp/
-data/
-test-results/
-playwright-report/
+# Anchored: an unanchored `build/` or `data/` also matches src/lib/data/ and any
+# nested build directory, which silently drops real source from the repo.
+/build/
+/.svelte-kit/
+/.tmp/
+/data/
+/test-results/
+/playwright-report/
 *.log
 .DS_Store
 

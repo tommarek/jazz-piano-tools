@@ -5,6 +5,12 @@ import { CARD_TYPES, buildCatalogue, renderCard } from '../../src/lib/music/card
 const catalogue = buildCatalogue();
 
 describe('reference topics', () => {
+	it('number the eleven the README claims', () => {
+		// The count is quoted in prose nothing else checks, so it silently drifted
+		// when the ear topic arrived.
+		expect(TOPICS.length).toBe(11);
+	});
+
 	it('have unique ids', () => {
 		expect(new Set(TOPICS.map((t) => t.id)).size).toBe(TOPICS.length);
 	});
