@@ -2,11 +2,13 @@
  * Stopping playback, against a stand-in for Web Audio.
  *
  * The bug this pins is invisible to every other test: `AudioParam.value` on a
- * voice whose envelope is only *scheduled* still reports the GainNode default
- * of 1.0, so a stopAll() during the gap between two notes could latch full
- * volume onto a note that had not spoken yet — four times the peak the
- * envelope was going to give it. Node has no AudioContext, so the graph is
- * faked closely enough to observe what is scheduled on it.
+ * voice whose envelope is only *scheduled* would report the GainNode default of
+ * 1.0, so a stopAll() during the gap between two notes could latch full volume
+ * onto a note that had not spoken yet — four times the peak the envelope was
+ * going to give it. Two things stop it, and both are asserted below: the
+ * intrinsic value is floored when the voice is built, and a voice whose onset
+ * has not arrived is cut rather than ramped. Node has no AudioContext, so the
+ * graph is faked closely enough to observe what is scheduled on it.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -38,6 +40,7 @@ class FakeOscillator {
 	startedAt: number | null = null;
 	stops: number[] = [];
 	onended: (() => void) | null = null;
+	setPeriodicWave() {}
 	connect() {}
 	start(time: number) {
 		this.startedAt = time;
@@ -59,8 +62,13 @@ class FakeContext {
 		gains.push(param);
 		return { gain: param, connect() {} };
 	}
+	// The cutoff carries an envelope of its own, so it is a schedulable param —
+	// but not one stopAll touches, hence kept out of `gains`.
 	createBiquadFilter() {
-		return { type: 'lowpass', frequency: { value: 0 }, Q: { value: 0 }, connect() {} };
+		return { type: 'lowpass', frequency: new FakeParam(), Q: { value: 0 }, connect() {} };
+	}
+	createPeriodicWave() {
+		return {};
 	}
 	createOscillator() {
 		const osc = new FakeOscillator();
@@ -93,7 +101,8 @@ describe('stopping a sequence mid-gap', () => {
 		piano.playSequence([[60], [67]], { gapMs: 700 });
 
 		// The master gain is created first; then one gain per voice, each followed
-		// by its three partials.
+		// by the level gain of each of its two strings — which is why the voices
+		// are picked out by their envelope ramp rather than by position.
 		const voiceGains = gains.filter((g) => g.events.some((e) => e.kind === 'ramp'));
 		expect(voiceGains).toHaveLength(2);
 		const pending = voiceGains[1];
@@ -105,9 +114,10 @@ describe('stopping a sequence mid-gap', () => {
 		const scheduled = pending.events.length;
 		piano.stopAll();
 
-		for (const event of pending.events.slice(scheduled)) {
-			expect(event.value).toBeLessThanOrEqual(0.0001);
-		}
+		// A voice that has not spoken is cut, not faded, so stopAll writes nothing
+		// onto its envelope at all — and the floor above is what the latch would
+		// read if that early return ever went. Both halves of the guard, one test.
+		expect(pending.events).toHaveLength(scheduled);
 	});
 
 	it('cuts a voice that has not started rather than ramping it down', () => {
@@ -118,8 +128,10 @@ describe('stopping a sequence mid-gap', () => {
 		const now = ctx.currentTime;
 		piano.stopAll();
 
-		// Three partials per voice, in the order they were started.
-		const pendingOscillators = oscillators.slice(3);
+		// Whatever the second note's voice is made of — the count is a synthesis
+		// detail, "has not spoken yet" is the property under test.
+		const pendingOscillators = oscillators.filter((o) => (o.startedAt ?? 0) > now);
+		expect(pendingOscillators.length).toBeGreaterThan(0);
 		for (const osc of pendingOscillators) {
 			expect(osc.startedAt).toBeGreaterThan(now);
 			// Stopped at `now`, not `now + 0.08`: there is nothing to fade.

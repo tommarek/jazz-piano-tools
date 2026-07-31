@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buildCatalogue, renderCard, parseCardId } from '../../src/lib/music/cards';
 import type { CardSpec } from '../../src/lib/music/cards';
 import { DIATONIC, DRILLED_INTERVALS, EXTENSIONS } from '../../src/lib/music/theory-drills';
-import { CHORD_ROOTS, KEY_CENTERS } from '../../src/lib/music/voicings';
-import { noteName, parseNote, pitchClass } from '../../src/lib/music/theory';
+import { CHORD_ROOTS, KEY_CENTERS, QUALITY_SUFFIX } from '../../src/lib/music/voicings';
+import { noteName, parseNote, pitchClass, prettyNoteName } from '../../src/lib/music/theory';
 
 const catalogue = buildCatalogue();
 const of = (type: string) => catalogue.filter((c) => c.type === type);
@@ -159,16 +159,27 @@ describe('diatonic harmony', () => {
 			expect(v.expectedChord).toBeDefined();
 			expect(v.expectedChord!.rootPc).toBe(pitchClass(parseNote(v.expectedChord!.root, 4)));
 		}
+		// Both sides in one alphabet: the picker's names are ASCII and the card's
+		// root carries glyphs, so a raw includes() counts every accidental root as
+		// off-grid and the property holds whatever the diatonic builder spells.
 		const offGrid = of('dia')
 			.map(view)
-			.filter((v) => !CHORD_ROOTS.includes(v.expectedChord!.root));
-		expect(offGrid.length).toBeGreaterThan(0);
+			.filter((v) => !CHORD_ROOTS.some((r) => prettyNoteName(r) === v.expectedChord!.root));
+		expect(offGrid.length).toBe(13);
 	});
 
 	it('never leaks the answer into the prompt', () => {
+		// The whole answer is root + quality and the prompt is key + numeral, so
+		// the two strings can never match outright — what has to be checked is the
+		// halves. The quality is never given away; the root is, but only by the
+		// tonic, where naming the key is the point.
 		for (const spec of of('dia')) {
 			const v = view(spec);
-			expect(v.title).not.toContain(v.answerText);
+			const prompt = `${v.title} ${v.instruction}`;
+			expect(prompt).not.toContain(QUALITY_SUFFIX[v.expectedChord!.quality]);
+			if ((spec as CardSpec & { type: 'dia' }).numeral !== 'I') {
+				expect(prompt).not.toContain(prettyNoteName(v.expectedChord!.root));
+			}
 		}
 	});
 });
@@ -214,13 +225,13 @@ describe('every new card type round-trips its id', () => {
 	it('keeps the ids minted before minor chains existed', () => {
 		// Major chains must not have gained a mode segment, or a year of review
 		// history would detach from its cards.
-		expect(parseCardId('chain:C:737')).toMatchObject({ type: 'chain', mode: 'major' });
-		expect(parseCardId('vl:C:737:ii-V')).toMatchObject({ type: 'vl', mode: 'major' });
-		expect(parseCardId('chain:C:737:minor')).toMatchObject({ mode: 'minor' });
+		expect(parseCardId('chain:C')).toMatchObject({ type: 'chain', mode: 'major' });
+		expect(parseCardId('gtc:C:ii-V')).toMatchObject({ type: 'gtc', mode: 'major' });
+		expect(parseCardId('chain:C:minor')).toMatchObject({ mode: 'minor' });
 	});
 
 	it('rejects malformed ids', () => {
-		expect(parseCardId('chain:C:737:major')).toBeNull();
+		expect(parseCardId('chain:C:major')).toBeNull();
 		expect(parseCardId('rootless:C:m7')).toBeNull();
 		expect(parseCardId('ivl:C')).toBeNull();
 	});
@@ -228,12 +239,14 @@ describe('every new card type round-trips its id', () => {
 
 describe('minor chains', () => {
 	it('adds a full set without disturbing the major ones', () => {
+		// One chain per key per mode: a guide-tone pair has no root to hang the
+		// old 737/373 variant split on.
 		const chains = of('chain');
 		expect(chains.filter((c) => (c as CardSpec & { type: 'chain' }).mode === 'major')).toHaveLength(
-			24
+			12
 		);
 		expect(chains.filter((c) => (c as CardSpec & { type: 'chain' }).mode === 'minor')).toHaveLength(
-			24
+			12
 		);
 	});
 

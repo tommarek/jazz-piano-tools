@@ -5,8 +5,15 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { useMemoryDb } from './helpers/db';
 import { db } from '../../src/lib/db';
-import { buildQueue, eligibleIds, queueSummary, spreadAcrossTypes } from '../../src/lib/data/queue';
+import {
+	buildQueue,
+	deckCounts,
+	eligibleIds,
+	queueSummary,
+	spreadAcrossTypes
+} from '../../src/lib/data/queue';
 import { DEFAULT_SETTINGS, saveSettings } from '../../src/lib/data/settings';
+import { ALL_DECK, EAR_DECK } from '../../src/lib/data/decks';
 import { CARD_TYPES } from '../../src/lib/music/cards';
 
 beforeAll(async () => {
@@ -17,14 +24,17 @@ afterAll(async () => {
 	await (await db()).close();
 });
 
-const ALL_STAGES = { ...DEFAULT_SETTINGS, unlockedStages: 4 };
+// Both ladders fully open: the two sections gate independently, so opening the
+// theory path says nothing about what the ear path will deal.
+const ALL_STAGES = { ...DEFAULT_SETTINGS, unlockedStages: 3, earUnlockedStages: 2 };
 
 describe('eligibility', () => {
 	it('drops the ear drills when sound is off, and nothing else', async () => {
 		// An ear card's prompt is the sound: with playback off it would come up
-		// with no question on the screen at all.
-		const withSound = await eligibleIds(ALL_STAGES);
-		const withoutSound = await eligibleIds({ ...ALL_STAGES, soundEnabled: false });
+		// with no question on the screen at all. Asked of the ear section, which
+		// is where those cards live now — the default deck is theory only.
+		const withSound = await eligibleIds(ALL_STAGES, EAR_DECK);
+		const withoutSound = await eligibleIds({ ...ALL_STAGES, soundEnabled: false }, EAR_DECK);
 
 		expect(withSound.has('eint:C:P5')).toBe(true);
 		expect(withSound.has('eqal:C:m7')).toBe(true);
@@ -38,7 +48,7 @@ describe('eligibility', () => {
 
 	it('still filters ear chords by the qualities being drilled', async () => {
 		// A quality switched off in Settings is off everywhere, including the ear.
-		const ids = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7'] });
+		const ids = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7'] }, EAR_DECK);
 		expect(ids.has('eqal:C:m7')).toBe(true);
 		expect(ids.has('eqal:C:dim7')).toBe(false);
 		// Intervals name no chord, so the quality filter leaves them alone.
@@ -62,86 +72,82 @@ describe('eligibility', () => {
 
 	it('drops a minor progression when the qualities it is made of are off', async () => {
 		// A minor ii–V–i is iiø, V7, i(m maj7). Someone who has switched m7♭5 and
-		// m(maj7) off cannot be dealt a single m7♭5 shell, so dealing them a chain
+		// m(maj7) off cannot be dealt a single m7♭5 pair, so dealing them a chain
 		// whose answers are two of those chords is the same card by another route.
 		const ids = await eligibleIds({
 			...ALL_STAGES,
 			activeQualities: ['maj7', 'm7', '7', 'dim7']
 		});
-		expect(ids.has('s2n:C:m7b5:r3')).toBe(false);
-		expect(ids.has('chain:C:737:minor')).toBe(false);
-		expect(ids.has('vl:C:737:ii-V:minor')).toBe(false);
+		expect(ids.has('gt:C:m7b5')).toBe(false);
+		expect(ids.has('chain:C:minor')).toBe(false);
 		expect(ids.has('gtc:C:ii-V:minor')).toBe(false);
 		// The major chain is m7, 7 and maj7 throughout, so it stays.
-		expect(ids.has('chain:C:737')).toBe(true);
-		expect(ids.has('vl:C:737:ii-V')).toBe(true);
+		expect(ids.has('chain:C')).toBe(true);
 		expect(ids.has('gtc:C:ii-V')).toBe(true);
 	});
 
 	it('keeps a chain only while all three of its chords are drilled', async () => {
-		// Unlike gtn and n2s, a chain is not answered by picking one reading: all
-		// three chords have to be produced, so one switched-off quality is enough
-		// to make the card unanswerable as configured.
+		// Unlike gtn, a chain is not answered by picking one reading: all three
+		// chords have to be produced, so one switched-off quality is enough to
+		// make the card unanswerable as configured.
 		const major = await eligibleIds({
 			...ALL_STAGES,
 			activeQualities: ['maj7', 'm7', '7', 'dim7']
 		});
-		expect(major.has('chain:C:737')).toBe(true);
+		expect(major.has('chain:C')).toBe(true);
 		// Rootless comping is major-only, so it follows the major chain.
 		expect(major.has('rlc:C:ii-V:A')).toBe(true);
 
 		const noDominant = await eligibleIds({ ...ALL_STAGES, activeQualities: ['maj7', 'm7'] });
-		expect(noDominant.has('chain:C:737')).toBe(false);
-		expect(noDominant.has('chain:C:737:minor')).toBe(false);
+		expect(noDominant.has('chain:C')).toBe(false);
+		expect(noDominant.has('chain:C:minor')).toBe(false);
 		expect(noDominant.has('rlc:C:ii-V:A')).toBe(false);
-		// And a shell of a still-active quality is untouched by all this.
-		expect(noDominant.has('s2n:C:m7:r3')).toBe(true);
+		// And a pair of a still-active quality is untouched by all this.
+		expect(noDominant.has('gt:C:m7')).toBe(true);
 	});
 
 	it('judges a transition card on the two chords it actually contains', async () => {
-		// vl, gtc and rlc cover one step of the ii–V–I, not the whole thing:
-		// vl:C:737:ii-V is Dm7 → G7 and has no maj7 in it anywhere, so demanding
+		// gtc and rlc cover one step of the ii–V–I, not the whole thing:
+		// gtc:C:ii-V is Dm7 → G7 and has no maj7 in it anywhere, so demanding
 		// the tonic's quality withheld a card the user can answer perfectly well.
 		const noTonic = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7', '7'] });
-		expect(noTonic.has('vl:C:737:ii-V')).toBe(true);
 		expect(noTonic.has('gtc:C:ii-V')).toBe(true);
 		expect(noTonic.has('rlc:C:ii-V:A')).toBe(true);
-		expect(noTonic.has('vl:C:737:V-I')).toBe(false);
 		expect(noTonic.has('gtc:C:V-I')).toBe(false);
 		expect(noTonic.has('rlc:C:V-I:A')).toBe(false);
 		// The chain is the one that really does ask for all three.
-		expect(noTonic.has('chain:C:737')).toBe(false);
+		expect(noTonic.has('chain:C')).toBe(false);
 
 		// The other end: with the ii off, V–I survives and ii–V does not.
 		const noSupertonic = await eligibleIds({ ...ALL_STAGES, activeQualities: ['7', 'maj7'] });
-		expect(noSupertonic.has('vl:C:737:V-I')).toBe(true);
-		expect(noSupertonic.has('vl:C:737:ii-V')).toBe(false);
+		expect(noSupertonic.has('gtc:C:V-I')).toBe(true);
+		expect(noSupertonic.has('gtc:C:ii-V')).toBe(false);
 
 		// Minor transitions read their own chords: iiø–V is m7♭5 and 7.
 		const minorFirstHalf = await eligibleIds({ ...ALL_STAGES, activeQualities: ['m7b5', '7'] });
-		expect(minorFirstHalf.has('vl:C:737:ii-V:minor')).toBe(true);
-		expect(minorFirstHalf.has('vl:C:737:V-I:minor')).toBe(false);
 		expect(minorFirstHalf.has('gtc:C:ii-V:minor')).toBe(true);
+		expect(minorFirstHalf.has('gtc:C:V-I:minor')).toBe(false);
 	});
-});
 
-describe('notes→symbol cards follow the qualities being drilled', () => {
-	it('keeps a shell whose readings include an active quality, drops the rest', async () => {
-		// An n2s card carries a guide interval, not a quality — but it is answered
-		// with a quality, so drilling only maj7 must not serve a card whose every
-		// accepted answer is minor.
-		const major = await eligibleIds({ ...ALL_STAGES, activeQualities: ['maj7'] });
-		// A major 3rd over the root reads as maj7 or 7; a minor 3rd never as maj7.
-		expect(major.has('n2s:C:M3')).toBe(true);
-		expect(major.has('n2s:C:M7')).toBe(true);
-		expect(major.has('n2s:C:m3')).toBe(false);
-		expect(major.has('n2s:C:m7')).toBe(false);
-		expect(major.has('n2s:C:d7')).toBe(false);
+	it('gates the degree drills on the quality that degree carries', async () => {
+		// dia's whole answer is root + quality and mode's title is the chord, so
+		// a quality switched off has no business in either: with m7♭5 off, the
+		// vii asked for Bm7♭5 by name while gt:B:m7b5 was correctly withheld.
+		const noHalfDim = await eligibleIds({
+			...ALL_STAGES,
+			activeQualities: ['maj7', 'm7', '7', 'dim7']
+		});
+		expect(noHalfDim.has('dia:C:vii')).toBe(false);
+		expect(noHalfDim.has('mode:C:vii')).toBe(false);
+		expect(noHalfDim.has('dia:C:ii')).toBe(true);
+		expect(noHalfDim.has('mode:C:V')).toBe(true);
 
-		// The ♭♭7 shell only ever reads as °7 — the case that was special-cased.
-		const dim = await eligibleIds({ ...ALL_STAGES, activeQualities: ['dim7'] });
-		expect(dim.has('n2s:C:d7')).toBe(true);
-		expect(dim.has('n2s:C:M3')).toBe(false);
+		// The ladder's other rungs go the same way: m7 off takes ii, iii and vi.
+		const noMinor = await eligibleIds({ ...ALL_STAGES, activeQualities: ['maj7', '7', 'm7b5'] });
+		expect(noMinor.has('dia:C:ii')).toBe(false);
+		expect(noMinor.has('dia:C:vi')).toBe(false);
+		expect(noMinor.has('dia:C:I')).toBe(true);
+		expect(noMinor.has('dia:C:vii')).toBe(true);
 	});
 });
 
@@ -179,10 +185,10 @@ describe('spreading new cards across the types', () => {
 		);
 
 	it('reaches every type even when a day introduces fewer cards than there are types', () => {
-		// A warm deck has room for a card or two a day against fifteen live types.
+		// A warm deck has room for a card or two a day against twelve live types.
 		// Walking the type list from the top every session starves everything past
-		// the budget — the chains, the voice leading and the comping drills — for
-		// as long as the deck stays warm, which is forever.
+		// the budget — the modes and both ear drills — for as long as the deck
+		// stays warm, which is forever.
 		const remaining = deck();
 		const seenByType = new Map<string, number>();
 		const introduced = new Set<string>();
@@ -205,6 +211,52 @@ describe('spreading new cards across the types', () => {
 		seenByType.set('rlc', 0);
 		const picked = spreadAcrossTypes(deck(), 1, seenByType);
 		expect(picked[0].type).toBe('rlc');
+	});
+});
+
+describe("the day's new-card budget", () => {
+	/** A day's worth of theory practice: `n` cards seen for the first time. */
+	async function drillTheoryToday(n: number, now: number) {
+		const conn = await db();
+		await conn.exec('DELETE FROM reviews; DELETE FROM card_state; DELETE FROM settings;');
+		await saveSettings({ ...ALL_STAGES, newCardsPerDay: 8 });
+		const ids = [...(await eligibleIds(ALL_STAGES))].sort().slice(0, n);
+		for (const id of ids) {
+			await conn.run(
+				`INSERT INTO reviews (card_id, ts, grade, response_ms, correct) VALUES (?, ?, 3, 1500, 1)`,
+				[id, now]
+			);
+			await conn.run(
+				`INSERT INTO card_state (card_id, due, stability, difficulty, reps, lapses, state, mastery)
+				 VALUES (?, ?, 10, 5, 1, 0, 2, 'new')`,
+				[id, now + 86_400_000]
+			);
+		}
+		return ids;
+	}
+
+	// One pool made the halves compete for it, and Theory is the screen the app
+	// opens on: a learner who starts there spends the whole allowance every day,
+	// so the ear section never introduces a first card and its gate — 20 heard
+	// intervals — can never be reached.
+	it('is counted per section, so a theory session cannot spend the ear one', async () => {
+		const now = Date.now();
+		await drillTheoryToday(8, now);
+
+		const theory = await buildQueue({ now, deck: ALL_DECK });
+		expect(theory.filter((i) => i.isNew)).toHaveLength(0);
+
+		const ear = await buildQueue({ now, deck: EAR_DECK });
+		expect(ear.filter((i) => i.isNew).length).toBeGreaterThan(0);
+		expect(await deckCounts('ear', now)).toMatchObject({ newBudget: 8 });
+		expect((await deckCounts('theory', now)).newBudget).toBe(0);
+	});
+
+	it('and is still spent by the section that did the practice', async () => {
+		const now = Date.now();
+		await drillTheoryToday(3, now);
+		expect((await deckCounts('theory', now)).newBudget).toBe(5);
+		expect((await queueSummary(now)).new).toBe(5);
 	});
 });
 

@@ -30,9 +30,9 @@ import type { CardType } from '../../src/lib/music/cards';
 
 const DAY = 86_400_000;
 const START = Date.UTC(2026, 0, 1);
-// 21 months, not 12: the deck grew to 1296 cards, and at the shipped 8-a-day
-// pace plus review load a full introduction takes ~19 months. The invariant
-// is that it completes and the load stays flat — not that it fits a year.
+// 21 months, not 12: new cards only fill the room the due pile leaves, so the
+// 972-card deck takes ~12 months (day 369 of this run) to introduce in full at
+// the shipped 8-a-day pace — and what the run is for is the load AFTER that.
 const DAYS = 630;
 /** Same cap the app ships with, so the simulation feels the same ceiling. */
 const NEW_PER_DAY = 8;

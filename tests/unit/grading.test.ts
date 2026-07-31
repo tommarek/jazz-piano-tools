@@ -29,7 +29,7 @@ describe('median', () => {
 });
 
 describe('grade derivation', () => {
-	const base = { cardType: 's2n' as const, medianMs: 2000 };
+	const base = { cardType: 'gt' as const, medianMs: 2000 };
 
 	it('grades a wrong answer Again regardless of speed', () => {
 		expect(deriveGrade({ ...base, correct: false, responseMs: 200 })).toBe(Rating.Again);
@@ -69,7 +69,7 @@ describe('grade derivation', () => {
 		expect(deriveGrade({ cardType: 'chain', medianMs: null, correct: true, responseMs: 9000 })).toBe(
 			Rating.Good
 		);
-		expect(deriveGrade({ cardType: 's2n', medianMs: null, correct: true, responseMs: 9000 })).toBe(
+		expect(deriveGrade({ cardType: 'gt', medianMs: null, correct: true, responseMs: 9000 })).toBe(
 			Rating.Hard
 		);
 	});
@@ -78,30 +78,30 @@ describe('grade derivation', () => {
 describe('mastery thresholds', () => {
 	it('needs a streak to leave new', () => {
 		expect(
-			deriveMastery({ consecutiveCorrect: FAMILIAR_STREAK - 1, medianMs: 500, cardType: 's2n' })
+			deriveMastery({ consecutiveCorrect: FAMILIAR_STREAK - 1, medianMs: 500, cardType: 'gt' })
 		).toBe('new');
 		expect(
-			deriveMastery({ consecutiveCorrect: FAMILIAR_STREAK, medianMs: 500, cardType: 's2n' })
+			deriveMastery({ consecutiveCorrect: FAMILIAR_STREAK, medianMs: 500, cardType: 'gt' })
 		).toBe('familiar');
 	});
 
 	it('will not call a slow card automatic, however long the streak', () => {
 		expect(
-			deriveMastery({ consecutiveCorrect: 50, medianMs: 3000, cardType: 's2n' })
+			deriveMastery({ consecutiveCorrect: 50, medianMs: 3000, cardType: 'gt' })
 		).toBe('familiar');
 	});
 
 	it('needs both the streak and the time gate', () => {
 		expect(
-			deriveMastery({ consecutiveCorrect: AUTOMATIC_STREAK - 1, medianMs: 900, cardType: 's2n' })
+			deriveMastery({ consecutiveCorrect: AUTOMATIC_STREAK - 1, medianMs: 900, cardType: 'gt' })
 		).toBe('familiar');
 		expect(
-			deriveMastery({ consecutiveCorrect: AUTOMATIC_STREAK, medianMs: 900, cardType: 's2n' })
+			deriveMastery({ consecutiveCorrect: AUTOMATIC_STREAK, medianMs: 900, cardType: 'gt' })
 		).toBe('automatic');
 	});
 
 	it('drops straight back to new when the streak breaks', () => {
-		expect(deriveMastery({ consecutiveCorrect: 0, medianMs: 400, cardType: 's2n' })).toBe('new');
+		expect(deriveMastery({ consecutiveCorrect: 0, medianMs: 400, cardType: 'gt' })).toBe('new');
 	});
 
 	it('applies a per-chord equivalent target to chains', () => {
@@ -115,7 +115,7 @@ describe('mastery thresholds', () => {
 	});
 
 	it('never calls a card with no timing data automatic', () => {
-		expect(deriveMastery({ consecutiveCorrect: 20, medianMs: null, cardType: 's2n' })).toBe(
+		expect(deriveMastery({ consecutiveCorrect: 20, medianMs: null, cardType: 'gt' })).toBe(
 			'familiar'
 		);
 	});

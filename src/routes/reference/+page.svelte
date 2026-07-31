@@ -2,23 +2,33 @@
 	import { TOPICS } from '$lib/content/reference';
 </script>
 
-<svelte:head><title>Reference · Voicings</title></svelte:head>
+<svelte:head><title>Reference · Comp</title></svelte:head>
 
-<h1 class="mb-1 text-lg font-semibold">Reference</h1>
-<p class="mb-4 text-xs text-muted">
-	The theory behind the drills. Also reachable from any card once you've answered it.
-</p>
+<header class="mb-6">
+	<h1 class="text-2xl font-bold uppercase" style="font-stretch:118%; letter-spacing:0.16em">
+		Reference
+	</h1>
+	<div class="rule-brass mt-1.5 mb-2"></div>
+	<p class="text-xs text-muted">
+		The theory behind the drills. Also reachable from any card once you've answered it.
+	</p>
+</header>
 
-<ul class="space-y-2">
-	{#each TOPICS as topic (topic.id)}
-		<li>
+<!-- A table of contents, ruled like one. The numbers are not decoration: the
+     topics are written to be read in this order, each leaning on the last. -->
+<ul>
+	{#each TOPICS as topic, i (topic.id)}
+		<li class="border-t border-line">
 			<a
 				href="/reference/{topic.id}"
-				class="block rounded-xl border border-line bg-surface p-4"
+				class="flex items-baseline gap-3 py-4"
 				data-testid="topic-{topic.id}"
 			>
-				<span class="block text-sm font-semibold">{topic.title}</span>
-				<span class="mt-0.5 block text-xs text-muted">{topic.blurb}</span>
+				<span class="figure w-5 shrink-0 text-xs text-brass">{String(i + 1).padStart(2, '0')}</span>
+				<span>
+					<span class="block text-sm font-semibold">{topic.title}</span>
+					<span class="mt-1 block text-xs leading-relaxed text-muted">{topic.blurb}</span>
+				</span>
 			</a>
 		</li>
 	{/each}

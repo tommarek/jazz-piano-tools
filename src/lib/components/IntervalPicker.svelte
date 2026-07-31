@@ -15,9 +15,21 @@
 		interval?: IntervalName | null;
 		disabled?: boolean;
 		correct?: IntervalName | null;
+		/** Fired after a pick lands, for the instant-answer setting. */
+		onpick?: () => void;
 	}
 
-	let { interval = $bindable(null), disabled = false, correct = null }: Props = $props();
+	let {
+		interval = $bindable(null),
+		disabled = false,
+		correct = null,
+		onpick
+	}: Props = $props();
+
+	function pick(name: IntervalName) {
+		interval = name;
+		onpick?.();
+	}
 
 	const ORDERED = [...DRILLED_INTERVALS].sort(
 		(a, b) => INTERVALS[a].semitones - INTERVALS[b].semitones
@@ -28,9 +40,18 @@
 	 * verdict to deliver. Showing the two intervals that matter (what you
 	 * played, what it was) instead of all eleven is both clearer and what keeps
 	 * the reveal on one screen next to a tall feedback panel.
+	 *
+	 * Played first, then the answer — the order the caption below promises.
+	 * Filtering the size-ordered list put them the other way round whenever the
+	 * mistake was the larger interval, so "You played · it was" was true only
+	 * about half the time.
 	 */
 	const shown = $derived(
-		correct ? ORDERED.filter((n) => n === correct || n === interval) : ORDERED
+		correct
+			? [interval, correct].filter(
+					(n, i, all): n is IntervalName => n !== null && all.indexOf(n) === i
+				)
+			: ORDERED
 	);
 
 	/**
@@ -45,15 +66,15 @@
 	});
 
 	function tone(name: IntervalName): string {
-		if (correct && correct === name) return 'border-good bg-good/20 text-good';
-		if (correct && interval === name) return 'border-bad bg-bad/20 text-bad';
-		if (interval === name) return 'border-accent bg-accent-solid text-white';
-		return 'border-line bg-surface-2 text-ink';
+		if (correct && correct === name) return 'border-sage bg-sage/15 text-sage';
+		if (correct && interval === name) return 'border-felt bg-felt/15 text-felt-ink';
+		if (interval === name) return 'border-brass bg-brass text-on-brass';
+		return 'border-line bg-surface text-ink';
 	}
 </script>
 
 <div class="no-select">
-	<div class="mb-1 text-[11px] uppercase tracking-wider text-muted">
+	<div class="eyebrow mb-1.5">
 		{caption}
 	</div>
 	<!-- Three columns, not two: eleven intervals in two columns is six rows, and
@@ -63,10 +84,10 @@
 			<button
 				type="button"
 				{disabled}
-				class="min-h-[44px] rounded-lg border px-1 text-xs font-semibold {tone(name)}"
+				class="min-h-[44px] border px-1 text-xs font-semibold {tone(name)}"
 				data-testid="interval-{name}"
 				aria-pressed={interval === name}
-				onclick={() => (interval = name)}>{INTERVAL_LABEL[name]}</button
+				onclick={() => pick(name)}>{INTERVAL_LABEL[name]}</button
 			>
 		{/each}
 	</div>

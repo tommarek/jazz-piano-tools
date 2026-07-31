@@ -18,7 +18,6 @@ import {
 
 export type Quality = 'maj7' | 'm7' | '7' | 'm7b5' | 'dim7' | 'mMaj7';
 export type ShellType = 'r3' | 'r7';
-export type ChainVariant = '737' | '373';
 export type ChainPosition = 'ii' | 'iiø' | 'V' | 'I' | 'i';
 /** Major ii–V–I or minor iiø–V–i. */
 export type ChainMode = 'major' | 'minor';
@@ -75,7 +74,7 @@ const CHORD_INTERVALS: Record<Quality, [Interval, Interval, Interval, Interval]>
 	m7b5: [INTERVALS.P1, INTERVALS.m3, INTERVALS.d5, INTERVALS.m7],
 	dim7: [INTERVALS.P1, INTERVALS.m3, INTERVALS.d5, INTERVALS.d7],
 	// The minor tonic in a minor ii–V–i. m6 would be the other common choice,
-	// but it has no 7th at all, so it cannot carry a root-7 shell.
+	// but it has no 7th at all, and a guide-tone voicing is the 3rd and the 7th.
 	mMaj7: [INTERVALS.P1, INTERVALS.m3, INTERVALS.P5, INTERVALS.M7]
 };
 
@@ -97,63 +96,6 @@ export const QUALITY_LABEL: Record<Quality, string> = {
 	mMaj7: 'minor–major 7'
 };
 
-export const SHELL_LABEL: Record<ShellType, string> = {
-	r3: 'root–3',
-	r7: 'root–7'
-};
-
-/**
- * The five intervals a shell's guide tone can form with its root.
- *
- * Note→symbol cards are keyed on these rather than on a chord quality, because
- * two notes do not determine a chord: Dm7 and Dm7♭5 share their third, and 7
- * and m7 share their seventh. The interval is the most that can honestly be
- * asked, and it is the thing the ear and hand actually need.
- */
-export type GuideInterval = 'M3' | 'm3' | 'M7' | 'm7' | 'd7';
-
-export const GUIDE_INTERVALS: GuideInterval[] = ['m3', 'M3', 'm7', 'M7', 'd7'];
-
-export const GUIDE_INTERVAL_LABEL: Record<GuideInterval, string> = {
-	M3: 'major 3rd',
-	m3: 'minor 3rd',
-	M7: 'major 7th',
-	m7: 'minor 7th',
-	d7: 'dim 7th'
-};
-
-/** The chord degree a guide interval is, as written in chord-tone shorthand. */
-export const GUIDE_INTERVAL_DEGREE: Record<GuideInterval, string> = {
-	M3: '3',
-	m3: '♭3',
-	M7: '7',
-	m7: '♭7',
-	d7: '♭♭7'
-};
-
-/** Which shell type an interval belongs to. */
-export const GUIDE_INTERVAL_SHELL: Record<GuideInterval, ShellType> = {
-	M3: 'r3',
-	m3: 'r3',
-	M7: 'r7',
-	m7: 'r7',
-	d7: 'r7'
-};
-
-/** The chord qualities a given root-plus-interval shell is consistent with. */
-export const GUIDE_INTERVAL_QUALITIES: Record<GuideInterval, Quality[]> = {
-	M3: ['maj7', '7'],
-	m3: ['m7', 'm7b5', 'dim7', 'mMaj7'],
-	M7: ['maj7', 'mMaj7'],
-	m7: ['m7', '7', 'm7b5'],
-	d7: ['dim7']
-};
-
-export function guideNote(root: string, interval: GuideInterval, octave = ROOT_OCTAVE): Note {
-	const rootNote = parseNote(root, octave);
-	return simplifyIfExtreme(transpose(rootNote, INTERVALS[interval]), prefersFlats(rootNote));
-}
-
 export interface Chord {
 	root: string;
 	quality: Quality;
@@ -162,6 +104,13 @@ export interface Chord {
 	tones: [Note, Note, Note, Note];
 }
 
+/**
+ * A root plus one guide tone.
+ *
+ * No card is a root shell any more — the drills were cut in July 2026 and the
+ * chain deals guide-tone pairs. What is left is the spelling probe behind
+ * `__golden__/shells.txt`, which is why it is still built and still exported.
+ */
 export interface Shell {
 	chord: Chord;
 	shellType: ShellType;
@@ -219,11 +168,6 @@ export function chordRootName(pc: number): string {
 export function keyLabel(pc: number): string {
 	const pairs: Record<number, string> = { 6: 'F♯/G♭' };
 	return pairs[pc] ?? prettyNoteName(chordRootName(pc));
-}
-
-/** Which chord member the guide tone is, for feedback copy. */
-export function guideDegree(shellType: ShellType): '3rd' | '7th' {
-	return shellType === 'r3' ? '3rd' : '7th';
 }
 
 // ---------------------------------------------------------------------------
@@ -348,21 +292,19 @@ function intoTaughtRegister(notes: [Note, Note, Note, Note]): [Note, Note, Note,
 // ---------------------------------------------------------------------------
 
 const M2: Interval = { degree: 2, semitones: 2 };
-const P5: Interval = INTERVALS.P5;
 
-/** The shell type used at each position, per chain variant. */
-const CHAIN_SHELLS: Record<ChainVariant, [ShellType, ShellType, ShellType]> = {
-	// 7th of ii falls to the 3rd of V, which is held as the 7th of I
-	'737': ['r7', 'r3', 'r7'],
-	// 3rd of ii is held as the 7th of V, which falls to the 3rd of I
-	'373': ['r3', 'r7', 'r3']
-};
-
+/**
+ * The three chords of a ii–V–I, and nothing about how they are voiced.
+ *
+ * The chain used to carry shells and a 737/373 variant naming which guide tone
+ * sat over each root. It deals guide-tone pairs now — both tones of every
+ * chord, no root — so there is no choice left to make and the caller reads the
+ * voicing off the chord itself.
+ */
 export interface Chain {
 	key: string;
-	variant: ChainVariant;
 	mode: ChainMode;
-	shells: [Shell, Shell, Shell];
+	chords: [Chord, Chord, Chord];
 	positions: [ChainPosition, ChainPosition, ChainPosition];
 }
 
@@ -372,7 +314,7 @@ export interface Chain {
  * Minor takes the ii from the natural minor (half-diminished) and the V from
  * the harmonic minor (dominant, so it has a leading tone), which is what makes
  * a minor ii–V–i resolve. The tonic is m(maj7); m6 is the other common choice
- * but has no seventh for a shell to use.
+ * but has no 7th, and a guide-tone voicing is the 3rd and the 7th.
  */
 export const CHAIN_QUALITIES: Record<ChainMode, [Quality, Quality, Quality]> = {
 	major: ['m7', '7', 'maj7'],
@@ -387,69 +329,29 @@ export const CHAIN_MODE_LABEL: Record<ChainMode, string> = {
 	minor: 'iiø–V–i'
 };
 
-export function buildChain(
-	key: string,
-	variant: ChainVariant,
-	mode: ChainMode = 'major'
-): Chain {
+export function buildChain(key: string, mode: ChainMode = 'major'): Chain {
 	const tonic = parseNote(key, ROOT_OCTAVE);
 	const flats = prefersFlats(tonic);
 	const [ivSuper, ivDom] = CHAIN_ROOT_INTERVALS;
 	const supertonic = simplifyIfExtreme(transpose(tonic, ivSuper), flats);
 	const dominant = simplifyIfExtreme(transpose(tonic, ivDom), flats);
 
-	const [s1, s2, s3] = CHAIN_SHELLS[variant];
 	const [q1, q2, q3] = CHAIN_QUALITIES[mode];
 	return {
 		key,
-		variant,
 		mode,
 		// Display-only (never part of a card id), so the minor spelling is safe.
 		positions: mode === 'minor' ? ['iiø', 'V', 'i'] : ['ii', 'V', 'I'],
-		shells: [
-			buildShell(noteName(supertonic), q1, s1),
-			buildShell(noteName(dominant), q2, s2),
-			buildShell(key, q3, s3)
+		chords: [
+			buildChord(noteName(supertonic), q1),
+			buildChord(noteName(dominant), q2),
+			buildChord(key, q3)
 		]
 	};
 }
 
+/**
+ * Which of a chain's two transitions a card asks about. The rationale is
+ * written by the card that asks (`renderCard`), from the guide tones it deals.
+ */
 export type Transition = 'ii-V' | 'V-I';
-
-export interface TransitionInfo {
-	from: Shell;
-	to: Shell;
-	/** True when the guide tone is the same pitch and simply holds over. */
-	held: boolean;
-	/** Semitone movement of the guide tone (0 when held). */
-	semitones: number;
-	/** One-line explanation shown as immediate feedback. */
-	rationale: string;
-}
-
-export function describeTransition(chain: Chain, transition: Transition): TransitionInfo {
-	const i = transition === 'ii-V' ? 0 : 1;
-	const from = chain.shells[i];
-	const to = chain.shells[i + 1];
-	// Each chord is built over its own root in octave 3, so raw MIDI distance
-	// would report register jumps. Guide-tone motion is a pitch-class move:
-	// fold it into [-6, 6] and it reads as the semitone step it actually is.
-	const raw = (((pitchClass(to.guide) - pitchClass(from.guide)) % 12) + 12) % 12;
-	const semitones = raw > 6 ? raw - 12 : raw;
-	const held = semitones === 0;
-	const fromDeg = guideDegree(from.shellType);
-	const toDeg = guideDegree(to.shellType);
-
-	// Minor chains move by a whole tone in places where major moves by a
-	// semitone, so the wording is derived rather than assumed — and named the
-	// way the reference names it, not counted in raw semitones.
-	const abs = Math.abs(semitones);
-	const step = abs === 1 ? 'a semitone' : abs === 2 ? 'a whole tone' : `${abs} semitones`;
-	const direction = semitones < 0 ? 'falls' : 'rises';
-
-	const rationale = held
-		? `The ${fromDeg} of ${from.chord.symbol} (${from.names[1]}) is held as the ${toDeg} of ${to.chord.symbol} — only the root moves.`
-		: `The ${fromDeg} of ${from.chord.symbol} (${from.names[1]}) ${direction} ${step} to the ${toDeg} of ${to.chord.symbol} (${to.names[1]}).`;
-
-	return { from, to, held, semitones, rationale };
-}

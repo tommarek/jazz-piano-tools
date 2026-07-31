@@ -1,7 +1,7 @@
 /**
  * FSRS wrapper.
  *
- * Kept free of any database or SvelteKit import so the 365-day back-test can
+ * Kept free of any database or SvelteKit import so the 630-day back-test can
  * drive the exact same code path the app uses.
  */
 
@@ -104,16 +104,6 @@ export function capUntilAutomatic(
 	const cap = now.getTime() + MAX_DAYS_BEFORE_AUTOMATIC * 86_400_000;
 	if (state.due <= cap) return state;
 	return { ...state, due: cap, scheduledDays: MAX_DAYS_BEFORE_AUTOMATIC };
-}
-
-/** Probability the card would be recalled right now, 0..1. */
-export function retrievability(
-	state: SchedulerState,
-	now: Date,
-	requestRetention = REQUEST_RETENTION
-): number {
-	if (state.state === State.New) return 0;
-	return schedulerFor(requestRetention).get_retrievability(toCard(state), now, false);
 }
 
 export { State };

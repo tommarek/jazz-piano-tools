@@ -49,13 +49,6 @@ describe('reference topics', () => {
 });
 
 describe('every card can explain itself', () => {
-	it('points at a topic that exists', () => {
-		for (const spec of catalogue) {
-			const view = renderCard(spec);
-			expect(TOPICS_BY_ID[view.topic], `${spec.id} → missing topic ${view.topic}`).toBeDefined();
-		}
-	});
-
 	it('sends minor chains to the minor topic and major ones to voice leading', () => {
 		const minor = catalogue.find((c) => c.type === 'chain' && c.mode === 'minor')!;
 		const major = catalogue.find((c) => c.type === 'chain' && c.mode === 'major')!;
@@ -63,9 +56,10 @@ describe('every card can explain itself', () => {
 		expect(renderCard(major).topic).toBe('guide-tones');
 	});
 
-	it('sends every rendered card to a topic that exists', () => {
+	it('renders every card type, and every topic it names resolves', () => {
 		// Asserted against renderCard's actual topic field — the mapping the app
-		// uses — rather than a parallel table that can drift from it.
+		// reads when you ask "why" — and over every type, so a drill added without
+		// a topic is caught here rather than by an empty reference panel.
 		const seen = new Set<string>();
 		for (const spec of catalogue) {
 			const topic = renderCard(spec).topic;
@@ -78,11 +72,12 @@ describe('every card can explain itself', () => {
 	it('covers every topic with at least one card, or is reachable by browsing', () => {
 		const used = new Set(catalogue.map((spec) => renderCard(spec).topic));
 		const unused = TOPICS.map((t) => t.id).filter((id) => !used.has(id));
-		// 'scheduling' is background reading with no drill of its own, and the
+		// 'scheduling' is background reading with no drill of its own; the
 		// symbol table in 'qualities' is what the ear and spelling topics send you
-		// to rather than a drill of its own; everything else must be reachable
-		// from a card.
-		expect(unused.sort()).toEqual(['qualities', 'scheduling']);
+		// to; and 'shells' became reading when the root-shell drills were cut —
+		// the concept is still worth explaining, nothing drills it. Everything
+		// else must be reachable from a card.
+		expect(unused.sort()).toEqual(['qualities', 'scheduling', 'shells']);
 		for (const id of unused) {
 			const linked = TOPICS.some((t) => t.related.includes(id));
 			expect(linked || id === 'scheduling', `${id} is unreachable`).toBe(true);

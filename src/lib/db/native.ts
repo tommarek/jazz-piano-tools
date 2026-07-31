@@ -36,7 +36,12 @@ export async function openNativeDb(): Promise<Db> {
 	// only" — so it has to go through `query`. The plugin already opens in WAL;
 	// this makes sure of it without assuming.
 	await conn.query('PRAGMA journal_mode = WAL;');
-	await conn.execute('PRAGMA foreign_keys = ON;');
+	// transaction=false, and not for the reason exec() below has: SQLite makes
+	// `PRAGMA foreign_keys` a silent no-op inside a transaction, and the plugin
+	// wraps `execute` in a BEGIN by default — so left alone this pragma takes
+	// effect on the wasm driver and nowhere else, and the divergence would only
+	// ever show up on a device.
+	await conn.execute('PRAGMA foreign_keys = ON;', false);
 	await conn.execute(SCHEMA);
 
 	return {
@@ -52,7 +57,11 @@ export async function openNativeDb(): Promise<Db> {
 			return (res.values ?? [])[0] as T | undefined;
 		},
 		async exec(sql) {
-			await conn.execute(sql);
+			// transaction=false, like run() above: the plugin wraps `execute` in a
+			// BEGIN of its own by default, and every exec() in the app runs inside
+			// conn.tx already — a nested BEGIN throws on both platforms, and
+			// Android's finally then rolls back the transaction we own.
+			await conn.execute(sql, false);
 		},
 		async tx<T>(fn: () => Promise<T>) {
 			await conn.beginTransaction();
@@ -67,14 +76,6 @@ export async function openNativeDb(): Promise<Db> {
 		},
 		async persist() {
 			// Written through already.
-		},
-		async serialise() {
-			const res = await conn.exportToJson('full');
-			return new TextEncoder().encode(JSON.stringify(res.export));
-		},
-		async restore(bytes) {
-			const json = JSON.parse(new TextDecoder().decode(bytes));
-			await CapacitorSQLite.importFromJson({ jsonstring: JSON.stringify(json) });
 		},
 		async close() {
 			await conn.close();

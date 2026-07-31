@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 
 test.describe('the reference section', () => {
 	test.beforeEach(async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 6 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 6 });
 	});
 
 	test('is reachable from the main nav and lists every topic', async ({ page }) => {
@@ -30,6 +30,17 @@ test.describe('the reference section', () => {
 		await expect(page.getByRole('heading', { name: 'Guide tones and voice leading' })).toBeVisible();
 	});
 
+	test('nests its section headings under the heading above them', async ({ page }) => {
+		// The same body renders under the page's h1 here and under the sheet's h2
+		// in a session; a fixed level left one of the two outlines with a hole in
+		// it, which is a screen reader's only way of knowing a section was missed.
+		// The sheet half is pinned in "explaining a card".
+		await page.goto('/reference/rootless');
+		await expect(page.locator('h1')).toHaveCount(1);
+		expect(await page.locator('h2').count()).toBeGreaterThan(0);
+		await expect(page.locator('h3')).toHaveCount(0);
+	});
+
 	test('shows an error for a topic that does not exist', async ({ page }) => {
 		// The app is a single-page bundle, so there is no HTTP 404 to assert —
 		// the router raises the error and SvelteKit renders its error page.
@@ -40,7 +51,7 @@ test.describe('the reference section', () => {
 
 test.describe('explaining a card', () => {
 	test.beforeEach(async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 6 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 6 });
 	});
 
 	test('is not offered until the answer is on screen', async ({ page }) => {
@@ -62,7 +73,7 @@ test.describe('explaining a card', () => {
 
 		const sheet = page.getByTestId('reference-sheet');
 		await expect(sheet).toBeVisible();
-		await expect(sheet).toContainText('Shell voicings');
+		await expect(sheet).toContainText('Guide tones and voice leading');
 
 		await page.getByTestId('close-reference').click();
 		await expect(sheet).toBeHidden();
@@ -71,6 +82,19 @@ test.describe('explaining a card', () => {
 		expect(await currentCardId(page)).toBe(firstId);
 		await page.getByTestId('next-card').click();
 		await expect(page.getByTestId('card-title')).toBeVisible();
+	});
+
+	test('nests its section headings under the sheet title', async ({ page }) => {
+		// The other half of the pair the standalone page pins: the same body sits
+		// under an h2 here, so its sections have to drop to h3 or the sheet's
+		// outline repeats the title's level and reads as a sibling of it.
+		await page.goto('/session');
+		await answerCurrent(page, true);
+		await page.getByTestId('explain').click();
+
+		const sheet = page.getByTestId('reference-sheet');
+		await expect(sheet.locator('h2')).toHaveCount(1);
+		expect(await sheet.locator('h3').count()).toBeGreaterThan(0);
 	});
 
 	test('closes on Escape', async ({ page }) => {
@@ -86,7 +110,7 @@ test.describe('explaining a card', () => {
 
 test.describe('"No idea"', () => {
 	test.beforeEach(async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 6 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 6 });
 	});
 
 	test('reveals the answer without making you guess wrong first', async ({ page }) => {

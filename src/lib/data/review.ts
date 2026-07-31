@@ -1,5 +1,5 @@
 import { db } from '$lib/db';
-import { parseCardId, renderCard, type CardType } from '$lib/music/cards';
+import { parseCardId, type CardType } from '$lib/music/cards';
 import {
 	MEDIAN_WINDOW,
 	deriveGrade,
@@ -39,7 +39,6 @@ export interface ReviewResult {
 	mastery: Mastery;
 	consecutiveCorrect: number;
 	dueAt: number;
-	intervalDays: number;
 }
 
 interface StateRow {
@@ -149,8 +148,7 @@ async function recordReviewNow(input: ReviewInput): Promise<ReviewResult> {
 			medianMs: existing?.median_response_ms ?? previousMedianMs,
 			mastery: existing?.mastery ?? 'new',
 			consecutiveCorrect: existing?.consecutive_correct ?? 0,
-			dueAt: prevState.due,
-			intervalDays: Math.max(0, Math.round((prevState.due - ts) / 86_400_000))
+			dueAt: prevState.due
 		};
 	}
 
@@ -207,8 +205,7 @@ async function recordReviewNow(input: ReviewInput): Promise<ReviewResult> {
 		medianMs,
 		mastery,
 		consecutiveCorrect,
-		dueAt: nextState.due,
-		intervalDays: Math.max(0, Math.round((nextState.due - ts) / 86_400_000))
+		dueAt: nextState.due
 	};
 }
 
@@ -296,10 +293,4 @@ export function endSession(id: string, cardCount: number): Promise<void> {
 		});
 		await conn.persist();
 	});
-}
-
-/** Re-render a card for the client after a review (used by the session screen). */
-export function cardViewFor(cardId: string) {
-	const spec = parseCardId(cardId);
-	return spec ? renderCard(spec) : null;
 }

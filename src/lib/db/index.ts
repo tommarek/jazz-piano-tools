@@ -67,6 +67,14 @@ export async function useDb(conn: Db): Promise<void> {
  * Insert catalogue cards that are not in the table yet, leaving existing rows
  * alone. This is how the deck grows across app updates without detaching
  * anybody's review history from their cards.
+ *
+ * Cards this build no longer generates are DELETED, together with their state
+ * and reviews. That is a decision, not an accident: when the root-shell drills
+ * (s2n, n2s, vl, the shell chains) were cut, keeping their rows dormant was on
+ * the table and purging was chosen — the rows can never be dealt again, and a
+ * database carrying hundreds of unreachable cards misstates every count built
+ * on the cards table. daily_stats is left alone, so past days keep their
+ * practised mark and the streak survives the purge.
  */
 export async function syncCatalogue(conn: Db, now = Date.now()): Promise<number> {
 	const existing = await conn.all<{ id: string; root_pitch_class: number }>(
@@ -74,31 +82,35 @@ export async function syncCatalogue(conn: Db, now = Date.now()): Promise<number>
 	);
 	const storedPc = new Map(existing.map((r) => [r.id, r.root_pitch_class]));
 	const catalogue = buildCatalogue();
+	const live = new Set(catalogue.map((spec) => spec.id));
+	const stale = existing.filter((r) => !live.has(r.id)).map((r) => r.id);
 	const missing = catalogue.filter((spec) => !storedPc.has(spec.id));
 	// Backfill: root_pitch_class is derived display metadata (heatmap bucket),
-	// so when a render fix changes it — e.g. vl ii-V cards moving from the
-	// dominant's root to the card's key — existing rows follow the code.
+	// so when a render fix changes it — a progression card moving from a chord's
+	// root to the key centre, say — existing rows follow the code.
 	const drifted = catalogue
 		.map((spec) => ({ spec, pc: renderCard(spec).rootPitchClass }))
 		.filter(({ spec, pc }) => storedPc.has(spec.id) && storedPc.get(spec.id) !== pc);
-	if (missing.length === 0 && drifted.length === 0) return 0;
+	if (missing.length === 0 && drifted.length === 0 && stale.length === 0) return 0;
 
 	await conn.tx(async () => {
 		for (const spec of missing) {
 			const view = renderCard(spec);
 			await conn.run(
+				// voicing_type and variant are not written: the shell type and the
+				// 737/373 choice both left CardSpec with the root-shell drills. The
+				// columns stay in the schema so a database an older build wrote still
+				// matches a fresh one.
 				`INSERT OR IGNORE INTO cards
-				 (id, type, root, quality, voicing_type, key_center, variant, transition,
+				 (id, type, root, quality, key_center, transition,
 				  root_pitch_class, created_at)
-				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
 					spec.id,
 					spec.type,
 					'root' in spec ? spec.root : null,
 					'quality' in spec ? spec.quality : null,
-					'shellType' in spec ? spec.shellType : null,
 					'key' in spec ? spec.key : null,
-					'variant' in spec ? spec.variant : null,
 					'transition' in spec ? spec.transition : null,
 					view.rootPitchClass,
 					now
@@ -107,6 +119,11 @@ export async function syncCatalogue(conn: Db, now = Date.now()): Promise<number>
 		}
 		for (const { spec, pc } of drifted) {
 			await conn.run('UPDATE cards SET root_pitch_class = ? WHERE id = ?', [pc, spec.id]);
+		}
+		for (const id of stale) {
+			await conn.run('DELETE FROM reviews WHERE card_id = ?', [id]);
+			await conn.run('DELETE FROM card_state WHERE card_id = ?', [id]);
+			await conn.run('DELETE FROM cards WHERE id = ?', [id]);
 		}
 	});
 	await conn.persist();

@@ -25,17 +25,21 @@ function fakeContext(state: string) {
 		currentTime: 0,
 		destination: { connect() {} },
 		createGain: () => ({ gain: { ...param }, connect() {} }),
+		// The filter cutoff is automated too — brightness decays faster than the
+		// note — so it needs the same scheduling methods the gain does.
 		createBiquadFilter: () => ({
 			type: 'lowpass',
-			frequency: { value: 0 },
+			frequency: { ...param },
 			Q: { value: 0 },
 			connect() {}
 		}),
+		createPeriodicWave: () => ({}),
 		createOscillator: () => ({
 			type: 'sine',
 			frequency: { value: 0 },
 			detune: { value: 0 },
 			onended: null,
+			setPeriodicWave() {},
 			connect() {},
 			start() {},
 			stop() {}

@@ -24,8 +24,9 @@ export interface Extension {
 /**
  * Which extensions are worth drilling on which quality.
  *
- * Deliberately not exhaustive: 3rds, 5ths and 7ths are covered by the shell
- * deck, and the alterations that people actually fumble live on the dominant.
+ * Deliberately not exhaustive: 3rds and 7ths are the guide-tone deck's whole
+ * subject, the 5th is the first note a pianist drops, and the alterations that
+ * people actually fumble live on the dominant.
  */
 export const EXTENSIONS: Record<string, Extension[]> = {
 	maj7: [
@@ -49,8 +50,6 @@ export const EXTENSIONS: Record<string, Extension[]> = {
 	],
 	mMaj7: [{ label: '9', interval: 'M9' }]
 };
-
-export const EXTENSION_QUALITIES = Object.keys(EXTENSIONS) as Quality[];
 
 // ---------------------------------------------------------------------------
 // Diatonic harmony

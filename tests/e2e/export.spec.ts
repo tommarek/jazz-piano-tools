@@ -12,7 +12,7 @@ async function downloadJson(page: import('@playwright/test').Page, trigger: () =
 
 test.describe('data export', () => {
 	test('produces valid JSON containing the review log', async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 5 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 5 });
 
 		await page.goto('/session');
 		await answerCurrent(page, true);
@@ -31,7 +31,7 @@ test.describe('data export', () => {
 		expect(data.cards.length).toBe(buildCatalogue().length);
 		expect(data.reviews.length).toBe(2);
 		expect(data.reviews.map((r: { correct: number }) => r.correct)).toEqual([1, 0]);
-		expect(data.settings.activeCardTypes).toEqual(['s2n']);
+		expect(data.settings.activeCardTypes).toEqual(['gt']);
 
 		// Every review points at a real card, so the log can rebuild the schedule.
 		const ids = new Set(data.cards.map((c: { id: string }) => c.id));
@@ -39,7 +39,7 @@ test.describe('data export', () => {
 	});
 
 	test('round-trips through import, which is the only way to move phones', async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 5 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 5 });
 		await page.goto('/session');
 		for (let i = 0; i < 3; i++) {
 			await answerCurrent(page, true);
@@ -50,7 +50,7 @@ test.describe('data export', () => {
 		expect(data.reviews.length).toBe(3);
 
 		// Wipe, then restore from the backup.
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 5 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 5 });
 		await page.goto('/');
 		await expect(page.getByTestId('today-count')).toHaveText('0');
 

@@ -6,29 +6,41 @@
 		mode?: string | null;
 		disabled?: boolean;
 		correct?: string | null;
+		/** Fired after a pick lands, for the instant-answer setting. */
+		onpick?: () => void;
 	}
 
-	let { mode = $bindable(null), disabled = false, correct = null }: Props = $props();
+	let {
+		mode = $bindable(null),
+		disabled = false,
+		correct = null,
+		onpick
+	}: Props = $props();
+
+	function pick(name: string) {
+		mode = name;
+		onpick?.();
+	}
 
 	function tone(name: string): string {
-		if (correct && correct === name) return 'border-good bg-good/20 text-good';
-		if (correct && mode === name) return 'border-bad bg-bad/20 text-bad';
-		if (mode === name) return 'border-accent bg-accent-solid text-white';
-		return 'border-line bg-surface-2 text-ink';
+		if (correct && correct === name) return 'border-sage bg-sage/15 text-sage';
+		if (correct && mode === name) return 'border-felt bg-felt/15 text-felt-ink';
+		if (mode === name) return 'border-brass bg-brass text-on-brass';
+		return 'border-line bg-surface text-ink';
 	}
 </script>
 
 <div class="no-select">
-	<div class="mb-1 text-[11px] uppercase tracking-wider text-muted">Mode</div>
+	<div class="eyebrow mb-1.5">Mode</div>
 	<div class="grid grid-cols-2 gap-1.5">
 		{#each MODE_NAMES as name (name)}
 			<button
 				type="button"
 				{disabled}
-				class="min-h-[44px] rounded-lg border px-1 text-sm font-semibold {tone(name)}"
+				class="min-h-[44px] border px-1 text-sm font-semibold {tone(name)}"
 				data-testid="mode-{name}"
 				aria-pressed={mode === name}
-				onclick={() => (mode = name)}>{name}</button
+				onclick={() => pick(name)}>{name}</button
 			>
 		{/each}
 	</div>

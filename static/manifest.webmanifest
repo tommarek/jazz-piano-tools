@@ -1,16 +1,29 @@
 {
-  "name": "Voicings",
-  "short_name": "Voicings",
-  "description": "Jazz piano recall drills — shell voicings, rootless voicings, ii\u2013V\u2013I voice leading and theory, in all twelve keys",
+  "name": "Comp",
+  "short_name": "Comp",
+  "description": "Jazz piano recall drills — guide-tone and rootless voicings, ii–V–I voice leading, theory and ear training, in all twelve keys",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1117",
-  "theme_color": "#0f1117",
+  "background_color": "#13110f",
+  "theme_color": "#13110f",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

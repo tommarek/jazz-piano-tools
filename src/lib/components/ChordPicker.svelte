@@ -10,6 +10,7 @@
 	import { CHORD_ROOTS, QUALITIES, QUALITY_SUFFIX } from '$lib/music/voicings';
 	import { parseNote, pitchClass, prettyNoteName } from '$lib/music/theory';
 	import type { Quality } from '$lib/music/voicings';
+	import ChordSymbol from './ChordSymbol.svelte';
 
 	interface Props {
 		root?: string | null;
@@ -19,6 +20,12 @@
 		 *  the prompt keyboard and asking for it back would be reading. */
 		hideRoot?: boolean;
 		correct?: { root: string; rootPc: number; quality: Quality; alsoAccept?: Quality[] } | null;
+		/**
+		 * Fired after a quality lands, for the instant-answer setting. Only the
+		 * quality: a root is never the whole answer on this picker, so a root tap
+		 * has nothing to submit.
+		 */
+		onpick?: () => void;
 	}
 
 	let {
@@ -26,35 +33,41 @@
 		quality = $bindable(null),
 		disabled = false,
 		hideRoot = false,
-		correct = null
+		correct = null,
+		onpick
 	}: Props = $props();
+
+	function pickQuality(q: Quality) {
+		quality = q;
+		onpick?.();
+	}
 
 	const pcOf = (name: string) => pitchClass(parseNote(name, 4));
 
 	function tone(isSelected: boolean, isAnswer: boolean): string {
-		if (correct && isAnswer) return 'border-good bg-good/20 text-good';
-		if (correct && isSelected) return 'border-bad bg-bad/20 text-bad';
-		if (isSelected) return 'border-accent bg-accent-solid text-white';
-		return 'border-line bg-surface-2 text-ink';
+		if (correct && isAnswer) return 'border-sage bg-sage/15 text-sage';
+		if (correct && isSelected) return 'border-felt bg-felt/15 text-felt-ink';
+		if (isSelected) return 'border-brass bg-brass text-on-brass';
+		return 'border-line bg-surface text-ink';
 	}
 </script>
 
 <div class="no-select space-y-3">
 	{#if !hideRoot}
 	<div>
-		<div class="mb-1 text-[11px] uppercase tracking-wider text-muted">Root</div>
+		<div class="eyebrow mb-1.5">Root</div>
 		<div class="grid grid-cols-6 gap-1.5">
 			{#each CHORD_ROOTS as r (r)}
 				<button
 					type="button"
 					{disabled}
-					class="min-h-[44px] rounded-lg border text-sm font-semibold {tone(
+					class="min-h-[44px] border text-sm font-semibold {tone(
 						root === r,
 						correct?.rootPc === pcOf(r)
 					)}"
 					data-testid="root-{r}"
 					aria-pressed={root === r}
-					onclick={() => (root = r)}>{prettyNoteName(r)}</button
+					onclick={() => (root = r)}><ChordSymbol text={prettyNoteName(r)} size="inline" /></button
 				>
 			{/each}
 		</div>
@@ -62,19 +75,19 @@
 	{/if}
 
 	<div>
-		<div class="mb-1 text-[11px] uppercase tracking-wider text-muted">Quality</div>
+		<div class="eyebrow mb-1.5">Quality</div>
 		<div class="grid grid-cols-3 gap-1.5">
 			{#each QUALITIES as q (q)}
 				<button
 					type="button"
 					{disabled}
-					class="min-h-[44px] rounded-lg border px-1 text-xs font-semibold {tone(
+					class="min-h-[44px] border px-1 text-xs font-semibold {tone(
 						quality === q,
 						(correct?.alsoAccept ?? [correct?.quality]).includes(q)
 					)}"
 					data-testid="quality-{q}"
 					aria-pressed={quality === q}
-					onclick={() => (quality = q)}>{QUALITY_SUFFIX[q]}</button
+					onclick={() => pickQuality(q)}>{QUALITY_SUFFIX[q]}</button
 				>
 			{/each}
 		</div>

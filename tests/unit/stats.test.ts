@@ -38,9 +38,9 @@ describe('speed rounds and the statistics', () => {
 
 		// One deliberate review at 3000 ms, correct; a burst of fast sprint rows,
 		// half of them wrong. The day must read as the single srs attempt.
-		await insertReview('s2n:C:m7:r3', ts, 3000, 1, 'srs');
+		await insertReview('gt:C:m7', ts, 3000, 1, 'srs');
 		for (let i = 0; i < 10; i++) {
-			await insertReview('s2n:C:m7:r3', ts + 1 + i, 500, i % 2, 'speed');
+			await insertReview('gt:C:m7', ts + 1 + i, 500, i % 2, 'speed');
 		}
 		await rollUpDay(ts);
 
@@ -57,9 +57,9 @@ describe('speed rounds and the statistics', () => {
 		await conn.exec('DELETE FROM reviews; DELETE FROM daily_stats;');
 		const ts = Date.now();
 
-		await insertReview('s2n:C:m7:r3', ts, 3000, 1, 'srs');
-		await insertReview('s2n:C:m7:r3', ts + 1, 400, 0, 'speed');
-		await insertReview('s2n:C:m7:r3', ts + 2, 400, 1, 'speed');
+		await insertReview('gt:C:m7', ts, 3000, 1, 'srs');
+		await insertReview('gt:C:m7', ts + 1, 400, 0, 'speed');
+		await insertReview('gt:C:m7', ts + 2, 400, 1, 'speed');
 
 		const stats = await getStats(ts);
 		const m7 = stats.byQuality.find((q) => q.quality === 'm7');
@@ -78,23 +78,60 @@ describe('the by-quality breakdown', () => {
 		await conn.exec('DELETE FROM reviews; DELETE FROM daily_stats;');
 		const ts = Date.now();
 
-		await insertReview('s2n:C:m7:r3', ts, 3000, 1, 'srs');
+		await insertReview('gt:C:m7', ts, 3000, 1, 'srs');
 		await insertReview('gt:C:maj7', ts + 1, 2000, 1, 'srs');
-		await insertReview('eqal:C:dim7', ts + 2, 5000, 1, 'srs');
+		// An ear rep, which must NOT appear below: the by-quality table is part of
+		// the theory screen and the ear section reports its own figures. Slow and
+		// wrong, so including it would move both dim7 figures rather than hiding
+		// inside a tie with the theory rep.
+		await insertReview('eqal:C:dim7', ts + 2, 9000, 0, 'srs');
+		await insertReview('gt:C:dim7', ts + 4, 5000, 1, 'srs');
 		// A guide-tone class is not a chord quality — 'maj7' there means "a 3rd
 		// and a 7th a fifth apart", which m7 and m7♭5 share. It must not land in
 		// the maj7 bucket.
 		await insertReview('gtn:C:maj7', ts + 3, 9000, 1, 'srs');
+		// The degree drills carry no quality column at all, and the numeral is the
+		// whole answer: dia:C:vii asks for Bm7♭5 by name. Reading the column alone
+		// left both of them out of the table entirely.
+		await insertReview('dia:C:vii', ts + 5, 4000, 1, 'srs');
+		await insertReview('mode:C:vii', ts + 6, 6000, 1, 'srs');
+		// A progression is answered by all of its chords at once, so there is no
+		// one bucket its rep belongs in and it stays out.
+		await insertReview('chain:C', ts + 7, 12_000, 1, 'srs');
 
 		const stats = await getStats(ts);
 		const of = (q: string) => stats.byQuality.find((b) => b.quality === q);
 		expect(of('m7')!.medianResponseMs).toBe(3000);
 		expect(of('maj7')!.medianResponseMs).toBe(2000);
 		expect(of('dim7')!.medianResponseMs).toBe(5000);
+		// The dim7 figure is the theory rep's, not an average with the ear one.
+		expect(of('dim7')!.accuracy).toBe(1);
+		expect(of('m7b5')!.medianResponseMs).toBe(5000);
+	});
+
+	it('keeps ear reps out of the theory retention figure', async () => {
+		// The e2e that covers the split only asserts the ear block is populated,
+		// so dropping the section filter on retention showed up nowhere.
+		const conn = await db();
+		await conn.exec('DELETE FROM reviews; DELETE FROM daily_stats;');
+		const ts = Date.now();
+		// Retention only counts a card met on an earlier day, so both cards are
+		// introduced yesterday and answered again today.
+		const before = addDays(ts, -1) + 3_600_000;
+
+		await insertReview('eint:C:P5', before, 4000, 1, 'srs');
+		await insertReview('gt:C:m7', before, 3000, 1, 'srs');
+		await insertReview('eint:C:P5', ts, 4000, 0, 'srs');
+		expect((await getStats(ts)).retention.reviewed).toBe(0);
+
+		await insertReview('gt:C:m7', ts + 1, 3000, 1, 'srs');
+		const stats = await getStats(ts);
+		expect(stats.retention.reviewed).toBe(1);
+		expect(stats.retention.correct).toBe(1);
 	});
 });
 
-describe('the twelve-key heatmap and the stage-4 keys criterion', () => {
+describe('the twelve-key heatmap and the rootless keys criterion', () => {
 	/**
 	 * Progress captions the heatmap as "the same measure the path's last stage
 	 * uses". They were two computations over two populations: Progress filtered
@@ -127,12 +164,12 @@ describe('the twelve-key heatmap and the stage-4 keys criterion', () => {
 		await saveSettings({ ...DEFAULT_SETTINGS, stageAutoUnlock: false, ...settings });
 	}
 
-	// Stage 1 is the case that used to diverge: the heatmap saw only the shell
-	// drills, the gate saw the chains too.
-	for (const unlockedStages of [1, 4]) {
+	// Stage 1 is the case that used to diverge: the heatmap saw only the
+	// guide-tone drills, the gate saw the chains too.
+	for (const unlockedStages of [1, 3]) {
 		it(`agree key for key with the path locked at stage ${unlockedStages}`, async () => {
 			await clean({ unlockedStages });
-			await masterTypes(['s2n', 'n2s']);
+			await masterTypes(['gt', 'gtn']);
 
 			const stats = await getStats(Date.now());
 			const scores = await keyScores();
@@ -146,9 +183,9 @@ describe('the twelve-key heatmap and the stage-4 keys criterion', () => {
 
 			// And the number the caption points at: the gate's verdict is exactly
 			// "every cell at or above the bar", read off the same cells.
-			const { stage4KeysMet } = await evaluateStages();
+			const { keysMet } = await evaluateStages();
 			const allGreen = stats.heatmap.every((c) => c.score >= GATE_KEY_SCORE);
-			expect(allGreen).toBe(stage4KeysMet);
+			expect(allGreen).toBe(keysMet);
 		});
 	}
 
@@ -158,11 +195,11 @@ describe('the twelve-key heatmap and the stage-4 keys criterion', () => {
 		// shell drills alone and read a wall of 100%, while the gate it captions
 		// itself as measuring was still counting the chains against it.
 		await clean({ unlockedStages: 1 });
-		await masterTypes(['s2n', 'n2s']);
+		await masterTypes(['gt', 'gtn']);
 		const locked = await getStats(Date.now());
 
-		await clean({ unlockedStages: 4 });
-		await masterTypes(['s2n', 'n2s']);
+		await clean({ unlockedStages: 3 });
+		await masterTypes(['gt', 'gtn']);
 		const open = await getStats(Date.now());
 
 		expect(locked.heatmap.map((c) => c.total)).toEqual(open.heatmap.map((c) => c.total));
@@ -171,10 +208,10 @@ describe('the twelve-key heatmap and the stage-4 keys criterion', () => {
 		expect(locked.heatmap.every((c) => c.score < 1)).toBe(true);
 
 		// Finish the family off and both screens turn over together.
-		await masterTypes(['s2n', 'n2s', 'chain', 'vl']);
+		await masterTypes(['gt', 'gtn', 'chain', 'gtc']);
 		const done = await getStats(Date.now());
 		expect(done.heatmap.every((c) => c.score === 1)).toBe(true);
-		expect((await evaluateStages()).stage4KeysMet).toBe(true);
+		expect((await evaluateStages()).keysMet).toBe(true);
 	});
 });
 
@@ -193,10 +230,10 @@ describe('a day of nothing but speed rounds', () => {
 		const yesterday = addDays(today, -1) + 3_600_000;
 
 		// Yesterday: ordinary practice. Today: sprints only.
-		await insertReview('s2n:C:m7:r3', yesterday, 3000, 1, 'srs');
+		await insertReview('gt:C:m7', yesterday, 3000, 1, 'srs');
 		await rollUpDay(yesterday);
 		for (let i = 0; i < 20; i++) {
-			await insertReview('s2n:C:m7:r3', today + i, 500, 1, 'speed');
+			await insertReview('gt:C:m7', today + i, 500, 1, 'speed');
 		}
 		await rollUpDay(today);
 
@@ -211,14 +248,40 @@ describe('a day of nothing but speed rounds', () => {
 		expect(day.medianResponseMs).toBeNull();
 	});
 
+	/**
+	 * A day whose whole session was cut drills loses its review rows to the
+	 * catalogue purge but keeps its daily_stats row, which is what the streak
+	 * reads. The week strip reads byDay, so a zero there would grey a square on
+	 * the same screen whose streak is counting that very day.
+	 */
+	it('keeps a purged day on the strip with the count the streak sees', async () => {
+		const conn = await db();
+		await conn.exec('DELETE FROM reviews; DELETE FROM daily_stats;');
+		const today = Date.now();
+		const purged = addDays(today, -1) + 3_600_000;
+
+		await insertReview('gt:C:m7', today, 3000, 1, 'srs');
+		await rollUpDay(today);
+		// The rollup as the purged day left it: the reviews behind it are gone.
+		await conn.run(
+			`INSERT INTO daily_stats (date, reviews, correct, median_response_ms, minutes)
+			 VALUES (?, 14, 12, 2800, 4.2)`,
+			[dateKey(purged)]
+		);
+
+		const stats = await getStats(today);
+		expect(stats.byDay.find((d) => d.date === dateKey(purged))!.attempts).toBe(14);
+		expect(stats.streakDays).toBe(2);
+	});
+
 	it('leaves the medians and accuracy on the deliberate attempts alone', async () => {
 		const conn = await db();
 		await conn.exec('DELETE FROM reviews; DELETE FROM daily_stats;');
 		const ts = Date.now();
 
-		await insertReview('s2n:C:m7:r3', ts, 3000, 1, 'srs');
+		await insertReview('gt:C:m7', ts, 3000, 1, 'srs');
 		for (let i = 0; i < 10; i++) {
-			await insertReview('s2n:C:m7:r3', ts + 1 + i, 500, i % 2, 'speed');
+			await insertReview('gt:C:m7', ts + 1 + i, 500, i % 2, 'speed');
 		}
 		await rollUpDay(ts);
 

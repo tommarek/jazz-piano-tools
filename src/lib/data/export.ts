@@ -51,7 +51,8 @@ export async function downloadExport(): Promise<void> {
 /**
  * Replaces everything with the contents of an export. Card rows are left to the
  * catalogue sync so that importing an old backup into a newer app keeps the
- * cards the newer app knows about.
+ * cards the newer app knows about — and anything the payload carries for a card
+ * this build has dropped goes with them.
  */
 export async function importExport(payload: ExportPayload): Promise<{ reviews: number }> {
 	validateExport(payload);
@@ -63,6 +64,7 @@ export async function importExport(payload: ExportPayload): Promise<{ reviews: n
 	// them with what they had rather than with nothing. (resetAll() opens no
 	// transaction of its own; its DELETEs are inlined rather than called so the
 	// non-reentrant conn.tx is not entered twice.)
+	let imported = 0;
 	await conn.tx(async () => {
 		await conn.exec(`
 			DELETE FROM reviews;
@@ -83,6 +85,19 @@ export async function importExport(payload: ExportPayload): Promise<{ reviews: n
 		for (const row of payload.dailyStats as Record<string, unknown>[]) {
 			await insert(conn, 'daily_stats', row);
 		}
+		// A backup written before a drill was cut still carries its reviews, and
+		// nothing downstream would ever remove them: syncCatalogue's purge walks
+		// the `cards` table, which no longer holds those ids, so the rows would
+		// sit there forever feeding the LIKE-matched chain median and the stage
+		// gates with a drill that no longer exists.
+		await conn.exec(`
+			DELETE FROM reviews WHERE card_id NOT IN (SELECT id FROM cards);
+			DELETE FROM card_state WHERE card_id NOT IN (SELECT id FROM cards);
+		`);
+		// What survived, not what the file carried: the purge above can take a
+		// whole cut drill's history with it, and a backup of 100 reviews that
+		// restored 60 must not be reported as 100.
+		imported = (await conn.get<{ n: number }>('SELECT COUNT(*) AS n FROM reviews'))?.n ?? 0;
 		for (const [key, value] of Object.entries(payload.settings ?? {})) {
 			await conn.run(
 				`INSERT INTO settings (key, value) VALUES (?, ?)
@@ -92,7 +107,7 @@ export async function importExport(payload: ExportPayload): Promise<{ reviews: n
 		}
 	});
 	await conn.persist();
-	return { reviews: payload.reviews.length };
+	return { reviews: imported };
 }
 
 /**
@@ -103,7 +118,7 @@ export async function importExport(payload: ExportPayload): Promise<{ reviews: n
  * "Import failed".
  */
 function validateExport(payload: ExportPayload): void {
-	if (payload === null || typeof payload !== 'object') throw new Error('Not a Voicings export');
+	if (payload === null || typeof payload !== 'object') throw new Error('Not a Comp export');
 	if (payload.version !== 1) throw new Error(`Unsupported export version ${payload.version}`);
 	for (const table of ['cards', 'cardState', 'reviews', 'sessions', 'dailyStats'] as const) {
 		if (!Array.isArray(payload[table])) throw new Error(`Export is missing ${table}`);
@@ -114,12 +129,54 @@ function validateExport(payload: ExportPayload): void {
 	}
 }
 
+/**
+ * What an import is allowed to write, per table — the SCHEMA columns, listed
+ * again here because the statement below is built from the file's own object
+ * keys. Without this the payload chooses the SQL: a key of
+ * `card_id) VALUES ('x',0,0,0,0); DELETE FROM card_state; --` is valid JSON and
+ * both drivers run every statement they are handed. Unknown keys are dropped
+ * rather than rejected, so a backup from a build with an extra column still
+ * restores everything this schema does have.
+ */
+const IMPORTABLE_COLUMNS = {
+	card_state: [
+		'card_id',
+		'due',
+		'stability',
+		'difficulty',
+		'elapsed_days',
+		'scheduled_days',
+		'learning_steps',
+		'reps',
+		'lapses',
+		'state',
+		'last_review',
+		'median_response_ms',
+		'consecutive_correct',
+		'mastery'
+	],
+	reviews: [
+		'id',
+		'card_id',
+		'ts',
+		'grade',
+		'response_ms',
+		'correct',
+		'answer_given',
+		'session_id',
+		'mode'
+	],
+	sessions: ['id', 'started_at', 'ended_at', 'card_count', 'mode'],
+	daily_stats: ['date', 'reviews', 'correct', 'median_response_ms', 'minutes']
+} as const;
+
 async function insert(
 	conn: Awaited<ReturnType<typeof db>>,
-	table: string,
+	table: keyof typeof IMPORTABLE_COLUMNS,
 	row: Record<string, unknown>
 ) {
-	const cols = Object.keys(row);
+	const allowed: readonly string[] = IMPORTABLE_COLUMNS[table];
+	const cols = Object.keys(row).filter((c) => allowed.includes(c));
 	if (cols.length === 0) return;
 	const placeholders = cols.map(() => '?').join(', ');
 	await conn.run(

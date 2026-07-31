@@ -5,10 +5,10 @@
  * so a pixel loop plus zlib is less machinery than a dependency, and the output
  * is checked in.
  *
- * The design is a shell voicing — a keyboard with exactly two keys lit, the
- * root and its guide tone. Five white keys rather than a full octave, because
- * seven are indistinguishable mush at 40px, and two lit keys say what the app
- * is about at any size.
+ * The design is a guide-tone pair — a keyboard with exactly two keys lit, the
+ * 3rd and the 7th, which is what the deck drills. Five white keys rather than a
+ * full octave, because seven are indistinguishable mush at 40px, and two lit
+ * keys say what the app is about at any size.
  *
  * Everything is drawn at 1024 and left for the asset pipeline to downscale with
  * proper resampling; this renderer has no anti-aliasing of its own.
@@ -19,11 +19,15 @@ import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const BG = [15, 17, 23, 255]; // --color-bg
-const WHITE = [243, 244, 246, 255];
-const BLACK = [18, 20, 27, 255];
-const ACCENT = [79, 140, 255, 255]; // --color-accent
-const GAP = [15, 17, 23, 255];
+// The shell's own colours, and they have to stay the shell's own: the splash is
+// painted before the web view has a stylesheet, so a background that is not
+// --color-bg to the byte is a colour flash on every launch. The keys carry the
+// materials Keyboard.svelte uses, which are deliberately not tokens.
+const BG = [19, 17, 15, 255]; // --color-bg #13110f
+const WHITE = [236, 228, 214, 255]; // ivory, as the keyboard draws it
+const BLACK = [16, 14, 12, 255]; // ebony, likewise
+const ACCENT = [215, 166, 79, 255]; // --color-brass #d7a64f
+const GAP = [19, 17, 15, 255];
 const NONE = [0, 0, 0, 0];
 
 // ---------------------------------------------------------------------------
@@ -89,8 +93,8 @@ function png(width, height, pixels) {
 const WHITE_KEYS = 5;
 /** Black keys sit after white keys 0, 1 and 3 — C♯, D♯, F♯. */
 const BLACK_SLOTS = [1, 2, 4];
-/** The shell: root and its 3rd, i.e. the 1st and 3rd white keys. */
-const LIT = [0, 2];
+/** The guide tones of a ii chord: the C and F of Dm7, its ♭7 and ♭3. */
+const LIT = [0, 3];
 
 /**
  * Draws the keyboard centred in a `size` canvas.

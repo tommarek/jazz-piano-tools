@@ -1,10 +1,10 @@
 /**
  * Turning an attempt into an FSRS grade.
  *
- * Response time is the real signal for this deck. Getting a shell right after
- * six seconds of working it out is exactly the state the drill exists to fix,
- * so slow-and-correct must not be scheduled like fast-and-correct, and must
- * never graduate a card to "automatic".
+ * Response time is the real signal for this deck. Getting a guide-tone pair
+ * right after six seconds of working it out is exactly the state the drill
+ * exists to fix, so slow-and-correct must not be scheduled like
+ * fast-and-correct, and must never graduate a card to "automatic".
  */
 
 import { Rating, type Grade } from 'ts-fsrs';
@@ -55,13 +55,6 @@ export function deriveGrade({ correct, responseMs, medianMs, cardType }: GradeIn
 	return Rating.Good;
 }
 
-export const GRADE_LABEL: Record<Grade, string> = {
-	[Rating.Again]: 'Again',
-	[Rating.Hard]: 'Hard',
-	[Rating.Good]: 'Good',
-	[Rating.Easy]: 'Easy'
-};
-
 export interface MasteryInput {
 	consecutiveCorrect: number;
 	medianMs: number | null;
@@ -69,9 +62,11 @@ export interface MasteryInput {
 }
 
 /**
- * Mastery is a UI-facing progress label, derived fresh from the streak and the
- * median rather than stored as a state machine — so tightening the time gate
- * later re-labels the whole deck rather than leaving stale "automatic" cards.
+ * Mastery is a UI-facing progress label, computed from the streak and the
+ * median rather than advanced as a state machine of its own. It is still
+ * persisted, in `card_state.mastery`, and re-derived only when that card comes
+ * up again: tightening a time gate re-labels a card at its next review, which
+ * for one already sitting at 'automatic' can be MAXIMUM_INTERVAL away.
  */
 export function deriveMastery({
 	consecutiveCorrect,
@@ -86,7 +81,14 @@ export function deriveMastery({
 	return 'new';
 }
 
-export const MASTERY_LABEL: Record<Mastery, string> = {
+/**
+ * Every screen that names a mastery state reads this, so the wording cannot
+ * drift between the deck browser and Progress. 'unseen' is not a Mastery — a
+ * card with no state row has none — but it is the fourth label every such list
+ * needs.
+ */
+export const MASTERY_LABEL: Record<Mastery | 'unseen', string> = {
+	unseen: 'Not started',
 	// Displayed as "Learning", not "New": everywhere else in the app (and in
 	// every other SRS) "new" means never seen, and this state means the
 	// opposite — seen, but the streak is still under three.

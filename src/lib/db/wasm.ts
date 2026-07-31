@@ -3,7 +3,7 @@
  *
  * The whole database is held in memory and written back through a
  * {@link Persistence} as a single blob. That is only reasonable because this
- * database is small — 1296 cards plus a review log that grows by a few hundred
+ * database is small — 972 cards plus a review log that grows by a few hundred
  * rows a month — and it buys one code path that behaves identically to the
  * native driver, and one that unit tests can drive with no browser at all.
  *
@@ -114,14 +114,6 @@ export async function openWasmDb(
 			}
 		},
 		persist: flush,
-		async serialise() {
-			return database.export();
-		},
-		async restore(bytes) {
-			await persistence.save(bytes);
-			// The caller reloads; swapping the live handle underneath running
-			// queries would be worse than a restart.
-		},
 		async close() {
 			await flush();
 			database.close();

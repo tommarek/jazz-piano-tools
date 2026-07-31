@@ -2,11 +2,10 @@
 	import { invalidateAll } from '$app/navigation';
 	import { effectiveCardTypes, saveSettings } from '$lib/data/settings';
 	import { eligibleIds } from '$lib/data/queue';
-	import { GATE_PER_CHORD_MS } from '$lib/data/stages';
 	import { downloadExport, importExport } from '$lib/data/export';
 	import { resetAll } from '$lib/db';
 	import type { Quality } from '$lib/music/voicings';
-	import { EAR_TYPES, type CardType } from '$lib/music/cards';
+	import { EAR_TYPES, SECTIONS, type CardType } from '$lib/music/cards';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -56,7 +55,14 @@
 			// deck, and which qualities a drill can even reach depends on the drill:
 			// chain alone with maj7 off leaves no ii–V–I at all, so both lists pass
 			// their own check and the deck is still empty. Ask the deck itself.
-			if ((await eligibleIds(pending)).size === 0) {
+			//
+			// Section by section, because the two halves are separate practices: an
+			// ear-only configuration is a legitimate one, and asking the theory deck
+			// alone refused it with a message about chord qualities that was false.
+			const perSection = await Promise.all(
+				SECTIONS.map((section) => eligibleIds(pending, { kind: 'section', section }))
+			);
+			if (perSection.every((ids) => ids.size === 0)) {
 				status = {
 					kind: 'error',
 					text: 'No card matches both the drills and the chord qualities you kept, so the deck would be empty. Turn another chord quality back on, or another drill.'
@@ -87,6 +93,9 @@
 			status = { kind: 'error', text: err instanceof Error ? err.message : 'Import failed' };
 		} finally {
 			busy = false;
+			// Picking the same file twice fires no change event unless the input is
+			// cleared, so a failed import could not be retried after fixing the file.
+			(event.target as HTMLInputElement).value = '';
 		}
 	}
 
@@ -98,24 +107,29 @@
 	}
 </script>
 
-<svelte:head><title>Settings · Voicings</title></svelte:head>
+<svelte:head><title>Settings · Comp</title></svelte:head>
 
-<h1 class="mb-4 text-lg font-semibold">Settings</h1>
+<header class="mb-6">
+	<h1 class="text-2xl font-bold uppercase" style="font-stretch:118%; letter-spacing:0.16em">
+		Settings
+	</h1>
+	<div class="rule-brass mt-1.5"></div>
+</header>
 
 {#if status}
 	<p
-		class="mb-3 rounded-lg border px-3 py-2 text-xs {status.kind === 'ok'
-			? 'border-good/40 bg-good/10 text-good'
-			: 'border-bad/40 bg-bad/10 text-bad'}"
+		class="mb-4 border-l-2 py-2 pr-2 pl-3 text-xs {status.kind === 'ok'
+			? 'border-sage bg-sage/10 text-sage'
+			: 'border-felt bg-felt/10 text-felt-ink'}"
 		role={status.kind === 'ok' ? 'status' : 'alert'}
 	>
 		{status.text}
 	</p>
 {/if}
 
-<form onsubmit={save} class="space-y-4">
-	<section class="rounded-xl border border-line bg-surface p-4">
-		<h2 class="mb-3 text-[11px] uppercase tracking-wider text-muted">Session</h2>
+<form onsubmit={save} class="space-y-8">
+	<section>
+		<h2 class="eyebrow mb-4">Session</h2>
 
 		<label class="mb-3 block">
 			<span class="text-sm">Length cap</span>
@@ -126,7 +140,7 @@
 				min="1"
 				max="30"
 				bind:value={s.sessionMinutes}
-				class="mt-1 min-h-[44px] w-full rounded-lg border border-line bg-surface-2 px-3"
+				class="mt-1.5 min-h-[44px] w-full border border-line bg-surface px-3"
 			/>
 		</label>
 
@@ -138,7 +152,7 @@
 				min="5"
 				max="200"
 				bind:value={s.sessionCardCap}
-				class="mt-1 min-h-[44px] w-full rounded-lg border border-line bg-surface-2 px-3"
+				class="mt-1.5 min-h-[44px] w-full border border-line bg-surface px-3"
 			/>
 		</label>
 
@@ -150,7 +164,7 @@
 				min="0"
 				max="50"
 				bind:value={s.newCardsPerDay}
-				class="mt-1 min-h-[44px] w-full rounded-lg border border-line bg-surface-2 px-3"
+				class="mt-1.5 min-h-[44px] w-full border border-line bg-surface px-3"
 			/>
 		</label>
 
@@ -163,10 +177,27 @@
 				max="10000"
 				step="500"
 				bind:value={s.visualiseDelayMs}
-				class="mt-1 min-h-[44px] w-full rounded-lg border border-line bg-surface-2 px-3"
+				class="mt-1.5 min-h-[44px] w-full border border-line bg-surface px-3"
 			/>
 			<span class="mt-1 block text-xs text-muted">
 				Blanks the keyboard so you picture the shape before placing it.
+			</span>
+		</label>
+
+		<label class="mt-3 flex min-h-[44px] items-start gap-2">
+			<input
+				type="checkbox"
+				bind:checked={s.instantAnswer}
+				class="mt-0.5 size-5 shrink-0"
+				data-testid="instant-answer"
+			/>
+			<span>
+				<span class="block text-sm">Answer on tap</span>
+				<span class="block text-[11px] text-muted">
+					Drills with one thing to name — quality, mode, interval — submit as soon as you tap,
+					with no Check. Faster, but a mis-tap is the answer. Drills that ask for a root as well,
+					or for keys, always wait for Check.
+				</span>
 			</span>
 		</label>
 
@@ -187,14 +218,15 @@
 		</label>
 	</section>
 
-	<section class="rounded-xl border border-line bg-surface p-4">
-		<h2 class="mb-1 text-[11px] uppercase tracking-wider text-muted">Deck</h2>
+	<section>
+		<div class="rule mb-4"></div>
+		<h2 class="eyebrow mb-1">Deck</h2>
 		<p class="mb-3 text-xs text-muted">
 			Interleaving is the point — leave several on rather than drilling one at a time.
 		</p>
 
 		<fieldset class="mb-3">
-			<legend class="mb-1 text-sm">Chord qualities</legend>
+			<legend class="eyebrow mb-2">Chord qualities</legend>
 			{#each data.qualities as q (q.value)}
 				<label class="flex min-h-[44px] items-center gap-2">
 					<input
@@ -216,17 +248,20 @@
 		</fieldset>
 
 		<fieldset>
-			<legend class="mb-1 text-sm">Drill types</legend>
+			<legend class="eyebrow mb-2">Drill types · theory</legend>
 			{#each data.stages as stage (stage.n)}
-				<div class="mt-2 mb-1 flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted">
+				<div class="eyebrow mt-4 mb-2 flex items-center gap-2">
 					Stage {stage.n} — {stage.title}
 					{#if stage.n > s.unlockedStages}<span class="normal-case">· not yet</span>{/if}
 				</div>
 				{#each stage.types as t (t.value)}
 					{@const locked = stage.n > s.unlockedStages}
-					<label class="flex min-h-[44px] items-start gap-2 py-1" class:opacity-60={locked}>
+					<label class="flex min-h-[44px] items-start gap-2 py-1">
 						<!-- A locked drill is not dealt whatever this says, so leaving it
-						     tickable let it stand in for a real choice and empty the deck. -->
+						     tickable let it stand in for a real choice and empty the deck.
+						     Muted rather than faded, like the ear fieldset below: opacity
+						     over the 11px hint lands it at 3.1:1, a row you cannot read
+						     rather than one you cannot tick. -->
 						<input
 							type="checkbox"
 							value={t.value}
@@ -242,7 +277,38 @@
 							data-testid="cardtype-{t.value}"
 						/>
 						<span>
-							<span class="block text-sm">{t.label}</span>
+							<span class="block text-sm" class:text-muted={locked}>{t.label}</span>
+							<span class="block text-[11px] text-muted">{t.hint}</span>
+						</span>
+					</label>
+				{/each}
+			{/each}
+		</fieldset>
+
+		<fieldset class="mt-4">
+			<legend class="eyebrow mb-2">Drill types · ear</legend>
+			{#each data.earStages as stage (stage.n)}
+				{@const locked = stage.n > s.earUnlockedStages}
+				{#each stage.types as t (t.value)}
+					<label class="flex min-h-[44px] items-start gap-2 py-1">
+						<input
+							type="checkbox"
+							value={t.value}
+							checked={s.activeCardTypes.includes(t.value)}
+							disabled={locked}
+							onchange={(e) =>
+								(s.activeCardTypes = toggle(
+									s.activeCardTypes,
+									t.value as CardType,
+									e.currentTarget.checked
+								))}
+							class="mt-0.5 size-5 shrink-0"
+							data-testid="cardtype-{t.value}"
+						/>
+						<span>
+							<span class="block text-sm" class:text-muted={locked}>
+								{t.label}{locked ? ' · not yet' : ''}
+							</span>
 							<span class="block text-[11px] text-muted">{t.hint}</span>
 						</span>
 					</label>
@@ -251,10 +317,11 @@
 		</fieldset>
 	</section>
 
-	<section class="rounded-xl border border-line bg-surface p-4">
-		<h2 class="mb-1 text-[11px] uppercase tracking-wider text-muted">The path</h2>
+	<section>
+		<div class="rule mb-4"></div>
+		<h2 class="eyebrow mb-1">The path</h2>
 		<p class="mb-2 text-xs text-muted">
-			Stages open by practice — the Today screen shows what the next one needs. Impatient? Open a
+			Stages open by practice — the Theory screen shows what the next one needs. Impatient? Open a
 			stage here; the deck grows the moment you save.
 		</p>
 
@@ -263,27 +330,48 @@
 			<span class="text-sm">Open the next stage automatically when it is earned</span>
 		</label>
 
+		<div class="eyebrow mt-4 mb-1">Theory</div>
 		{#each data.stages as stage (stage.n)}
 			<div class="flex min-h-[44px] items-center gap-2">
 				<span class="flex-1 text-sm">
 					{stage.n}. {stage.title}
 				</span>
 				{#if stage.n <= s.unlockedStages}
-					<span class="text-xs text-good">open</span>
+					<span class="eyebrow !text-sage">open</span>
 				{:else}
 					<button
 						type="button"
-						class="rounded-lg border border-line px-3 py-1.5 text-xs text-accent"
+						class="eyebrow min-h-[44px] border border-line px-3 !text-brass"
 						data-testid="open-stage-{stage.n}"
 						onclick={() => (s.unlockedStages = stage.n)}>Open now</button
 					>
 				{/if}
 			</div>
 		{/each}
+
+		<!-- A separate ladder, so a separate list: opening a voicings stage has
+		     never said anything about what you can hear. -->
+		<div class="eyebrow mt-4 mb-1">Ear</div>
+		{#each data.earStages as stage (stage.n)}
+			<div class="flex min-h-[44px] items-center gap-2">
+				<span class="flex-1 text-sm">{stage.n}. {stage.title}</span>
+				{#if stage.n <= s.earUnlockedStages}
+					<span class="eyebrow !text-sage">open</span>
+				{:else}
+					<button
+						type="button"
+						class="eyebrow min-h-[44px] border border-line px-3 !text-brass"
+						data-testid="open-ear-stage-{stage.n}"
+						onclick={() => (s.earUnlockedStages = stage.n)}>Open now</button
+					>
+				{/if}
+			</div>
+		{/each}
 	</section>
 
-	<section class="rounded-xl border border-line bg-surface p-4">
-		<h2 class="mb-3 text-[11px] uppercase tracking-wider text-muted">Scheduling</h2>
+	<section>
+		<div class="rule mb-4"></div>
+		<h2 class="eyebrow mb-3">Scheduling</h2>
 
 		<label class="mb-3 block">
 			<span class="text-sm">Target retention</span>
@@ -293,8 +381,14 @@
 				min="70"
 				max="98"
 				value={Math.round(s.targetRetention * 100)}
-				oninput={(e) => (s.targetRetention = Number(e.currentTarget.value) / 100)}
-				class="mt-1 min-h-[44px] w-full rounded-lg border border-line bg-surface-2 px-3"
+				oninput={(e) => {
+					// An emptied field is a number being retyped, not 0%. Number('') is 0,
+					// which is finite, so sanitise() clamps it to the 70% floor instead of
+					// falling back — the one field here not on bind:value, which gives null.
+					const v = e.currentTarget.value;
+					if (v !== '') s.targetRetention = Number(v) / 100;
+				}}
+				class="mt-1.5 min-h-[44px] w-full border border-line bg-surface px-3"
 			/>
 			<span class="mt-1 block text-xs text-muted">
 				Higher means more reviews per day. 90% is the sensible default.
@@ -305,13 +399,15 @@
 	<button
 		type="submit"
 		disabled={busy}
-		class="min-h-[56px] w-full rounded-xl bg-accent-solid text-base font-semibold text-white disabled:opacity-50"
+		class="eyebrow min-h-[56px] w-full rounded-sm bg-brass !text-on-brass disabled:opacity-50"
+		style="font-size:0.8125rem"
 		data-testid="save-settings">Save</button
 	>
 </form>
 
-<section class="mt-4 rounded-xl border border-line bg-surface p-4">
-	<h2 class="mb-2 text-[11px] uppercase tracking-wider text-muted">Your data</h2>
+<section class="mt-10">
+	<div class="rule mb-4"></div>
+	<h2 class="eyebrow mb-2">Your data</h2>
 	<p class="mb-3 text-xs text-muted">
 		Everything lives on this device and nowhere else. Nothing is uploaded, so a backup is your
 		responsibility — and a new phone needs an export.
@@ -320,14 +416,14 @@
 	<button
 		type="button"
 		onclick={downloadExport}
-		class="flex min-h-[44px] w-full items-center text-sm text-accent underline"
+		class="flex min-h-[44px] w-full items-center text-sm text-brass underline underline-offset-2"
 		data-testid="export-link">Export everything as JSON</button
 	>
 
 	<button
 		type="button"
 		onclick={() => fileInput?.click()}
-		class="flex min-h-[44px] w-full items-center text-sm text-accent underline"
+		class="flex min-h-[44px] w-full items-center text-sm text-brass underline underline-offset-2"
 		data-testid="import-link">Import a backup</button
 	>
 	<input
@@ -341,7 +437,7 @@
 	<button
 		type="button"
 		onclick={eraseEverything}
-		class="flex min-h-[44px] w-full items-center text-sm text-bad underline"
+		class="flex min-h-[44px] w-full items-center text-sm text-felt-ink underline underline-offset-2"
 		data-testid="erase-link">Erase all practice history &amp; settings</button
 	>
 </section>

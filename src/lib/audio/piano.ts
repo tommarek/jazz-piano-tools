@@ -1,20 +1,17 @@
 /**
  * A tiny synthesised piano.
  *
- * The app ships no binary assets and works offline, so a sampled instrument is
- * out: a usable soundfont is megabytes, and this whole build is smaller than
- * one of them. Three detuned partials through a per-note lowpass get close
- * enough to a felt piano for hearing a voicing, which is all the drills need.
+ * The app works offline and ships no audio assets, so a sampled instrument is
+ * out: a usable soundfont is tens of megabytes, and this whole build is smaller
+ * than one of them. What is left is to spend the synthesis on the cues the ear
+ * actually reads as "piano": a partial series shaped like a struck string, two
+ * strings per note beating against each other, a two-stage decay, and
+ * brightness that dies away faster than the note does.
  *
  * Everything takes MIDI numbers, never pitch classes — the caller owns the
  * register, so a voicing sounds where it is actually played rather than folded
  * into one octave.
  */
-
-/** Pitch classes are octave-free; playback is not. C4 = 60. */
-export function midiForPitchClass(pitchClass: number, octave = 4): number {
-	return (octave + 1) * 12 + pitchClass;
-}
 
 export function midiToFreq(midiNumber: number): number {
 	return 440 * 2 ** ((midiNumber - 69) / 12);
@@ -83,13 +80,18 @@ export function initAudio(): void {
 			// than taking the session down over a nicety.
 			if (!Ctor) return;
 			ctx = new Ctor();
+			// A PeriodicWave belongs to the context that made it, so the cache
+			// cannot outlive one.
+			waves = null;
 			master = ctx.createGain();
-			master.gain.value = 0.6;
+			master.gain.value = 0.5;
 			// One shared lowpass takes the fizz off the summed partials; per-note
 			// filters shape timbre, this one just keeps a four-note chord civil.
+			// Well above where a note's own filter ever opens, so the attack keeps
+			// the brightness its envelope gives it.
 			const lowpass = ctx.createBiquadFilter();
 			lowpass.type = 'lowpass';
-			lowpass.frequency.value = 6000;
+			lowpass.frequency.value = 9000;
 			master.connect(lowpass);
 			lowpass.connect(ctx.destination);
 			// A context handed back after an interruption does not restart itself,
@@ -101,6 +103,7 @@ export function initAudio(): void {
 	} catch {
 		ctx = null;
 		master = null;
+		waves = null;
 	}
 }
 
@@ -219,14 +222,62 @@ export function stopAll(): void {
 }
 
 /**
- * The partials. A triangle carries the body, a detuned sine underneath gives
- * the beating that keeps a sustained note from sounding synthetic, and a
- * quiet octave above supplies the attack's brightness.
+ * The partial series of a struck string, as a PeriodicWave.
+ *
+ * Two things shape it. Partials fall away with height, faster in the treble —
+ * a top-octave note is nearly a sine, a bass note is a comb of twenty. And the
+ * hammer strikes the string about a seventh of the way along, which cancels the
+ * partials that have a node there: the 7th, the 14th. That notch is a large
+ * part of why a piano is not an organ, and it costs nothing to write down.
+ *
+ * One oscillator carries the lot, so a four-note voicing is eight oscillators
+ * rather than the dozens an additive bank would need on a phone.
  */
-const PARTIALS: { type: OscillatorType; ratio: number; detune: number; level: number }[] = [
-	{ type: 'triangle', ratio: 1, detune: 0, level: 1 },
-	{ type: 'sine', ratio: 1, detune: -7, level: 0.55 },
-	{ type: 'sine', ratio: 2, detune: 5, level: 0.2 }
+function buildWave(audio: AudioContext, partials: number, rolloff: number): PeriodicWave {
+	const real = new Float32Array(partials + 1);
+	const imag = new Float32Array(partials + 1);
+	for (let n = 1; n <= partials; n++) {
+		const strike = Math.abs(Math.sin((n * Math.PI) / 7));
+		imag[n] = (strike / n ** rolloff) * Math.exp(-n / (partials * 0.55));
+	}
+	return audio.createPeriodicWave(real, imag, { disableNormalization: false });
+}
+
+/** Bass, middle and treble get their own wave; three per context, built once. */
+const WAVE_SHAPES: { maxMidi: number; partials: number; rolloff: number }[] = [
+	{ maxMidi: 51, partials: 20, rolloff: 1.15 },
+	{ maxMidi: 71, partials: 13, rolloff: 1.35 },
+	{ maxMidi: 127, partials: 7, rolloff: 1.6 }
+];
+
+let waves: Map<number, PeriodicWave | null> | null = null;
+
+function waveFor(audio: AudioContext, midiNumber: number): PeriodicWave | null {
+	const shape = WAVE_SHAPES.find((w) => midiNumber <= w.maxMidi) ?? WAVE_SHAPES[2];
+	if (!waves) waves = new Map();
+	// `has`, not a truthy read: a context without createPeriodicWave caches its
+	// null too, or every note of every chord pays for the same failure again.
+	if (waves.has(shape.maxMidi)) return waves.get(shape.maxMidi) ?? null;
+	let wave: PeriodicWave | null = null;
+	try {
+		wave = buildWave(audio, shape.partials, shape.rolloff);
+	} catch {
+		// No createPeriodicWave (older WebViews): the caller falls back to a plain
+		// oscillator, which is duller but still a note.
+	}
+	waves.set(shape.maxMidi, wave);
+	return wave;
+}
+
+/**
+ * The two strings of a unison, a few cents apart. Real ones are never in
+ * perfect tune with each other, and the slow beating that comes of it is most
+ * of what stops a held note sounding like a synthesiser. Detuned in opposite
+ * directions so the pitch centre stays where the theory engine put it.
+ */
+const STRINGS: { detune: number; level: number }[] = [
+	{ detune: -3, level: 1 },
+	{ detune: 4, level: 0.7 }
 ];
 
 function startVoice(
@@ -238,40 +289,60 @@ function startVoice(
 	velocity: number
 ): void {
 	const freq = midiToFreq(midiNumber);
+	const wave = waveFor(audio, midiNumber);
 
 	const gain = audio.createGain();
 	const tone = audio.createBiquadFilter();
 	tone.type = 'lowpass';
-	// Brightness tracks velocity the way a real hammer does: a soft note keeps
-	// fewer partials. Tracking the fundamental keeps the ratio constant across
-	// the keyboard instead of dulling the top octave into a sine.
-	tone.frequency.value = Math.min(11000, freq * (4 + 9 * velocity));
-	tone.Q.value = 0.6;
+	tone.Q.value = 0.7;
 	gain.connect(tone);
 	tone.connect(dest);
 
 	// Low strings ring longer than high ones — the single cue that most stops a
-	// bass note from sounding like a plucked blip next to the chord above it.
-	const ring = durationSec * (midiNumber < 60 ? 1.25 : 1);
-	const peak = 0.22 * velocity;
+	// bass note from sounding like a plucked blip next to the chord above it,
+	// and the reason a treble note has to get out of the way of the next chord.
+	const ring = durationSec * clamp(2.35 - midiNumber / 42, 0.65, 1.7);
+	// A hammer takes time to leave a thick string. Sharpening the attack towards
+	// the treble is also what keeps the top of a voicing audible as a separate
+	// note rather than a swell inside the chord.
+	const attack = midiNumber < 48 ? 0.011 : midiNumber < 66 ? 0.007 : 0.004;
+	const peak = 0.2 * velocity;
 	// Exponential ramps cannot touch zero, hence the near-silent floor.
 	// The intrinsic value is set as well as scheduled: until atSec arrives an
 	// AudioParam reports the node's default 1.0, and stopAll latches whatever it
-	// reports — so a voice cut before its onset would be pinned four times louder
+	// reports — so a voice cut before its onset would be pinned five times louder
 	// than it was ever meant to sound.
 	gain.gain.value = 0.0001;
 	gain.gain.setValueAtTime(0.0001, atSec);
-	gain.gain.exponentialRampToValueAtTime(peak, atSec + 0.006);
+	gain.gain.exponentialRampToValueAtTime(peak, atSec + attack);
+	// Two stages, not one. A struck string dumps its energy fast at first and
+	// then hangs on far longer than that rate implies — a single exponential
+	// either bangs and vanishes or drones. The knee is the piano.
+	gain.gain.exponentialRampToValueAtTime(peak * 0.3, atSec + attack + ring * 0.16);
 	gain.gain.exponentialRampToValueAtTime(0.0001, atSec + ring);
 
+	// Brightness dies before the note does: high partials lose their energy
+	// first, so a piano is percussive at the front and mellow in the tail.
+	// Both ends track the fundamental, which keeps the timbre constant across
+	// the keyboard rather than dulling the top octave into a sine. Velocity
+	// opens the top the way a harder hammer does.
+	const open = Math.min(12000, freq * (7 + 12 * velocity));
+	const closed = Math.min(open, Math.max(freq * 2.5, 350));
+	tone.frequency.value = open;
+	tone.frequency.setValueAtTime(open, atSec);
+	tone.frequency.exponentialRampToValueAtTime(closed, atSec + ring * 0.55);
+
 	const voice: Voice = { oscillators: [], gain, startsAt: atSec };
-	for (const partial of PARTIALS) {
+	for (const string of STRINGS) {
 		const osc = audio.createOscillator();
-		osc.type = partial.type;
-		osc.frequency.value = freq * partial.ratio;
-		osc.detune.value = partial.detune;
+		// Without the wave there is nothing to shape a triangle into; it is the
+		// closest of the built-ins to a struck string's weak upper partials.
+		if (wave) osc.setPeriodicWave(wave);
+		else osc.type = 'triangle';
+		osc.frequency.value = freq;
+		osc.detune.value = string.detune;
 		const level = audio.createGain();
-		level.gain.value = partial.level;
+		level.gain.value = string.level;
 		osc.connect(level);
 		level.connect(gain);
 		osc.start(atSec);
@@ -280,4 +351,8 @@ function startVoice(
 	}
 	voice.oscillators[voice.oscillators.length - 1].onended = () => active.delete(voice);
 	active.add(voice);
+}
+
+function clamp(v: number, min: number, max: number): number {
+	return Math.min(max, Math.max(min, v));
 }

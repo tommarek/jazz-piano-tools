@@ -121,14 +121,6 @@ export function noteName(n: Note): string {
 	return LETTERS[n.letter] + acc;
 }
 
-export function noteNameWithOctave(n: Note): string {
-	return noteName(n) + n.octave;
-}
-
-export function notesEqual(a: Note, b: Note): boolean {
-	return a.letter === b.letter && a.alter === b.alter && a.octave === b.octave;
-}
-
 /**
  * Parse a note name such as "Bb", "F#", "Cbb" into a Note at the given octave.
  */
@@ -174,7 +166,6 @@ export function simplifyIfExtreme(n: Note, preferFlats: boolean): Note {
  */
 export function simplestSpelling(midiNumber: number, preferFlats: boolean): Note {
 	const octave = Math.floor(midiNumber / 12) - 1;
-	const pc = ((midiNumber % 12) + 12) % 12;
 
 	const candidates: Note[] = [];
 	for (let letter = 0; letter < 7; letter++) {

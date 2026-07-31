@@ -1,18 +1,35 @@
 import { db } from '$lib/db';
 import { median, type Mastery } from '$lib/scheduler/grading';
-import { addDays, dateKey, eligibleIds, startOfDay } from './queue';
+import { ALL_DECK } from './decks';
+import { addDays, dateKey, eligibleIds, soleQuality, startOfDay } from './queue';
 import { getSettings } from './settings';
 import { GATE_PER_CHORD_MS, keyScores, recentChainTimes } from './stages';
 import { keyLabel } from '$lib/music/voicings';
+import {
+	CARD_TYPE_LABEL,
+	EAR_TYPES,
+	sectionOfId,
+	type CardType,
+	type Section
+} from '$lib/music/cards';
+
+/** A card id's type is its first segment — the one join available offline. */
+function typeOfId(id: string): string {
+	return id.split(':')[0];
+}
 
 export interface DayPoint {
 	date: string;
-	/** Sprint-free, like everything daily_stats stores — the quality population. */
+	/**
+	 * Sprint-free AND section-scoped: the population the accuracy and median on
+	 * this point are computed over. Reading a chord and hearing one are
+	 * different skills at different speeds, and averaging them produced a
+	 * number describing neither.
+	 */
 	reviews: number;
 	correct: number;
 	accuracy: number;
 	medianResponseMs: number | null;
-	minutes: number;
 	/**
 	 * Every attempt of the day, sprints included. "Did you practise" is a
 	 * different question from "how well did you do", and answering it out of the
@@ -40,13 +57,36 @@ export interface Stats {
 		chainPerChordMs: number | null;
 		targetPerChordMs: number;
 	};
-	today: { reviews: number; correct: number; minutes: number };
+	/**
+	 * "Done today" — every attempt of the day, both sections and sprints
+	 * included, because it answers "did you practise" rather than "how well".
+	 * There is deliberately no correct or minutes beside it: those are judged on
+	 * the sprint-free theory population, and three numbers over three different
+	 * populations under one heading is a screen contradicting itself.
+	 */
+	today: { reviews: number };
 	streakDays: number;
 	byDay: DayPoint[];
 	heatmap: KeyCell[];
 	retention: { reviewed: number; correct: number; rate: number | null };
 	states: { unseen: number; new: number; familiar: number; automatic: number; total: number };
 	byQuality: { quality: string; medianResponseMs: number | null; accuracy: number | null }[];
+}
+
+export interface EarTypeStats {
+	type: CardType;
+	label: string;
+	attempts: number;
+	accuracy: number | null;
+	/** On correct answers only, like every other median here. */
+	medianResponseMs: number | null;
+}
+
+export interface EarStats {
+	byType: EarTypeStats[];
+	byDay: DayPoint[];
+	attempts: number;
+	accuracy: number | null;
 }
 
 /**
@@ -58,44 +98,31 @@ export async function getStats(now = Date.now(), days = 60): Promise<Stats> {
 	const conn = await db();
 	const sinceKey = dateKey(addDays(now, -(days - 1)));
 
-	const dayRows = await conn.all<{
-		date: string;
-		reviews: number;
+	const dayRows = await conn.all<{ date: string; reviews: number }>(
+		'SELECT date, reviews FROM daily_stats WHERE date >= ? ORDER BY date',
+		[sinceKey]
+	);
+
+	// daily_stats rolls up BOTH sections together, so every quality figure is
+	// recomputed here from the rows themselves. The rollup is still read for the
+	// practice count: a day whose review rows were purged with a cut card type is
+	// a day that happened, and the streak — which reads daily_stats directly —
+	// already counts it. Dropping it off the axis, or leaving it there at zero,
+	// makes the same screen say both.
+	const allReviews = await conn.all<{
+		card_id: string;
+		ts: number;
 		correct: number;
-		median_response_ms: number | null;
-		minutes: number;
-	}>('SELECT * FROM daily_stats WHERE date >= ? ORDER BY date', [sinceKey]);
+		mode: string;
+		response_ms: number;
+	}>('SELECT card_id, ts, correct, mode, response_ms FROM reviews ORDER BY ts');
+	const since = startOfDay(addDays(now, -(days - 1)));
+	const windowed = allReviews.filter((r) => r.ts >= since);
 
-	const sprints = await sprintDays(addDays(now, -(days - 1)));
-	const stored = new Map(dayRows.map((r) => [r.date, r]));
-	// The union, not just the stored rows: a day of nothing but speed rounds is
-	// a real day of practice that daily_stats deliberately records as zero.
-	const dates = [...new Set([...stored.keys(), ...sprints.keys()])].sort();
-
-	const byDay: DayPoint[] = dates.map((date) => {
-		const r = stored.get(date);
-		const reviews = r?.reviews ?? 0;
-		return {
-			date,
-			reviews,
-			correct: r?.correct ?? 0,
-			accuracy: reviews > 0 ? (r?.correct ?? 0) / reviews : 0,
-			medianResponseMs: r?.median_response_ms ?? null,
-			minutes: r?.minutes ?? 0,
-			attempts: reviews + (sprints.get(date) ?? 0)
-		};
-	});
+	const byDay = daySeries(windowed, 'theory', dayRows);
 
 	const todayKey = dateKey(now);
-	const today = byDay.find((d) => d.date === todayKey) ?? {
-		date: todayKey,
-		reviews: 0,
-		correct: 0,
-		accuracy: 0,
-		medianResponseMs: null,
-		minutes: 0,
-		attempts: 0
-	};
+	const today = byDay.find((d) => d.date === todayKey);
 
 	// Headline: the same measure the gate uses — correct major chains only, so
 	// introducing minor chains does not appear to undo months of progress on
@@ -116,7 +143,7 @@ export async function getStats(now = Date.now(), days = 60): Promise<Stats> {
 	);
 
 	// The heatmap is not its own measure: it renders keyScores(), the same
-	// function the stage-4 keys criterion is judged on, so the caption's claim
+	// function the stage-3 keys criterion is judged on, so the caption's claim
 	// that they are one measure is enforced rather than merely believed. Only
 	// the per-key median is added here — the criterion has no use for it.
 	const medianOf = new Map(stateRows.map((r) => [r.id, r.med]));
@@ -133,20 +160,26 @@ export async function getStats(now = Date.now(), days = 60): Promise<Stats> {
 		)
 	}));
 
-	const eligible = await eligibleIds(await getSettings());
+	// Named rather than left to the default: this is the theory section's screen,
+	// and folding 204 ear cards into "not started" here — they have their own
+	// screen and their own counts — overstates the theory job.
+	const eligible = await eligibleIds(await getSettings(), ALL_DECK);
 
 	// "Cards by state" counts the deck the user can actually study — showing
 	// locked or deselected cards as "not started" would misstate the job left.
 	const eligibleRows = stateRows.filter((r) => eligible.has(r.id));
 	const counts = { unseen: 0, new: 0, familiar: 0, automatic: 0 };
-	for (const r of eligibleRows) counts[r.mastery ?? 'unseen'] += 1;
+	// Not just NULL, for the reason browse.ts gives: nothing constrains the column
+	// to the three states and an imported backup writes whatever its file said. An
+	// unknown one would make its own bucket NaN and leave the four bars summing to
+	// less than the total they are drawn against — and `in` would let 'toString'
+	// through into a bucket of its own, which is the same miscount.
+	for (const r of eligibleRows)
+		counts[r.mastery && Object.hasOwn(counts, r.mastery) ? r.mastery : 'unseen'] += 1;
 
-	const reviews = await conn.all<{
-		card_id: string;
-		ts: number;
-		correct: number;
-		mode: string;
-	}>('SELECT card_id, ts, correct, mode FROM reviews ORDER BY ts');
+	// Retention is a theory figure on a theory screen. An ear card recalled is a
+	// different claim about a different faculty, and the ear section reports it.
+	const reviews = allReviews.filter((r) => sectionOfId(r.card_id) === 'theory');
 
 	return {
 		headline: {
@@ -155,15 +188,17 @@ export async function getStats(now = Date.now(), days = 60): Promise<Stats> {
 			chainPerChordMs: chainMedianMs === null ? null : Math.round(chainMedianMs / 3),
 			targetPerChordMs: GATE_PER_CHORD_MS
 		},
-		// "Done today" is an activity count, so it includes sprints; correct and
-		// minutes stay on the sprint-free population they are judged against.
-		today: { reviews: today.attempts, correct: today.correct, minutes: today.minutes },
+		// An activity count, so it spans both sections and includes sprints.
+		today: { reviews: today?.attempts ?? 0 },
 		streakDays: await currentStreak(now),
 		byDay,
 		heatmap,
 		retention: retentionOf(reviews),
 		states: { ...counts, total: eligibleRows.length },
-		byQuality: qualityBreakdown(stateRows, await reviewTimes())
+		byQuality: qualityBreakdown(
+			stateRows,
+			(await reviewTimes()).filter((t) => sectionOfId(t.card_id) === 'theory')
+		)
 	};
 }
 
@@ -201,6 +236,107 @@ function retentionOf(
 	return { reviewed, correct, rate: reviewed ? correct / reviewed : null };
 }
 
+
+/**
+ * Per-day quality figures for one section, plus a practice count for the day
+ * that deliberately spans everything.
+ *
+ * `attempts` counts every review of the day — both sections, sprints included —
+ * because it answers "did you practise", and a day of nothing but ear training
+ * or nothing but a speed round is a day you practised. Everything else on the
+ * point is scoped to the section and excludes sprints, which are systematically
+ * faster and would flatter both the median and the accuracy.
+ */
+function daySeries(
+	reviews: { card_id: string; ts: number; correct: number; mode: string; response_ms: number }[],
+	section: Section,
+	rollup: Iterable<{ date: string; reviews: number }> = []
+): DayPoint[] {
+	const days = new Map<
+		string,
+		{ reviews: number; correct: number; ms: number[]; attempts: number }
+	>();
+	const bucket = (date: string) => {
+		let d = days.get(date);
+		if (!d) days.set(date, (d = { reviews: 0, correct: 0, ms: [], attempts: 0 }));
+		return d;
+	};
+	for (const r of reviews) {
+		const date = dateKey(r.ts);
+		const d = bucket(date);
+		d.attempts += 1;
+		if (r.mode === 'speed' || sectionOfId(r.card_id) !== section) continue;
+		d.reviews += 1;
+		if (r.correct === 1) {
+			d.correct += 1;
+			d.ms.push(r.response_ms);
+		}
+	}
+	// Days the rollup knows about but this window's rows do not still belong on
+	// the axis, and with their count: a day whose review rows went with a purged
+	// card type is a day, and the streak still counts it. The rollup is the floor
+	// rather than the value because it excludes sprints, which `attempts` counts.
+	for (const { date, reviews } of rollup) {
+		const d = bucket(date);
+		d.attempts = Math.max(d.attempts, reviews);
+	}
+
+	return [...days.entries()]
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([date, d]) => ({
+			date,
+			reviews: d.reviews,
+			correct: d.correct,
+			accuracy: d.reviews > 0 ? d.correct / d.reviews : 0,
+			medianResponseMs: median(d.ms),
+			attempts: d.attempts
+		}));
+}
+
+/**
+ * The ear section's own figures. Accuracy leads rather than speed: perception
+ * is slow long after it is reliable, and the ear path gates on being right.
+ */
+export async function earStats(now = Date.now(), days = 60): Promise<EarStats> {
+	const conn = await db();
+	const since = startOfDay(addDays(now, -(days - 1)));
+	const reviews = await conn.all<{
+		card_id: string;
+		ts: number;
+		correct: number;
+		mode: string;
+		response_ms: number;
+	}>('SELECT card_id, ts, correct, mode, response_ms FROM reviews ORDER BY ts');
+	const ear = reviews.filter(
+		(r) => sectionOfId(r.card_id) === 'ear' && r.mode !== 'speed'
+	);
+
+	// Attempts, not card states: the ear path gates on being right, and the
+	// mastery breakdown is a theory-screen figure. Counting states here as well
+	// gave two totals that disagreed by design — one eligibility-filtered, one
+	// not — and neither was ever rendered.
+	const byType: EarTypeStats[] = EAR_TYPES.map((type) => {
+		const rows = ear.filter((r) => typeOfId(r.card_id) === type);
+		return {
+			type,
+			label: CARD_TYPE_LABEL[type],
+			attempts: rows.length,
+			accuracy: rows.length ? rows.filter((r) => r.correct === 1).length / rows.length : null,
+			medianResponseMs: median(rows.filter((r) => r.correct === 1).map((r) => r.response_ms))
+		};
+	});
+
+	return {
+		byType,
+		byDay: daySeries(
+			reviews.filter((r) => r.ts >= since),
+			'ear'
+		),
+		attempts: ear.length,
+		accuracy: ear.length ? ear.filter((r) => r.correct === 1).length / ear.length : null
+	};
+}
+
 async function reviewTimes(): Promise<{ card_id: string; response_ms: number; correct: number }[]> {
 	const conn = await db();
 	// Sprint rows are excluded everywhere medians or accuracy are computed.
@@ -211,16 +347,19 @@ function qualityBreakdown(
 	cards: { id: string; type: string; quality: string | null }[],
 	times: { card_id: string; response_ms: number; correct: number }[]
 ): Stats['byQuality'] {
-	// The catalogue's own quality column, not a hand-kept list of the id shapes
-	// that happen to carry one: that list had already gone stale twice, silently
-	// leaving whole decks out of a screen that claims to cover the deck.
+	// soleQuality, not the catalogue's quality column: a hand-kept list of the id
+	// shapes that carry one had already gone stale twice, and the column alone is
+	// no better — it is NULL for dia and mode, whose chord the numeral in the id
+	// fixes instead, so two drills went missing from a screen that claims to
+	// cover the deck. What is left out is left out because no ONE
+	// quality describes the attempt: gtn is answered by any quality its pair
+	// fits, a progression by all of its chords at once, and the interval drills
+	// name no chord at all.
 	const qualityOf = new Map<string, string>();
 	for (const c of cards) {
-		// gtn's column holds a guide-tone interval class ('maj7' meaning "a 3rd
-		// and 7th a fifth apart"), which is not the quality it drills — bucketing
-		// it here would file m7 and m7♭5 reps under maj7.
-		if (c.quality === null || c.type === 'gtn') continue;
-		qualityOf.set(c.id, c.quality);
+		const quality = soleQuality(c);
+		if (quality === null) continue;
+		qualityOf.set(c.id, quality);
 	}
 
 	const buckets = new Map<string, { ms: number[]; correct: number; total: number }>();
@@ -247,12 +386,9 @@ function qualityBreakdown(
  * Sprint attempts per local day, keyed like daily_stats. Bucketed in JS for the
  * reason getStats explains — SQLite's `localtime` is not necessarily the UI's.
  */
-async function sprintDays(since?: number): Promise<Map<string, number>> {
+async function sprintDays(): Promise<Map<string, number>> {
 	const conn = await db();
-	const rows = await conn.all<{ ts: number }>(
-		`SELECT ts FROM reviews WHERE mode = 'speed'${since === undefined ? '' : ' AND ts >= ?'}`,
-		since === undefined ? [] : [since]
-	);
+	const rows = await conn.all<{ ts: number }>(`SELECT ts FROM reviews WHERE mode = 'speed'`);
 	const out = new Map<string, number>();
 	for (const r of rows) {
 		const key = dateKey(r.ts);

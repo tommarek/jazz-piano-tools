@@ -10,8 +10,13 @@
  * the in-session sheet and on the reference page, with no parser to ship.
  */
 
-import { GATE_MIN_SAMPLE, GATE_PER_CHORD_MS, STAGE3_PER_CHORD_MS } from '$lib/data/stages';
-import { CARD_TYPE_LABEL, STAGES, TIME_TARGETS } from '$lib/music/cards';
+import {
+	EAR_GATE_ACCURACY,
+	EAR_MIN_SAMPLE,
+	GATE_MIN_SAMPLE,
+	GATE_PER_CHORD_MS
+} from '$lib/data/stages';
+import { CARD_TYPE_LABEL, stagesOf, TIME_TARGETS, type Section } from '$lib/music/cards';
 import { AUTOMATIC_STREAK, EASY_RATIO, FAMILIAR_STREAK, HARD_RATIO } from '$lib/scheduler/grading';
 import { MAX_DAYS_BEFORE_AUTOMATIC } from '$lib/scheduler/fsrs';
 
@@ -33,27 +38,32 @@ export interface ReferenceTopic {
 }
 
 /**
- * What each stage opens, read off STAGES rather than written out. A hand-kept
- * list went stale the moment the ear decks were added to stages 1 and 2, and
- * the one place the path is explained is the worst place to be wrong about it.
+ * What each stage opens, read off the ladders rather than written out. A
+ * hand-kept list went stale the moment the ear decks were added, and the one
+ * place the path is explained is the worst place to be wrong about it — which
+ * is also why both sections are listed: a reader shown only the theory ladder
+ * is told the app's path is three stages when half their deck is on another.
  */
-const STAGE_GATE: Record<number, string> = {
-	1: 'Open from the start.',
-	2: 'Opens once every key has an automatic shell.',
-	3: `Opens once ${GATE_MIN_SAMPLE} correct chains run under ${STAGE3_PER_CHORD_MS / 1000} seconds per chord.`,
-	4: `Opens at ${GATE_PER_CHORD_MS / 1000} seconds per chord with every key at least half automatic on shells.`
+const STAGE_GATE: Record<Section, Record<number, string>> = {
+	theory: {
+		1: 'Open from the start.',
+		2: 'Opens once every key has an automatic guide-tone pair.',
+		3: `Opens once ${GATE_MIN_SAMPLE} correct chains run under ${GATE_PER_CHORD_MS / 1000} seconds per chord, with every key at least half automatic on guide tones.`
+	},
+	ear: {
+		1: 'Open from the start.',
+		2: `Opens at ${Math.round(EAR_GATE_ACCURACY * 100)}% correct on heard intervals over ${EAR_MIN_SAMPLE} attempts — accuracy, not speed: perception stays slow long after it is reliable.`
+	}
 };
 
-const PATH_LIST = [
-	...STAGES.map((stage) => {
+const pathList = (section: Section) =>
+	stagesOf(section).map((stage) => {
 		const drills = stage.types
 			.map((t) => CARD_TYPE_LABEL[t])
 			.map((label) => label.charAt(0).toLowerCase() + label.slice(1))
 			.join(', ');
-		return `Stage ${stage.n} — ${stage.title}: ${drills}. ${STAGE_GATE[stage.n]}`;
-	}),
-	'The Today screen shows the next stage and what it needs. You can also open any stage by hand in Settings.'
-];
+		return `Stage ${stage.n} — ${stage.title}: ${drills}. ${STAGE_GATE[section][stage.n]}`;
+	});
 
 export const TOPICS: ReferenceTopic[] = [
 	{
@@ -65,7 +75,7 @@ export const TOPICS: ReferenceTopic[] = [
 				body: [
 					'A shell is the root plus either the 3rd or the 7th. Two notes, left hand, nothing else. It works because those are the only two notes that decide what kind of chord you are hearing.',
 					'The 5th tells you almost nothing — it is the same in a major 7th, a minor 7th and a dominant. Drop it. The root anchors the harmony and the guide tone names it.',
-					'You may have seen 3rd + 7th together called a shell elsewhere. Here that pair is a guide-tone voicing — what you play once a bassist is covering the root. Shells keep the root because this app assumes your left hand is the bass.'
+					'You may have seen 3rd + 7th together called a shell elsewhere. Here that pair is a guide-tone voicing, and it is what this app drills: the root belongs to the bass player. A shell keeps the root because the word comes from solo and duo playing, where nobody else is covering it.'
 				]
 			},
 			{
@@ -80,7 +90,7 @@ export const TOPICS: ReferenceTopic[] = [
 			},
 			{
 				body: [
-					'Notice that root–3 cannot tell Cmaj7 from C7, and root–7 cannot tell Cm7 from C7. Each shell answers half the question. That is why the notes→symbol drill accepts any chord the shell fits: two notes genuinely do not determine one, so every quality consistent with them is a correct answer.'
+					'Notice that root–3 cannot tell Cmaj7 from C7, and root–7 cannot tell Cm7 from C7. Each shell answers half the question — two notes genuinely do not determine one chord. The same holds for the 3–7 pair, which is why the guide-tone naming drill accepts every quality its pair fits.'
 				]
 			},
 			{
@@ -159,7 +169,7 @@ export const TOPICS: ReferenceTopic[] = [
 			{
 				heading: 'Which minor tonic',
 				body: [
-					'This app uses m(maj7) — root, ♭3, 5, natural 7. It is the characteristic minor-tonic sound, and unlike m6 it actually has a 7th for a shell to use. In practice i m7, i m6 and i m(maj7) are all played; m(maj7) is the one that teaches the guide tone.'
+					'This app uses m(maj7) — root, ♭3, 5, natural 7. It is the characteristic minor-tonic sound, and unlike m6 it actually has a 7th — and a guide-tone voicing is the 3rd and the 7th. In practice i m7, i m6 and i m(maj7) are all played; m(maj7) is the one that teaches the guide tone.'
 				]
 			}
 		],
@@ -192,7 +202,7 @@ export const TOPICS: ReferenceTopic[] = [
 			{
 				body: [
 					'Dominants take the 13th rather than the 5th. On a V chord the 5th adds nothing and the 13th is what everyone actually plays.',
-					'Dm7 A form is F–A–C–E. Dm7 B form is C–E–F–A. Same notes, and that is why this drill asks you to tap them bottom-up: on a one-octave keyboard the order is the only thing that distinguishes the two forms.'
+					'Dm7 A form is F–A–C–E. Dm7 B form is C–E–F–A. Same notes, and that is why this drill asks you to tap them bottom-up: your answer is graded by pitch class, so the order is the only thing that distinguishes the two forms.'
 				]
 			},
 			{
@@ -453,21 +463,37 @@ export const TOPICS: ReferenceTopic[] = [
 			},
 			{
 				body: [
-					'This matters because getting a shell right after six seconds of working it out is not the same as knowing it, and a scheduler that treats them alike will graduate cards you cannot actually use.'
+					'This matters because getting a guide-tone pair right after six seconds of working it out is not the same as knowing it, and a scheduler that treats them alike will graduate cards you cannot actually use.'
 				]
 			},
 			{
 				heading: 'Mastery',
 				list: [
 					`Learning → Familiar: ${FAMILIAR_STREAK} correct in a row.`,
-					`Familiar → Automatic: ${AUTOMATIC_STREAK} in a row AND a median under the target — ${TIME_TARGETS.s2n.automatic / 1000} seconds for a single chord, ${TIME_TARGETS.chain.automatic / 1000} for a three-chord chain.`,
+					`Familiar → Automatic: ${AUTOMATIC_STREAK} in a row AND a median under the target — ${TIME_TARGETS.gt.automatic / 1000} seconds for a single chord, ${TIME_TARGETS.chain.automatic / 1000} for a three-chord chain.`,
 					`Anything not yet Automatic comes back within ${MAX_DAYS_BEFORE_AUTOMATIC} days, whatever the scheduler would otherwise say.`,
 					'New cards are only introduced when the due pile leaves room, so falling behind does not bury you.'
 				]
 			},
 			{
 				heading: 'The path',
-				list: PATH_LIST
+				body: [
+					'The two halves of the app climb separately, and a stage number only means something next to its section: ear stage 2 has nothing to do with theory stage 2.'
+				]
+			},
+			{
+				heading: 'Theory',
+				list: [
+					...pathList('theory'),
+					'The Theory screen shows the next stage and what it needs. You can also open any stage by hand in Settings.'
+				]
+			},
+			{
+				heading: 'Ear',
+				list: [
+					...pathList('ear'),
+					'The Ear screen shows the same for its own path — and both drills leave the deck entirely when Sound is off, because their whole question is the sound.'
+				]
 			}
 		],
 		related: []

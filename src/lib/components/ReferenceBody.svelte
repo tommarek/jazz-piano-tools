@@ -6,16 +6,23 @@
 		/** Renders related-topic links. Off inside the session sheet, which has
 		 *  nowhere to navigate to without losing the queue. */
 		showRelated?: boolean;
+		/** Level the section headings sit at. The two hosts nest the same body
+		 *  differently — the topic page's title is the h1, the sheet's is an h2 —
+		 *  and a fixed level left a hole in one outline or the other. */
+		level?: 2 | 3;
 	}
 
-	let { topic, showRelated = true }: Props = $props();
+	let { topic, showRelated = true, level = 2 }: Props = $props();
+	const heading = $derived(`h${level}` as 'h2' | 'h3');
 </script>
 
 <div class="space-y-4">
 	{#each topic.sections as section, i (i)}
 		<section>
 			{#if section.heading}
-				<h3 class="mb-1 text-sm font-semibold">{section.heading}</h3>
+				<svelte:element this={heading} class="mb-1 text-sm font-semibold"
+					>{section.heading}</svelte:element
+				>
 			{/if}
 
 			{#each section.body ?? [] as paragraph, j (j)}
@@ -59,11 +66,11 @@
 
 	{#if showRelated && topic.related.length > 0}
 		<nav class="border-t border-line pt-3" aria-label="Related topics">
-			<h3 class="mb-2 text-[11px] uppercase tracking-wider text-muted">See also</h3>
+			<svelte:element this={heading} class="eyebrow mb-2">See also</svelte:element>
 			<ul class="space-y-1">
 				{#each topic.related as id (id)}
 					<li>
-						<a href="/reference/{id}" class="text-sm text-accent underline"
+						<a href="/reference/{id}" class="text-sm text-brass underline underline-offset-2"
 						>{TOPICS_BY_ID[id]?.title ?? id.replace(/-/g, ' ')}</a
 					>
 					</li>

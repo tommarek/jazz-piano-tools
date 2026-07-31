@@ -4,6 +4,10 @@
 	 *
 	 * One series, so no legend — the heading names it — and the latest value is
 	 * direct-labelled rather than every point carrying a number.
+	 *
+	 * The crosshair reads the pointer but never cancels touch-action: three
+	 * full-width charts stack up on Progress, and a chart that swallowed the
+	 * swipe would leave the screen unscrollable wherever the thumb landed.
 	 */
 
 	interface Point {
@@ -139,7 +143,6 @@
 			aria-label="{label}. {last ? `Latest ${format(last.y)}` : 'No data yet'}"
 			onpointermove={onMove}
 			onpointerleave={() => (hoverIndex = null)}
-			class="touch-none"
 		>
 			<!-- Recessive grid: three lines, no box -->
 			{#each [0, 0.5, 1] as t (t)}
@@ -192,7 +195,7 @@
 						stroke-linejoin="round"
 					/>
 				{:else}
-					<circle cx={xAt(seg[0].i)} cy={yAt(seg[0].y)} r="2.5" fill={color} />
+					<circle cx={xAt(seg[0].i)} cy={yAt(seg[0].y)} r="4" fill={color} />
 				{/if}
 			{/each}
 
@@ -210,7 +213,7 @@
 					cy={yAt(hovered.y)}
 					r="5"
 					fill={color}
-					stroke="var(--color-surface)"
+					stroke="var(--color-bg)"
 					stroke-width="2"
 				/>
 			{/if}
@@ -221,7 +224,7 @@
 					cy={yAt(last.y)}
 					r="4"
 					fill={color}
-					stroke="var(--color-surface)"
+					stroke="var(--color-bg)"
 					stroke-width="2"
 				/>
 			{/if}
@@ -229,16 +232,19 @@
 	{/if}
 
 	{#if hovered}
+		<!-- Pointer-only, and hidden from the accessibility tree on purpose: a live
+		     region here would announce every pointermove across the series. The
+		     svg's aria-label carries the shape and Table view carries the numbers. -->
 		<div
-			class="pointer-events-none absolute top-0 rounded-md border border-line bg-surface-2 px-2 py-1 text-[10px] shadow-lg"
+			class="pointer-events-none absolute top-0 border border-line bg-surface-2 px-2 py-1 text-[10px] shadow-lg"
 			style="left: {Math.min(Math.max(0, xAt(hoverIndex ?? 0) - 40), Math.max(0, width - 90))}px"
-			role="status"
+			aria-hidden="true"
 		>
 			<div class="text-muted">{hovered.x}</div>
-			<div class="font-semibold">{hovered.y === null ? 'no reviews' : format(hovered.y)}</div>
+			<div class="figure">{hovered.y === null ? 'no reviews' : format(hovered.y)}</div>
 		</div>
 	{:else if last}
-		<div class="absolute right-2 top-0 text-[10px] font-semibold" style="color: {color}">
+		<div class="figure absolute right-2 top-0 text-[10px]" style="color: {color}">
 			{format(last.y)}
 		</div>
 	{/if}

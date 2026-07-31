@@ -19,11 +19,6 @@ import {
 	CHAIN_MODES,
 	CHAIN_MODE_LABEL,
 	CHORD_ROOTS,
-	GUIDE_INTERVALS,
-	GUIDE_INTERVAL_DEGREE,
-	GUIDE_INTERVAL_LABEL,
-	GUIDE_INTERVAL_QUALITIES,
-	GUIDE_INTERVAL_SHELL,
 	KEY_CENTERS,
 	MINOR_KEY_CENTERS,
 	QUALITIES,
@@ -31,33 +26,21 @@ import {
 	ROOTLESS_FORMS,
 	ROOTLESS_QUALITIES,
 	ROOT_OCTAVE,
-	SHELL_LABEL,
-	SHELL_TYPES,
 	buildChain,
 	buildChord,
 	buildRootless,
-	buildShell,
 	chordRootName,
 	chordSymbol,
-	describeTransition,
-	guideDegree,
-	guideNote,
 	type ChainMode,
-	type ChainVariant,
 	type Chord,
-	type GuideInterval,
 	type Quality,
 	type RootlessForm,
 	type RootlessQuality,
-	type ShellType,
 	type Transition
 } from './voicings';
 
 export type CardType =
-	| 's2n'
-	| 'n2s'
 	| 'chain'
-	| 'vl'
 	| 'gt'
 	| 'gtn'
 	| 'gtc'
@@ -71,10 +54,7 @@ export type CardType =
 	| 'eqal';
 
 export const CARD_TYPES: CardType[] = [
-	's2n',
-	'n2s',
 	'chain',
-	'vl',
 	'gt',
 	'gtn',
 	'gtc',
@@ -95,37 +75,90 @@ export const CARD_TYPES: CardType[] = [
 export const EAR_TYPES: CardType[] = ['eint', 'eqal'];
 
 /**
- * The didactic path: four stages, each unlocked by demonstrated mastery of the
- * one before (or by hand in Settings). Theory drills ride along with the
- * voicings they serve — intervals with shells, diatonic harmony with the
- * ii–V–I, extensions with the rootless colours.
+ * The two halves of the app.
+ *
+ * Reading a chord and hearing one are different skills on different clocks:
+ * naming a symbol you can see is recall, and naming an interval you can only
+ * hear is perception, which is slower for a long time and improves on its own
+ * schedule. They were interleaved in one path, and that made every shared
+ * number — the medians, the session, the stage criteria — an average of two
+ * things that have no business being averaged. So they are separate sections
+ * with separate paths, separate sessions and separate figures, over one
+ * database and one scheduler.
+ */
+export type Section = 'theory' | 'ear';
+
+export const SECTIONS: Section[] = ['theory', 'ear'];
+
+export const SECTION_LABEL: Record<Section, string> = {
+	theory: 'Theory',
+	ear: 'Ear training'
+};
+
+/**
+ * A didactic path: stages unlocked by demonstrated mastery of the one before
+ * (or by hand in Settings). Each section has its own, numbered from 1 — a
+ * stage number is only meaningful next to its section.
  */
 export interface Stage {
-	n: 1 | 2 | 3 | 4;
+	n: number;
 	id: string;
 	title: string;
 	types: CardType[];
 }
 
+/**
+ * The theory path. Guide tones first: the 3rd and 7th are the two notes that
+ * name a chord's quality and the two that barely move through a progression,
+ * so everything later — the timed chain, the rootless forms that wrap them —
+ * is built out of them. (Root-based shells used to be stage 1; they were cut
+ * because the pair is the thing worth automating, and the root belongs to the
+ * bass player.)
+ */
 export const STAGES: Stage[] = [
-	// Ear drills ride along with the drill they are the audible half of:
-	// intervals with the interval drill, qualities with the ii–V–I, where
-	// hearing m7 against 7 against maj7 is what the chain is made of.
-	{ n: 1, id: 'shells', title: 'Shells', types: ['s2n', 'n2s', 'ivl', 'eint'] },
-	{ n: 2, id: 'two-five', title: 'The ii–V–I', types: ['chain', 'vl', 'dia', 'eqal'] },
-	{ n: 3, id: 'guide-tones', title: 'Guide-tone voicings', types: ['gt', 'gtn', 'gtc'] },
-	{ n: 4, id: 'rootless', title: 'Rootless & colours', types: ['rootless', 'rlc', 'ext', 'mode'] }
+	{ n: 1, id: 'guide-tones', title: 'Guide tones', types: ['gt', 'gtn', 'ivl'] },
+	{ n: 2, id: 'two-five', title: 'The ii–V–I', types: ['chain', 'gtc', 'dia'] },
+	{ n: 3, id: 'rootless', title: 'Rootless & colours', types: ['rootless', 'rlc', 'ext', 'mode'] }
 ];
 
+/**
+ * The ear path. Intervals first because a chord quality is heard as the
+ * intervals inside it: someone who cannot hear a minor 3rd against a major 3rd
+ * is guessing at m7 against 7, and guessing trains nothing.
+ */
+export const EAR_STAGES: Stage[] = [
+	{ n: 1, id: 'ear-intervals', title: 'Intervals by ear', types: ['eint'] },
+	{ n: 2, id: 'ear-qualities', title: 'Qualities by ear', types: ['eqal'] }
+];
+
+export function stagesOf(section: Section): Stage[] {
+	return section === 'ear' ? EAR_STAGES : STAGES;
+}
+
+export const SECTION_OF_TYPE: Record<CardType, Section> = Object.fromEntries(
+	CARD_TYPES.map((t) => [t, EAR_TYPES.includes(t) ? 'ear' : 'theory'])
+) as Record<CardType, Section>;
+
+/**
+ * Which half of the app a card belongs to, read off its id's first segment —
+ * the only join available to code holding a review row rather than a card.
+ * A type this build no longer knows counts as theory: it cannot be dealt
+ * either way, and the theory figures are where its history already sat.
+ */
+export function sectionOfId(id: string): Section {
+	return SECTION_OF_TYPE[id.split(':')[0] as CardType] ?? 'theory';
+}
+
+/**
+ * Which stage of ITS OWN section a drill belongs to. Never compare one across
+ * sections — ear stage 2 and theory stage 2 are different ladders.
+ */
 export const STAGE_OF_TYPE: Record<CardType, number> = Object.fromEntries(
-	STAGES.flatMap((s) => s.types.map((t) => [t, s.n]))
+	[...STAGES, ...EAR_STAGES].flatMap((s) => s.types.map((t) => [t, s.n]))
 ) as Record<CardType, number>;
 
 export const CARD_TYPE_LABEL: Record<CardType, string> = {
-	s2n: 'Symbol → notes',
-	n2s: 'Notes → symbol',
 	chain: 'ii–V–I chain',
-	vl: 'Voice-leading spotter',
 	gt: 'Symbol → guide tones',
 	gtn: 'Guide tones → symbol',
 	gtc: 'Guide-tone comping',
@@ -140,10 +173,7 @@ export const CARD_TYPE_LABEL: Record<CardType, string> = {
 };
 
 export const CARD_TYPE_HINT: Record<CardType, string> = {
-	s2n: 'Produce a shell from a chord symbol',
-	n2s: 'Name a chord that fits a shell you are shown',
-	chain: 'All three shells of a ii–V–I, timed as one — major and minor',
-	vl: 'Where the guide tone goes between two chords — major and minor',
+	chain: 'The guide tones of a whole ii–V–I, timed as one — major and minor',
 	gt: 'Tap the 3rd and 7th — the pair a bassist frees your hand to play',
 	gtn: 'Two guide tones, 3rd marked — name a quality they fit',
 	gtc: 'Comp a ii–V–I in guide-tone voicings: one note holds, one moves',
@@ -182,15 +212,12 @@ export const GT_CLASS_ACCEPTS: Record<GtClass, Quality[]> = {
  * without that gate, "mastered" would only mean "eventually correct".
  */
 export const TIME_TARGETS: Record<CardType, { baseline: number; automatic: number }> = {
-	s2n: { baseline: 4000, automatic: 2000 },
-	n2s: { baseline: 5000, automatic: 2500 },
 	chain: { baseline: 12000, automatic: 6000 },
-	vl: { baseline: 4000, automatic: 2000 },
 	gt: { baseline: 4000, automatic: 2000 },
 	gtn: { baseline: 5000, automatic: 2500 },
 	gtc: { baseline: 4500, automatic: 2200 },
-	// Four ordered taps: anything under s2n's 1000 ms/tap would make the gated,
-	// harder card stricter per action than the shells it graduates from.
+	// Four ordered taps: anything under gt's 1000 ms/tap would make the gated,
+	// harder card stricter per action than the guide-tone pair it graduates from.
 	rootless: { baseline: 8000, automatic: 4500 },
 	rlc: { baseline: 8000, automatic: 4500 },
 	ext: { baseline: 4000, automatic: 2000 },
@@ -208,21 +235,12 @@ export const TIME_TARGETS: Record<CardType, { baseline: number; automatic: numbe
 	eqal: { baseline: 7000, automatic: 4000 }
 };
 
-export const CHAIN_VARIANTS: ChainVariant[] = ['737', '373'];
 export const TRANSITIONS: Transition[] = ['ii-V', 'V-I'];
 
 export type CardSpec =
-	| { id: string; type: 's2n'; root: string; quality: Quality; shellType: ShellType }
-	| { id: string; type: 'n2s'; root: string; guide: GuideInterval }
-	| { id: string; type: 'chain'; key: string; variant: ChainVariant; mode: ChainMode }
-	| {
-			id: string;
-			type: 'vl';
-			key: string;
-			variant: ChainVariant;
-			transition: Transition;
-			mode: ChainMode;
-	  }
+	// The chain is played entirely in guide-tone pairs — one card per key per
+	// mode, because a 3–7 pair has no root to hang a variant on.
+	| { id: string; type: 'chain'; key: string; mode: ChainMode }
 	| { id: string; type: 'gt'; root: string; quality: Quality }
 	// gtn's quality is the canonical reading of an interval class — every quality
 	// sharing the same 3rd→7th distance is accepted at answer time.
@@ -255,18 +273,11 @@ type WithoutId<T> = T extends unknown ? Omit<T, 'id'> : never;
 
 export function cardId(spec: WithoutId<CardSpec>): string {
 	switch (spec.type) {
-		case 's2n':
-			return `s2n:${slug(spec.root)}:${spec.quality}:${spec.shellType}`;
-		case 'n2s':
-			return `n2s:${slug(spec.root)}:${spec.guide}`;
-		// Minor chains append a mode segment rather than taking a new prefix, so
-		// the ids minted before minor existed keep pointing at the same cards.
+		// Deliberately NOT the old shell-chain ids (chain:C:737): the guide-tone
+		// chain is a different question, and inheriting the shell chains' review
+		// history would schedule it as if it had already been practised.
 		case 'chain':
-			return `chain:${slug(spec.key)}:${spec.variant}${spec.mode === 'minor' ? ':minor' : ''}`;
-		case 'vl':
-			return `vl:${slug(spec.key)}:${spec.variant}:${spec.transition}${
-				spec.mode === 'minor' ? ':minor' : ''
-			}`;
+			return `chain:${slug(spec.key)}${spec.mode === 'minor' ? ':minor' : ''}`;
 		case 'gt':
 			return `gt:${slug(spec.root)}:${spec.quality}`;
 		case 'gtn':
@@ -302,14 +313,6 @@ export function buildCatalogue(): CardSpec[] {
 
 	for (const root of CHORD_ROOTS) {
 		for (const quality of QUALITIES) {
-			for (const shellType of SHELL_TYPES) {
-				push(cards, { type: 's2n', root, quality, shellType });
-			}
-		}
-		for (const guide of GUIDE_INTERVALS) {
-			push(cards, { type: 'n2s', root, guide });
-		}
-		for (const quality of QUALITIES) {
 			push(cards, { type: 'gt', root, quality });
 		}
 		for (const cls of GT_CLASSES) {
@@ -337,12 +340,7 @@ export function buildCatalogue(): CardSpec[] {
 	for (const mode of CHAIN_MODES) {
 		const keys = mode === 'major' ? KEY_CENTERS : MINOR_KEY_CENTERS;
 		for (const key of keys) {
-			for (const variant of CHAIN_VARIANTS) {
-				push(cards, { type: 'chain', key, variant, mode });
-				for (const transition of TRANSITIONS) {
-					push(cards, { type: 'vl', key, variant, transition, mode });
-				}
-			}
+			push(cards, { type: 'chain', key, mode });
 		}
 	}
 
@@ -383,13 +381,13 @@ export interface AnswerStep {
 	/** 'ii' / 'V' / 'I' for chains, empty for single-chord cards */
 	position: string;
 	symbol: string;
-	shellLabel: string;
+	answerLabel: string;
 	/** Pitch classes the learner must select */
 	expected: number[];
 	/**
 	 * When true the taps must arrive in this exact order. Rootless A and B forms
-	 * are the same four pitch classes in a different voice order, so order is
-	 * the only thing that distinguishes them on a one-octave keyboard.
+	 * are the same four pitch classes in a different voice order, so with the
+	 * answer graded by pitch class nothing but the tap order tells them apart.
 	 */
 	ordered?: boolean;
 	/** Note names, as spelled */
@@ -404,7 +402,7 @@ export interface CardView {
 	/** Smaller line under it saying what to produce */
 	instruction: string;
 	/** How the answer is entered */
-	input: 'keys' | 'shell-name' | 'chord-name' | 'quality-name' | 'mode-name' | 'interval-name';
+	input: 'keys' | 'chord-name' | 'quality-name' | 'mode-name' | 'interval-name';
 	/**
 	 * The card asks a sound, not a symbol: there is nothing to read, so the
 	 * prompt plays itself when the card appears and offers a replay button. The
@@ -421,8 +419,6 @@ export interface CardView {
 	givenMarkerLabel?: string;
 	/** For 'keys' input: the steps to be answered, in order */
 	steps: AnswerStep[];
-	/** For 'shell-name' input */
-	expectedShell?: { root: string; guide: GuideInterval };
 	/**
 	 * For 'chord-name' input. Graded on `rootPc`, not on `root`: the IV of G♭ is
 	 * C♭ and the vii of B is A♯, neither of which is on the root picker, and
@@ -458,17 +454,14 @@ export interface CardView {
 }
 
 /**
- * Playback for a card, from the notes the theory engine already built. Those
- * notes carry their octaves, so nothing here re-derives a register — the
- * voicing sounds where {@link buildShell} and friends put it.
- */
-/**
  * The chord an extension card sounds its colour over.
  *
  * Root, 3rd and 7th: the 5th is what a pianist drops first, and leaving it out
  * keeps the colour on top uncluttered. Except when the 5th is the altered one —
- * root–♭3–♭7 is m7's shell, so an m7♭5 card without its ♭5 plays a plain m7 and
- * the ♭13 over it reads as a ♭6 of the wrong chord.
+ * root–♭3–♭7 is m7's guide-tone sound, so an m7♭5 card without its ♭5 plays a
+ * plain m7 and the ♭13 over it reads as a ♭6 of the wrong chord. dim7 is listed
+ * for the same reason, against the day EXTENSIONS grows a dim7 row; it has none
+ * today, so only the m7♭5 half of the test is ever taken.
  */
 function extensionBed(chord: Chord): Note[] {
 	const altered = chord.quality === 'm7b5' || chord.quality === 'dim7';
@@ -477,6 +470,12 @@ function extensionBed(chord: Chord): Note[] {
 		: [chord.tones[0], chord.tones[1], chord.tones[3]];
 }
 
+/**
+ * Playback for a card, from the notes the theory engine already built: they
+ * carry their octaves, so a single voicing sounds where it was spelled. A card
+ * of several groups is registered by {@link voiceLed} first — there the octaves
+ * off the builders are the thing that has to be corrected.
+ */
 function sound(...groups: Note[][]): { groups: number[][] } {
 	return { groups: groups.map((g) => g.map(midi)) };
 }
@@ -498,11 +497,12 @@ const SOUND_HIGH = 84;
  *
  * Anchoring a group on its lowest note cannot do this: roots fall in fourths,
  * so the bottom voice is the one that legitimately moves. What is chosen
- * instead is the octave transposition — plus, where the voicing has no root to
- * stand on, the inversion — that moves the voices least. `invertible` is off by
- * default because a shell is a root with a guide tone above it: rotating one
- * would put the root over its own 7th, which is a different voicing, not the
- * same one in a better register.
+ * instead is the octave transposition — plus, where a rotation cannot change
+ * what the voicing IS, the inversion — that moves the voices least.
+ * `invertible` is off by default, and the one caller that takes the default is
+ * rlc: an A form rotated by two voices is the B form, the same four pitch
+ * classes in the other order, so a "better register" would play the opposite
+ * form from the one the card is asking for.
  */
 function voiceLed(groups: Note[][], opts: { invertible?: boolean } = {}): { groups: number[][] } {
 	const out: number[][] = [];
@@ -565,138 +565,52 @@ export function renderCard(spec: CardSpec): CardView {
 	const timeTarget = TIME_TARGETS[spec.type];
 
 	switch (spec.type) {
-		case 's2n': {
-			const shell = buildShell(spec.root, spec.quality, spec.shellType);
-			return {
-				id: spec.id,
-				type: spec.type,
-				title: shell.chord.symbol,
-				instruction: `${SHELL_LABEL[spec.shellType]} shell`,
-				input: 'keys',
-				given: [],
-				steps: [
-					{
-						position: '',
-						symbol: shell.chord.symbol,
-						shellLabel: SHELL_LABEL[spec.shellType],
-						expected: [...shell.pitchClasses],
-						names: [...shell.names]
-					}
-				],
-				answerText: shell.names.join(' – '),
-				rationale: `${QUALITY_LABEL[spec.quality]}: the ${guideDegree(spec.shellType)} of ${shell.chord.symbol} is ${shell.names[1]}.`,
-				topic: 'shells',
-				rootPitchClass: pitchClass(shell.notes[0]),
-				timeTarget,
-				sound: sound([...shell.notes])
-			};
-		}
-
-		case 'n2s': {
-			const rootNote = parseNote(spec.root, ROOT_OCTAVE);
-			const guide = guideNote(spec.root, spec.guide);
-			const qualities = GUIDE_INTERVAL_QUALITIES[spec.guide];
-			const degree = GUIDE_INTERVAL_DEGREE[spec.guide];
-			const shellType = GUIDE_INTERVAL_SHELL[spec.guide];
-			return {
-				id: spec.id,
-				type: spec.type,
-				title: 'Which chord could this be?',
-				// The root is marked on the keyboard, so asking for it back would be
-				// reading, not recall — only the quality is answered.
-				instruction: 'The root is marked — name a quality this shell fits',
-				input: 'quality-name',
-				given: [pitchClass(rootNote), pitchClass(guide)],
-				rootGiven: pitchClass(rootNote),
-				steps: [],
-				// Two notes never pin down a quality, so every quality the shell is
-				// consistent with is accepted. Asking for one right answer would be
-				// asking a question the music does not have one for.
-				expectedChord: {
-					root: spec.root,
-					rootPc: pitchClass(rootNote),
-					quality: qualities[0],
-					alsoAccept: qualities
-				},
-				answerText: qualities.map((q) => chordSymbol(spec.root, q)).join(', '),
-				// d7 is the one guide interval that pins the quality down, so the
-				// stock "never tells you the quality" line would contradict the answer.
-				rationale:
-					qualities.length === 1
-						? `${noteName(guide)} is the ${degree} of ${prettyNoteName(spec.root)}, and of the drilled qualities only ${chordSymbol(spec.root, qualities[0])} carries a diminished 7th — this one shell does name the chord.`
-						: `${noteName(guide)} is the ${degree} of ${prettyNoteName(spec.root)}, so this is the ${SHELL_LABEL[shellType]} shell of any of them. A shell never tells you the quality on its own — that is what the chart and the bass are for.`,
-				topic: 'shells',
-				rootPitchClass: pitchClass(rootNote),
-				timeTarget,
-				sound: sound([rootNote, guide])
-			};
-		}
-
 		case 'chain': {
-			const chain = buildChain(spec.key, spec.variant, spec.mode);
-			const iiV = describeTransition(chain, 'ii-V');
-			const VI = describeTransition(chain, 'V-I');
+			// The chords come from the same builder as before; the voicings do not.
+			// Each step is the 3rd and 7th only — the pair that names the quality
+			// and the pair that barely moves. No variant: a rootless pair has no
+			// root to hang a 737/373 choice on, which is exactly the ambiguity the
+			// old shell chains kept tripping over.
+			const { chords, positions } = buildChain(spec.key, spec.mode);
+			const pairs = chords.map((c) => [c.tones[1], c.tones[3]] as [Note, Note]);
 			const heading = `${CHAIN_MODE_LABEL[spec.mode]} in ${prettyNoteName(spec.key)}${spec.mode === 'minor' ? ' minor' : ''}`;
+			// Every transition of a fifths-fall does the same dance: the 3rd holds
+			// as the next 7th, the 7th falls to the next 3rd. Said from the actual
+			// notes so major's semitone and minor's whole tone both come out true.
+			const fall = (i: number) => {
+				const semis =
+					(pitchClass(pairs[i][1]) - pitchClass(pairs[i + 1][0]) + 12) % 12;
+				return `${chords[i].symbol}'s 7th (${noteName(pairs[i][1])}) falls ${
+					semis === 1 ? 'a semitone' : 'a whole tone'
+				} to ${chords[i + 1].symbol}'s 3rd (${noteName(pairs[i + 1][0])})`;
+			};
 			return {
 				id: spec.id,
 				type: spec.type,
 				title: heading,
-				instruction:
-					spec.variant === '737' ? '7–3–7 guide tones' : '3–7–3 guide tones',
+				instruction: 'Guide tones only — the 3rd and 7th of each chord',
 				input: 'keys',
 				given: [],
-				steps: chain.shells.map((shell, i) => ({
-					position: chain.positions[i],
-					symbol: shell.chord.symbol,
-					shellLabel: SHELL_LABEL[shell.shellType],
-					expected: [...shell.pitchClasses],
-					names: [...shell.names]
+				steps: chords.map((chord, i) => ({
+					position: positions[i],
+					symbol: chord.symbol,
+					answerLabel: '3rd and 7th',
+					expected: [pitchClass(pairs[i][0]), pitchClass(pairs[i][1])],
+					names: [noteName(pairs[i][0]), noteName(pairs[i][1])]
 				})),
-				answerText: chain.shells.map((s) => `${s.chord.symbol}: ${s.names.join('–')}`).join('   '),
-				rationale: `${iiV.rationale} ${VI.rationale}`,
+				answerText: chords
+					.map((c, i) => `${c.symbol}: ${noteName(pairs[i][0])}–${noteName(pairs[i][1])}`)
+					.join('   '),
+				rationale: `${fall(0)}; ${fall(1)} — the other note holds each time.`,
 				topic: spec.mode === 'minor' ? 'minor-two-five' : 'guide-tones',
-				rootPitchClass: pitchClass(chain.shells[2].notes[0]),
-				timeTarget,
-				sound: voiceLed(chain.shells.map((s) => [...s.notes]))
-			};
-		}
-
-		case 'vl': {
-			const chain = buildChain(spec.key, spec.variant, spec.mode);
-			const info = describeTransition(chain, spec.transition);
-			return {
-				id: spec.id,
-				type: spec.type,
-				title: `${info.from.chord.symbol} → ${info.to.chord.symbol}`,
-				// The lit keys are named by *role*, never by note: "root–7 shell" tells
-				// the learner what they are looking at, while the actual note — which
-				// for held transitions is the answer itself — stays unspoken.
-				instruction: `The lit keys are ${info.from.chord.symbol}'s ${SHELL_LABEL[info.from.shellType]} shell. Tap where its ${guideDegree(info.from.shellType)} goes.`,
-				input: 'keys',
-				given: [...info.from.pitchClasses],
-				// The two lit keys are the source shell. Marking its root tells the
-				// learner which gray key is the guide tone being asked about without
-				// naming the note itself.
-				rootGiven: pitchClass(info.from.notes[0]),
-				steps: [
-					{
-						position: spec.transition,
-						symbol: info.to.chord.symbol,
-						// Not "3rd of G7": naming the destination degree during the answer
-						// phase would hand over the resolution rule the card exists to test.
-						shellLabel: `guide tone of ${info.to.chord.symbol}`,
-						expected: [pitchClass(info.to.guide)],
-						names: [noteName(info.to.guide)]
-					}
-				],
-				answerText: noteName(info.to.guide),
-				rationale: info.rationale,
-				topic: spec.mode === 'minor' ? 'minor-two-five' : 'guide-tones',
-				// The card's key, not the destination chord's root: a vl ii-V card in C
-				// files under C on the heatmap, exactly like the chain it comes from.
 				rootPitchClass: pitchClass(parseNote(spec.key, ROOT_OCTAVE)),
 				timeTarget,
-				sound: voiceLed([[...info.from.notes], [...info.to.notes]])
+				// Pairs have no root to stand on, so later groups may invert as well
+				// as re-register — same rule as gtc, the drill this one chains up.
+				sound: voiceLed(
+					pairs.map((pair) => [...pair]),
+					{ invertible: true }
+				)
 			};
 		}
 
@@ -713,7 +627,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: spec.form,
 						symbol: voicing.symbol,
-						shellLabel: `${spec.form} form`,
+						answerLabel: `${spec.form} form`,
 						expected: [...voicing.pitchClasses],
 						ordered: true,
 						names: [...voicing.names]
@@ -746,7 +660,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: '',
 						symbol: chord.symbol,
-						shellLabel: 'guide tones',
+						answerLabel: 'guide tones',
 						expected: [pitchClass(third), pitchClass(seventh)],
 						names: [noteName(third), noteName(seventh)]
 					}
@@ -805,10 +719,10 @@ export function renderCard(spec: CardSpec): CardView {
 		}
 
 		case 'gtc': {
-			const chain = buildChain(spec.key, '737', spec.mode);
+			const chain = buildChain(spec.key, spec.mode);
 			const i = spec.transition === 'ii-V' ? 0 : 1;
-			const from = chain.shells[i].chord;
-			const to = chain.shells[i + 1].chord;
+			const from = chain.chords[i];
+			const to = chain.chords[i + 1];
 			const pair = (c: Chord): [number, number] => [pitchClass(c.tones[1]), pitchClass(c.tones[3])];
 			const pairNotes = (c: Chord): Note[] => [c.tones[1], c.tones[3]];
 			const toNames = [noteName(to.tones[1]), noteName(to.tones[3])];
@@ -825,7 +739,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: spec.transition,
 						symbol: to.symbol,
-						shellLabel: `guide tones of ${to.symbol}`,
+						answerLabel: `guide tones of ${to.symbol}`,
 						expected: pair(to),
 						names: toNames
 					}
@@ -843,10 +757,10 @@ export function renderCard(spec: CardSpec): CardView {
 		}
 
 		case 'rlc': {
-			const chain = buildChain(spec.key, '737', 'major');
+			const chain = buildChain(spec.key, 'major');
 			const i = spec.transition === 'ii-V' ? 0 : 1;
-			const from = chain.shells[i].chord;
-			const to = chain.shells[i + 1].chord;
+			const from = chain.chords[i];
+			const to = chain.chords[i + 1];
 			const toForm: RootlessForm = spec.form === 'A' ? 'B' : 'A';
 			const fromVoicing = buildRootless(from.root, from.quality as RootlessQuality, spec.form);
 			const toVoicing = buildRootless(to.root, to.quality as RootlessQuality, toForm);
@@ -861,7 +775,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: spec.transition,
 						symbol: toVoicing.symbol,
-						shellLabel: `${toForm} form of ${toVoicing.symbol}`,
+						answerLabel: `${toForm} form of ${toVoicing.symbol}`,
 						expected: [...toVoicing.pitchClasses],
 						ordered: true,
 						names: [...toVoicing.names]
@@ -872,7 +786,7 @@ export function renderCard(spec: CardSpec): CardView {
 				topic: 'rootless',
 				rootPitchClass: pitchClass(parseNote(spec.key, ROOT_OCTAVE)),
 				timeTarget,
-				// Both voicings, like vl and gtc: the A↔B alternation and how little
+				// Both voicings, like gtc: the A↔B alternation and how little
 				// each voice moves is the card, and one chord alone shows neither.
 				sound: voiceLed([[...fromVoicing.notes], [...toVoicing.notes]])
 			};
@@ -898,7 +812,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: label,
 						symbol,
-						shellLabel: `the ${label} of ${symbol}`,
+						answerLabel: `the ${label} of ${symbol}`,
 						expected: [pitchClass(note)],
 						names: [noteName(note)]
 					}
@@ -960,7 +874,7 @@ export function renderCard(spec: CardSpec): CardView {
 					{
 						position: '',
 						symbol: prettyNoteName(spec.root),
-						shellLabel: `${INTERVAL_LABEL[spec.interval]} above ${prettyNoteName(spec.root)}`,
+						answerLabel: `${INTERVAL_LABEL[spec.interval]} above ${prettyNoteName(spec.root)}`,
 						expected: [pitchClass(note)],
 						names: [noteName(note)]
 					}
@@ -1069,40 +983,10 @@ function degreeFor(numeral: string): DiatonicDegree {
 export function parseCardId(id: string): CardSpec | null {
 	const parts = id.split(':');
 	switch (parts[0]) {
-		case 's2n': {
-			if (parts.length !== 4) return null;
-			return {
-				id,
-				type: 's2n',
-				root: unslug(parts[1]),
-				quality: parts[2] as Quality,
-				shellType: parts[3] as ShellType
-			};
-		}
-		case 'n2s': {
-			if (parts.length !== 3) return null;
-			return { id, type: 'n2s', root: unslug(parts[1]), guide: parts[2] as GuideInterval };
-		}
 		case 'chain': {
-			if (parts.length === 3) {
-				return { id, type: 'chain', key: unslug(parts[1]), variant: parts[2] as ChainVariant, mode: 'major' };
-			}
-			if (parts.length === 4 && parts[3] === 'minor') {
-				return { id, type: 'chain', key: unslug(parts[1]), variant: parts[2] as ChainVariant, mode: 'minor' };
-			}
-			return null;
-		}
-		case 'vl': {
-			if (parts.length === 4 || (parts.length === 5 && parts[4] === 'minor')) {
-				return {
-					id,
-					type: 'vl',
-					key: unslug(parts[1]),
-					variant: parts[2] as ChainVariant,
-					transition: parts[3] as Transition,
-					mode: parts.length === 5 ? 'minor' : 'major'
-				};
-			}
+			if (parts.length === 2) return { id, type: 'chain', key: unslug(parts[1]), mode: 'major' };
+			if (parts.length === 3 && parts[2] === 'minor')
+				return { id, type: 'chain', key: unslug(parts[1]), mode: 'minor' };
 			return null;
 		}
 		case 'gt': {
@@ -1180,10 +1064,3 @@ export function parseCardId(id: string): CardSpec | null {
 	}
 }
 
-/** Options for the notes→symbol answer grid. */
-export function shellNameOptions() {
-	return {
-		roots: CHORD_ROOTS,
-		guides: GUIDE_INTERVALS.map((g) => ({ value: g, label: GUIDE_INTERVAL_LABEL[g] }))
-	};
-}

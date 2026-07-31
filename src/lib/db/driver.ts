@@ -8,6 +8,11 @@
  *
  * Everything is async because the native plugin is. That is the only concession
  * the interface makes to either implementation.
+ *
+ * Deliberately no whole-database serialise/restore: backup and restore go
+ * through `data/export.ts`, whose payload is rows the app itself wrote and can
+ * therefore be read back by a build with a different schema — and on the other
+ * platform, which a raw SQLite image or a plugin's own JSON dump cannot.
  */
 
 export interface Db {
@@ -29,10 +34,6 @@ export interface Db {
 	 * driver holds the database in memory and needs telling.
 	 */
 	persist(): Promise<void>;
-	/** Whole database as bytes, for backup and export. */
-	serialise(): Promise<Uint8Array>;
-	/** Replace the whole database, for restore and import. */
-	restore(bytes: Uint8Array): Promise<void>;
 	close(): Promise<void>;
 }
 

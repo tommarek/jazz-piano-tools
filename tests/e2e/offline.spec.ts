@@ -8,7 +8,7 @@ import { answerCurrent, currentCardId, reset } from './helpers';
  */
 test.describe('no network at all', () => {
 	test('a whole session runs with the network cut', async ({ page, context }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 10, sessionCardCap: 10 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 10, sessionCardCap: 10 });
 		await page.goto('/');
 
 		await context.setOffline(true);
@@ -29,7 +29,7 @@ test.describe('no network at all', () => {
 	});
 
 	test('progress survives closing and reopening the app', async ({ page }) => {
-		await reset(page, { activeCardTypes: ['s2n'], newCardsPerDay: 10, sessionCardCap: 10 });
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 10, sessionCardCap: 10 });
 		await page.goto('/session');
 		const firstId = await currentCardId(page);
 		await answerCurrent(page, true);
@@ -59,6 +59,7 @@ test.describe('no network at all', () => {
 
 		// Not the browser's offline error page.
 		await expect(page.locator('nav')).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Voicings', exact: true })).toBeVisible();
+		// The Theory section's own heading — the app shell, served from cache.
+		await expect(page.getByRole('heading', { name: 'Theory', exact: true })).toBeVisible();
 	});
 });

@@ -5,13 +5,16 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head><title>{data.topic.title} · Voicings</title></svelte:head>
+<svelte:head><title>{data.topic.title} · Comp</title></svelte:head>
 
-<a href="/reference" class="mb-3 inline-flex min-h-[44px] items-center text-xs text-accent">
+<a href="/reference" class="eyebrow mb-2 inline-flex min-h-[44px] items-center !text-brass">
 	← Reference
 </a>
 
-<h1 class="text-lg font-semibold">{data.topic.title}</h1>
-<p class="mb-4 text-xs text-muted">{data.topic.blurb}</p>
+<h1 class="text-xl font-bold uppercase" style="font-stretch:112%; letter-spacing:0.1em">
+	{data.topic.title}
+</h1>
+<div class="rule-brass mt-1.5 mb-2"></div>
+<p class="mb-5 text-xs leading-relaxed text-muted">{data.topic.blurb}</p>
 
 <ReferenceBody topic={data.topic} />

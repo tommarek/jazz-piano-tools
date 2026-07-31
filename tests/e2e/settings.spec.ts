@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { reset } from './helpers';
+import { currentCardId, expectedFor, reset } from './helpers';
 
 /**
  * The deck the queue actually draws from is narrower than the ticked list:
@@ -12,7 +12,9 @@ test.describe('settings cannot empty the deck', () => {
 		await reset(page, { unlockedStages: 1, newCardsPerDay: 8 });
 		await page.goto('/settings');
 
-		for (const type of ['s2n', 'n2s', 'ivl', 'eint']) {
+		// Both sections: the ear drills are on their own ladder, so switching the
+		// open theory stage off no longer leaves the ear ones locked with it.
+		for (const type of ['gt', 'gtn', 'ivl', 'eint', 'eqal']) {
 			await page.getByTestId(`cardtype-${type}`).uncheck();
 		}
 		await page.getByTestId('save-settings').click();
@@ -51,11 +53,26 @@ test.describe('settings cannot empty the deck', () => {
 		await expect(page.getByTestId('due-count')).not.toHaveText('0');
 	});
 
+	test('accepts an ear-only deck: the two sections are separate practices', async ({ page }) => {
+		// The guard used to ask the theory deck on its own, so wanting nothing but
+		// ear training was refused — with a message about chord qualities, which
+		// had nothing to do with it.
+		await reset(page, { activeCardTypes: ['gt', 'eint', 'eqal'], newCardsPerDay: 8 });
+		await page.goto('/settings');
+
+		await page.getByTestId('cardtype-gt').uncheck();
+		await page.getByTestId('save-settings').click();
+
+		await expect(page.getByRole('status')).toContainText('Saved');
+		await page.goto('/ear');
+		await expect(page.getByTestId('start-ear')).toHaveText('Start');
+	});
+
 	test('will not let a locked drill stand in for a real choice', async ({ page }) => {
 		await reset(page, { unlockedStages: 1 });
 		await page.goto('/settings');
 
-		await expect(page.getByTestId('cardtype-s2n')).toBeEnabled();
+		await expect(page.getByTestId('cardtype-gt')).toBeEnabled();
 		await expect(page.getByTestId('cardtype-rootless')).toBeDisabled();
 	});
 });
@@ -68,5 +85,63 @@ test.describe('a deck filtered down to nothing', () => {
 
 		await expect(page.getByTestId('deck-empty')).toContainText('Settings');
 		await expect(page.getByTestId('start-session')).toHaveText('Deck is empty');
+	});
+});
+
+/**
+ * Answering on tap. The saving is one tap per card, so the whole feature is
+ * whether the pick submits — and, just as importantly, whether it stays out of
+ * the way of the cards where a first tap is only half an answer.
+ */
+test.describe('answer on tap', () => {
+	test('a one-tap drill submits on the pick, with no Check', async ({ page }) => {
+		await reset(page, {
+			activeCardTypes: ['mode'],
+			unlockedStages: 3,
+			instantAnswer: true,
+			newCardsPerDay: 4
+		});
+		await page.goto('/');
+		await page.getByTestId('start-session').click();
+
+		const card = expectedFor(await currentCardId(page));
+		await page.getByTestId(`mode-${card.expectedMode}`).click();
+
+		// Graded and durably written without the Check button being touched.
+		await expect(page.locator('[data-testid="feedback"][data-saved="true"]')).toBeVisible();
+		await expect(page.getByTestId('feedback')).toHaveAttribute('data-correct', 'true');
+		await expect(page.getByTestId('next-card')).toBeVisible();
+	});
+
+	test('leaves a two-part answer alone — a quality is not an answer by itself', async ({
+		page
+	}) => {
+		// The diatonic drill asks for a root as well, so submitting on the first
+		// tap would grade half an answer.
+		await reset(page, {
+			activeCardTypes: ['dia'],
+			unlockedStages: 3,
+			instantAnswer: true,
+			newCardsPerDay: 4
+		});
+		await page.goto('/');
+		await page.getByTestId('start-session').click();
+
+		const card = expectedFor(await currentCardId(page));
+		await page.getByTestId(`quality-${card.expectedChord!.quality}`).click();
+		await expect(page.getByTestId('feedback')).toBeHidden();
+		await expect(page.getByTestId('check-answer')).toBeVisible();
+	});
+
+	test('is off unless asked for: the pick waits for Check', async ({ page }) => {
+		await reset(page, { activeCardTypes: ['mode'], unlockedStages: 3, newCardsPerDay: 4 });
+		await page.goto('/');
+		await page.getByTestId('start-session').click();
+
+		const card = expectedFor(await currentCardId(page));
+		await page.getByTestId(`mode-${card.expectedMode}`).click();
+		await expect(page.getByTestId('feedback')).toBeHidden();
+		await page.getByTestId('check-answer').click();
+		await expect(page.getByTestId('feedback')).toBeVisible();
 	});
 });

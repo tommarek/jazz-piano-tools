@@ -5,9 +5,10 @@
  * App-shell cache.
  *
  * Navigations are network-first with a cached fallback, so a fresh deploy is
- * picked up immediately but the app still opens on the underground. API calls
- * are never cached — a stale queue or stale stats would be worse than an error,
- * and reviews taken offline are held in the client outbox instead.
+ * picked up immediately but the app still opens on the underground. There is
+ * nothing here but the shell: the app makes no requests of its own, every
+ * review lands in on-device SQLite, and so no response this cache can hold is
+ * ever stale data.
  */
 
 import { build, files, version } from '$service-worker';
@@ -46,7 +47,6 @@ sw.addEventListener('fetch', (event) => {
 
 	const url = new URL(request.url);
 	if (url.origin !== sw.location.origin) return;
-	if (url.pathname.startsWith('/api/')) return;
 
 	// Hashed build assets never change under a given URL.
 	if (PRECACHE.includes(url.pathname)) {

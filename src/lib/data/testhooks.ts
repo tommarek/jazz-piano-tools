@@ -19,8 +19,9 @@ export function installTestHooks(): void {
 		async reset(settings: Partial<Settings> = {}) {
 			await resetAll();
 			// Tests exercise the whole deck by default; the path's own specs
-			// override unlockedStages to test the progression.
-			await saveSettings({ unlockedStages: 4, ...settings });
+			// override unlockedStages (or earUnlockedStages — the two sections
+			// gate independently) to test a progression.
+			await saveSettings({ unlockedStages: 3, earUnlockedStages: 2, ...settings });
 		}
 	};
 }

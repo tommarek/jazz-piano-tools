@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { answerCurrent, currentCardId, expectedFor, reset, tapKeys } from './helpers';
 import { CHORD_ROOTS } from '../../src/lib/music/voicings';
-import { parseNote, pitchClass } from '../../src/lib/music/theory';
+import { parseNote, pitchClass, prettyNoteName } from '../../src/lib/music/theory';
 
 /**
  * A Web Audio stand-in stuck at 'suspended' — the state iOS hands back until a
@@ -25,8 +25,13 @@ function gateAudioBehindAGesture() {
 		createGain() {
 			return { gain: param(), connect() {} };
 		}
+		// The cutoff carries an envelope of its own — brightness dies before the
+		// note does — so it is scheduled exactly like a gain.
 		createBiquadFilter() {
-			return { type: 'lowpass', frequency: { value: 0 }, Q: { value: 0 }, connect() {} };
+			return { type: 'lowpass', frequency: param(), Q: { value: 0 }, connect() {} };
+		}
+		createPeriodicWave() {
+			return {};
 		}
 		createOscillator() {
 			return {
@@ -34,6 +39,7 @@ function gateAudioBehindAGesture() {
 				frequency: { value: 0 },
 				detune: { value: 0 },
 				onended: null,
+				setPeriodicWave() {},
 				connect() {},
 				start() {},
 				stop() {}
@@ -55,10 +61,9 @@ test.describe('theory drills', () => {
 		['intervals', 'ivl'],
 		['diatonic harmony', 'dia'],
 		['scales & modes', 'mode'],
-		// vl, gtc and rlc are the types that pre-light `given` keys, and rlc is an
-		// ordered answer — none of that was driven anywhere until these were added,
-		// while the docs claimed every drill type was covered.
-		['voice leading', 'vl'],
+		// gtc and rlc pre-light `given` keys, and rlc is an ordered answer — none
+		// of that was driven anywhere until these were added, while the docs
+		// claimed every drill type was covered.
 		['guide tones', 'gt'],
 		['guide tones → symbol', 'gtn'],
 		['guide-tone comping', 'gtc'],
@@ -93,9 +98,13 @@ test.describe('theory drills', () => {
 	});
 
 	test('diatonic answers are accepted by pitch class, not by spelling', async ({ page }) => {
-		// A dozen of the 84 diatonic answers are spelled off the root grid — the
+		// Thirteen of the 84 diatonic answers are spelled off the root grid — the
 		// IV of G♭ is C♭, the vii of B is A♯. Tapping the enharmonic key must
-		// count, and the feedback must still show the real spelling.
+		// count, and the feedback must still show the real spelling. The card's
+		// root carries ♭/♯ glyphs and the picker's names are ASCII, so the two
+		// alphabets have to be reconciled before anything is compared: a raw
+		// includes() calls every accidental root off-grid and stops on D♭, which
+		// is a correctly spelled grid root and proves nothing.
 		await reset(page, { activeCardTypes: ['dia'], newCardsPerDay: 50, sessionCardCap: 50 });
 		await page.goto('/session');
 		await expect(page.getByTestId('card-title')).toBeVisible();
@@ -105,13 +114,13 @@ test.describe('theory drills', () => {
 			if (!(await page.getByTestId('card-title').isVisible())) break;
 			const card = expectedFor(await currentCardId(page));
 			const chord = card.expectedChord!;
-			const offGrid = !CHORD_ROOTS.includes(chord.root);
+			const offGrid = !CHORD_ROOTS.some((r) => prettyNoteName(r) === chord.root);
 
 			if (offGrid) {
 				const enharmonic = CHORD_ROOTS.find(
 					(r) => pitchClass(parseNote(r, 4)) === chord.rootPc
 				)!;
-				expect(enharmonic).not.toBe(chord.root);
+				expect(prettyNoteName(enharmonic)).not.toBe(chord.root);
 				await page.getByTestId(`root-${enharmonic}`).click();
 				await page.getByTestId(`quality-${chord.quality}`).click();
 				await page.getByTestId('check-answer').click();
@@ -135,7 +144,7 @@ test.describe('ear training', () => {
 	] as const) {
 		test(`${name} answers from the sound alone`, async ({ page }) => {
 			await reset(page, { activeCardTypes: [type], newCardsPerDay: 4, sessionCardCap: 4 });
-			await page.goto('/session');
+			await page.goto('/session?deck=ear');
 			await expect(page.getByTestId('card-title')).toBeVisible();
 
 			const card = expectedFor(await currentCardId(page));
@@ -174,7 +183,7 @@ test.describe('ear training', () => {
 		// — nothing ever sounds — and is the test below.
 		await page.addInitScript(gateAudioBehindAGesture);
 		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 4, sessionCardCap: 4 });
-		await page.goto('/session');
+		await page.goto('/session?deck=ear');
 		await expect(page.getByTestId('card-title')).toBeVisible();
 
 		// Nothing has sounded, and the card says so rather than reading as dead.
@@ -207,7 +216,7 @@ test.describe('ear training', () => {
 			Object.defineProperty(window, 'webkitAudioContext', { value: undefined });
 		});
 		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 4, sessionCardCap: 4 });
-		await page.goto('/session');
+		await page.goto('/session?deck=ear');
 		await expect(page.getByTestId('card-title')).toBeVisible();
 
 		await page.getByTestId('play-prompt').click();
@@ -229,7 +238,7 @@ test.describe('ear training', () => {
 		// chosen there is one button left, and captioning it "You played" would
 		// tell the learner they played something they never touched.
 		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 4, sessionCardCap: 4 });
-		await page.goto('/session');
+		await page.goto('/session?deck=ear');
 		await expect(page.getByTestId('card-title')).toBeVisible();
 
 		await page.getByTestId('give-up').click();
@@ -245,9 +254,16 @@ test.describe('ear training', () => {
 			soundEnabled: false,
 			newCardsPerDay: 8
 		});
-		await page.goto('/session');
+		await page.goto('/session?deck=ear');
 		await expect(page.getByTestId('session-summary')).toBeVisible();
-		await expect(page.getByTestId('empty-reason')).toBeVisible();
+		// And says which switch emptied it: "nothing due" would send the learner
+		// away for the day over a setting they can flip now.
+		await expect(page.getByTestId('empty-reason')).toContainText('Play the answer');
+		await expect(page.getByTestId('empty-reason')).not.toContainText('Nothing due');
+
+		// Out of an ear session is back to Ear, never across to Theory.
+		await page.getByRole('link', { name: 'Done' }).click();
+		await expect(page).toHaveURL(/\/ear$/);
 	});
 });
 
@@ -284,7 +300,7 @@ test.describe('rootless voicings', () => {
 		await reset(page, {
 			activeCardTypes: ['rootless'],
 			newCardsPerDay: 10,
-			unlockedStages: 4
+			unlockedStages: 3
 		});
 		await page.goto('/session');
 
@@ -313,7 +329,7 @@ test.describe('rootless voicings', () => {
 		await reset(page, {
 			activeCardTypes: ['rootless'],
 			newCardsPerDay: 10,
-			unlockedStages: 4
+			unlockedStages: 3
 		});
 		await page.goto('/session');
 
@@ -338,7 +354,7 @@ test.describe('rootless voicings', () => {
 		await reset(page, {
 			activeCardTypes: ['rootless'],
 			newCardsPerDay: 10,
-			unlockedStages: 4
+			unlockedStages: 3
 		});
 		await page.goto('/session');
 
@@ -351,6 +367,109 @@ test.describe('rootless voicings', () => {
 	});
 });
 
+test.describe('a phone screen', () => {
+	/**
+	 * Regression: the reveal panel, the movement graph and the keyboard together
+	 * ran 130px past a 390×664 phone, and because the Next bar is sticky and
+	 * opaque the bottom of the keyboard — the order badges included — sat behind
+	 * it however far you scrolled. The drills with the tallest reveals are
+	 * checked: the three that draw the graph, plus dia, which draws none — its
+	 * sound is one group — but stacks a root grid, a quality row and a rationale.
+	 * gtn is here for the answer phase rather than the reveal: it is the one
+	 * drill that shows a keyboard and a picker at once, and at full key height
+	 * the bottom quality buttons sat under the bar on anything under 390dp.
+	 */
+	for (const type of ['chain', 'gtc', 'rlc', 'dia', 'gtn'] as const) {
+		test(`fits ${type} in both phases`, async ({ page }) => {
+			await reset(page, { activeCardTypes: [type], newCardsPerDay: 4, unlockedStages: 3 });
+			await page.setViewportSize({ width: 390, height: 664 });
+			await page.goto(`/session?deck=${type}`);
+			await expect(page.locator('[data-card-id]')).toBeVisible();
+
+			const overflow = async () =>
+				page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+			expect(await overflow(), 'answer phase').toBeLessThanOrEqual(0);
+
+			await answerCurrent(page, false);
+			await expect(page.getByTestId('feedback')).toBeVisible();
+			expect(await overflow(), 'reveal').toBeLessThanOrEqual(0);
+			await expect(page.getByTestId('next-card')).toBeInViewport();
+
+			// The bar is opaque, so "on the page" is not enough: the reveal has to
+			// clear it. Nothing is being taught by a key hidden under a button.
+			const clear = await page.evaluate(() => {
+				const kb = document.querySelector('[data-testid="keyboard"]');
+				const bar = document.querySelector('[data-testid="next-card"]')!.parentElement!;
+				return kb ? bar.getBoundingClientRect().top - kb.getBoundingClientRect().bottom : 1;
+			});
+			expect(clear).toBeGreaterThanOrEqual(0);
+		});
+	}
+
+	/**
+	 * Regression: the session sized itself against a hard-coded 2rem of chrome
+	 * while <main> pads by the top safe-area inset, so on a notched phone it
+	 * stood a notch taller than the screen and the opaque bar sat over the bottom
+	 * of the keyboard however far you scrolled. Playwright reports every inset as
+	 * zero, so the notch is simulated by setting the pad both places read.
+	 *
+	 * On a viewport with room to spare, deliberately: what is under test is the
+	 * arithmetic of the session's own min-height, not how much a card needs —
+	 * that is the 390×664 budget above, and no notched phone is that short.
+	 */
+	test('sizes itself to the screen the notch leaves', async ({ page }) => {
+		await reset(page, { activeCardTypes: ['chain'], newCardsPerDay: 4, unlockedStages: 3 });
+		await page.setViewportSize({ width: 390, height: 900 });
+		await page.goto('/session?deck=chain');
+		await expect(page.locator('[data-card-id]')).toBeVisible();
+		await page.evaluate(() => document.documentElement.style.setProperty('--pad-top', '59px'));
+
+		const overflow = async () =>
+			page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+		expect(await overflow(), 'answer phase').toBeLessThanOrEqual(0);
+
+		await answerCurrent(page, false);
+		await expect(page.getByTestId('feedback')).toBeVisible();
+		expect(await overflow(), 'reveal').toBeLessThanOrEqual(0);
+
+		// The bar is opaque and sticky, so the session ending below the fold means
+		// the bottom of the keyboard is behind it, unreachably.
+		const clear = await page.evaluate(() => {
+			const kb = document.querySelector('[data-testid="keyboard"]')!;
+			const bar = document.querySelector('[data-testid="next-card"]')!.parentElement!;
+			return bar.getBoundingClientRect().top - kb.getBoundingClientRect().bottom;
+		});
+		expect(clear).toBeGreaterThanOrEqual(0);
+	});
+
+	/**
+	 * Regression, at the narrower phone the answer phase has to survive: gtn is
+	 * the only drill showing a keyboard and a picker at once, and at full key
+	 * height the bottom row of quality buttons sat behind the opaque Check bar
+	 * on a 375dp screen — the one row you cannot answer the card without.
+	 */
+	test('fits gtn while it is being answered on a 375dp phone', async ({ page }) => {
+		await reset(page, { activeCardTypes: ['gtn'], newCardsPerDay: 4, unlockedStages: 3 });
+		await page.setViewportSize({ width: 375, height: 667 });
+		await page.goto('/session?deck=gtn');
+		await expect(page.locator('[data-card-id]')).toBeVisible();
+
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollHeight - window.innerHeight
+		);
+		expect(overflow).toBeLessThanOrEqual(0);
+
+		const clear = await page.evaluate(() => {
+			const picker = [...document.querySelectorAll('[data-testid^="quality-"]')].map(
+				(el) => el.getBoundingClientRect().bottom
+			);
+			const bar = document.querySelector('[data-testid="check-answer"]')!.parentElement!;
+			return bar.getBoundingClientRect().top - Math.max(...picker);
+		});
+		expect(clear).toBeGreaterThanOrEqual(0);
+	});
+});
+
 test.describe('ear cards on a phone screen', () => {
 	// Regression: the reveal panel plus an eleven-button picker pushed the
 	// answer below the fold, so the one thing feedback exists to show was the
@@ -358,7 +477,7 @@ test.describe('ear cards on a phone screen', () => {
 	test('fit the viewport in both phases', async ({ page }) => {
 		await reset(page, { activeCardTypes: ['eint'], newCardsPerDay: 5 });
 		await page.setViewportSize({ width: 390, height: 664 });
-		await page.goto('/session');
+		await page.goto('/session?deck=ear');
 		await expect(page.getByTestId('card-title')).toBeVisible();
 
 		const overflow = async () =>

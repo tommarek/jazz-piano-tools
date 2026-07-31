@@ -1,31 +1,76 @@
 @import 'tailwindcss';
 
-/* Matches the palette of the selfhosted homepage so the stack looks like one thing. */
+/**
+ * The materials of a piano, not the palette of a dashboard.
+ *
+ * Ebony for the ground (a lid, warm, never blue-grey slate), ivory for ink,
+ * pedal brass for anything the app wants you to act on, hammer felt for a miss.
+ * The app is used in a practice room at night with a phone in one hand, which
+ * is why it is dark; it is dark in THIS way because the subject is a piano.
+ */
 @theme {
-	--color-bg: #0f1117;
-	--color-surface: #1a1d27;
-	--color-surface-2: #222634;
-	--color-line: #2a2d3a;
-	--color-ink: #e4e6eb;
-	--color-muted: #8b8fa3;
-	/* Accent has two steps on purpose: the bright one is only ever ink or a mark
-	   on a dark surface (5.2:1), the solid one is the only one that carries white
-	   text on top of it (4.7:1). Using the bright step as a button fill would sit
-	   at 3.2:1 and fail AA. */
-	--color-accent: #4f8cff;
-	--color-accent-solid: #2f6fe0;
-	--color-good: #22c55e;
-	--color-bad: #f87171;
-	--color-warn: #eab308;
-	--color-hot: #f97316;
+	--color-bg: #13110f;
+	--color-surface: #1c1917;
+	--color-surface-2: #272220;
+	--color-line: #3a3330;
+	--color-ink: #f2eadb;
+	--color-muted: #a2968a;
+	/* Brass has two jobs and therefore two steps. The bright one is a mark or
+	   ink on ebony (8.5:1). The fill carries EBONY text, not white — a brass
+	   plate with dark lettering, which is both the pedal and the only way a warm
+	   mid-tone passes AA as a button. */
+	--color-brass: #d7a64f;
+	--color-brass-deep: #b8863a;
+	--color-on-brass: #13110f;
+	/* Felt: a fill and a border only — #c2453c is 3.8:1 on ebony, under AA at
+	   any size a verdict would be set in. Every felt-coloured string in the app
+	   goes through the lighter step instead (6.5:1). */
+	--color-felt: #c2453c;
+	--color-felt-ink: #e8776a;
+	--color-sage: #8fb57a;
 
-	--font-sans:
-		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	/* Kept as aliases so status stays named by meaning at the call site. */
+	--color-accent: var(--color-brass);
+	--color-accent-solid: var(--color-brass);
+	--color-good: var(--color-sage);
+	--color-bad: var(--color-felt-ink);
+	--color-warn: var(--color-brass);
+	--color-hot: var(--color-felt);
+
+	--font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/**
+ * One variable family, two widths. Expanded caps carry the structure, normal
+ * width carries the reading — the width axis does the work a second typeface
+ * would usually be bought in for, and an offline app pays for every file it
+ * ships. Latin subset only, self-hosted: there is no network to fetch from.
+ *
+ * The subset carries the arrows as well as the letters — `→` is in every
+ * transition title and `←` on every back link, and leaving them out set the
+ * app's commonest non-letter in whatever face the device fell back to. What no
+ * subset can carry is ♭ ♯ ♪ ▶ ✕: Archivo draws none of them at any weight, so
+ * those come from the platform's own symbol coverage whatever we ship. Which is
+ * why ChordSymbol offsets its accidental in em rather than in Archivo's
+ * metrics — the glyph it is tucking in is not Archivo's.
+ */
+@font-face {
+	font-family: 'Archivo';
+	font-style: normal;
+	font-weight: 100 900;
+	font-stretch: 62% 125%;
+	font-display: block;
+	src: url('/fonts/archivo-latin.woff2') format('woff2-variations');
 }
 
 html {
 	background: var(--color-bg);
 	color-scheme: dark;
+	/* The page's top pad, named because the session subtracts it from its own
+	   min-height: a notch is taller than the 1rem floor, and a session sized
+	   against a guessed 1rem runs past the screen with the opaque Next bar
+	   parked over the bottom of the keyboard. One value, read in both places. */
+	--pad-top: max(1rem, env(safe-area-inset-top));
 	/* Stop iOS double-tap zoom from eating fast repeated key taps. */
 	touch-action: manipulation;
 	-webkit-text-size-adjust: 100%;
@@ -35,6 +80,7 @@ body {
 	background: var(--color-bg);
 	color: var(--color-ink);
 	font-family: var(--font-sans);
+	font-synthesis: none;
 	overscroll-behavior-y: none;
 	min-height: 100dvh;
 }
@@ -44,6 +90,52 @@ body {
 	-webkit-user-select: none;
 	user-select: none;
 	-webkit-tap-highlight-color: transparent;
+}
+
+/**
+ * The structural voice: expanded caps, widely tracked, brass or muted. Every
+ * section label, tab and nav item wears it, and nothing else does — it is what
+ * makes a heading a heading here, in place of a box around the content.
+ */
+.eyebrow {
+	font-stretch: 112%;
+	font-weight: 700;
+	font-size: 0.625rem;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--color-muted);
+}
+
+/**
+ * A staff rule. Sections are separated by a line, not fenced in a card: the
+ * page reads as a sheet of music rather than a stack of tiles. It fades out to
+ * the right the way a hand-ruled stave does when the pen leaves the paper.
+ */
+.rule {
+	height: 1px;
+	background: linear-gradient(to right, var(--color-line), transparent);
+}
+
+.rule-brass {
+	height: 1px;
+	background: linear-gradient(to right, var(--color-brass-deep), transparent);
+}
+
+/** Figures are read, compared and glanced at: same width every time. */
+.figure {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+}
+
+/**
+ * Focus that is visible on ebony without being a browser default. Brass, one
+ * step out from the control, so it reads on both surface and ground.
+ */
+:where(a, button, input, select, [tabindex]):focus-visible {
+	outline: 2px solid var(--color-brass);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

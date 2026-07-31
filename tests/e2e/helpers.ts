@@ -56,12 +56,7 @@ export async function answerCurrent(page: Page, correct = true) {
 	const id = await currentCardId(page);
 	const card = expectedFor(id);
 
-	if (card.input === 'shell-name') {
-		const shell = card.expectedShell!;
-		const root = correct ? shell.root : shell.root === 'C' ? 'D' : 'C';
-		await page.getByTestId(`root-${root}`).click();
-		await page.getByTestId(`guide-${shell.guide}`).click();
-	} else if (card.input === 'quality-name') {
+	if (card.input === 'quality-name') {
 		// Quality only — the root is marked on the prompt keyboard. A wrong
 		// answer picks a quality outside the accepted set.
 		const accepted = card.expectedChord!.alsoAccept ?? [card.expectedChord!.quality];

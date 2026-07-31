@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
 	initAudio,
 	isAudioReady,
-	midiForPitchClass,
 	midiToFreq,
 	playNotes,
 	playSequence,
@@ -12,12 +11,6 @@ import {
 import { buildCatalogue, renderCard } from '../../src/lib/music/cards';
 
 describe('midi mapping', () => {
-	it('places pitch classes in the octave asked for', () => {
-		expect(midiForPitchClass(0, 4)).toBe(60);
-		expect(midiForPitchClass(9, 4)).toBe(69);
-		expect(midiForPitchClass(0, 3)).toBe(48);
-	});
-
 	it('tunes A4 to 440 and octaves to doubles', () => {
 		expect(midiToFreq(69)).toBeCloseTo(440, 6);
 		expect(midiToFreq(81)).toBeCloseTo(880, 6);
@@ -81,14 +74,14 @@ describe('card playback', () => {
 
 	it('plays what each card type is about', () => {
 		const groupsOf = (id: string) => views.find((v) => v.id === id)!.sound!.groups;
-		// The three shells of the chain, in order — the point of the card is the
+		// The three pairs of the chain, in order — the point of the card is the
 		// voice leading, which only exists as a sequence.
-		expect(groupsOf('chain:C:737')).toHaveLength(3);
+		expect(groupsOf('chain:C')).toHaveLength(3);
 		// Both chords of a transition, and both notes of an interval, melodically.
-		expect(groupsOf('vl:C:737:ii-V')).toHaveLength(2);
+		expect(groupsOf('gtc:C:ii-V')).toHaveLength(2);
 		expect(groupsOf('ivl:C:P5')).toEqual([[48], [55]]);
 		// Single voicings sound as one chord.
-		expect(groupsOf('s2n:C:maj7:r3')).toEqual([[48, 52]]);
+		expect(groupsOf('gt:C:maj7')).toEqual([[52, 59]]);
 		expect(groupsOf('rootless:C:maj7:A')).toHaveLength(1);
 		expect(groupsOf('rootless:C:maj7:A')[0]).toHaveLength(4);
 		// The ear cards are their own prompt: an interval melodically, a quality
@@ -118,11 +111,12 @@ describe('card playback', () => {
 			[53, 57, 60, 64],
 			[53, 57, 59, 64]
 		]);
-		// The 737 chain already lined up, and must be left where it was.
-		expect(groupsOf('chain:C:737')).toEqual([
-			[50, 60],
-			[55, 59],
-			[48, 59]
+		// The chain is three guide-tone pairs: F held into G7 (C4 falls to B3),
+		// then B held into Cmaj7 (F falls to E) — nothing moves more than a step.
+		expect(groupsOf('chain:C')).toEqual([
+			[53, 60],
+			[53, 59],
+			[52, 59]
 		]);
 	});
 
@@ -131,10 +125,10 @@ describe('card playback', () => {
 		// of the same size twice, so voice n of the second group is what voice n
 		// of the first turned into.
 		//
-		// Guide-tone and rootless comping is the drill about voices barely
-		// moving, so a whole tone is the whole budget. A shell keeps its root,
-		// and roots fall a fifth — that movement is the card, not a mis-register.
-		const MAX_MOVE: Record<string, number> = { gtc: 2, rlc: 2, chain: 7, vl: 7 };
+		// Every progression here is about voices barely moving — the chain is
+		// guide-tone pairs now, same as the comping drills — so a whole tone is
+		// the entire budget for every voice.
+		const MAX_MOVE: Record<string, number> = { gtc: 2, rlc: 2, chain: 2 };
 		for (const v of views) {
 			const limit = MAX_MOVE[v.type];
 			if (limit === undefined) continue;

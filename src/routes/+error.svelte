@@ -13,10 +13,10 @@
 	const isNotFound = $derived(page.status === 404);
 </script>
 
-<svelte:head><title>Problem · Voicings</title></svelte:head>
+<svelte:head><title>Problem · Comp</title></svelte:head>
 
-<section class="mt-6 rounded-xl border border-bad/40 bg-bad/10 p-4" data-testid="error-page">
-	<h1 class="text-base font-semibold text-bad">
+<section class="mt-6 border-l-2 border-felt bg-felt/10 py-3 pr-3 pl-4" data-testid="error-page">
+	<h1 class="text-base font-semibold text-felt-ink">
 		{isNotFound ? 'Nothing here' : 'That screen failed to load'}
 	</h1>
 	<p class="mt-2 text-sm break-words" data-testid="error-message">{message}</p>
@@ -30,13 +30,13 @@
 	<div class="mt-4 flex gap-2">
 		<button
 			type="button"
-			class="min-h-[48px] flex-1 rounded-xl bg-accent-solid text-sm font-semibold text-white"
+			class="eyebrow min-h-[48px] flex-1 rounded-sm bg-brass !text-on-brass"
 			onclick={() => location.reload()}>Try again</button
 		>
 		<a
 			href="/"
-			class="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-line text-sm font-semibold"
-			>Today</a
+			class="eyebrow flex min-h-[48px] flex-1 items-center justify-center rounded-sm border border-line"
+			>Theory</a
 		>
 	</div>
 </section>

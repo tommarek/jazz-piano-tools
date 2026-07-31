@@ -28,7 +28,7 @@
 
 <dialog
 	bind:this={dialog}
-	class="w-full max-w-md rounded-t-2xl border border-line bg-surface p-0 text-ink backdrop:bg-black/60"
+	class="w-full max-w-md border-t-2 border-brass bg-surface p-0 text-ink backdrop:bg-black/70"
 	aria-label={topic ? topic.title : 'Reference'}
 	onclose={onclose}
 	data-testid="reference-sheet"
@@ -36,7 +36,9 @@
 	{#if topic}
 		<div class="flex items-start justify-between gap-3 border-b border-line p-4">
 			<div>
-				<h2 class="text-base font-semibold">{topic.title}</h2>
+				<h2 class="text-base font-bold uppercase" style="font-stretch:110%; letter-spacing:0.08em">
+					{topic.title}
+				</h2>
 				<p class="text-xs text-muted">{topic.blurb}</p>
 			</div>
 			<button
@@ -58,7 +60,7 @@
 			aria-label="{topic.title} — reference"
 			tabindex="0"
 		>
-			<ReferenceBody {topic} showRelated={false} />
+			<ReferenceBody {topic} showRelated={false} level={3} />
 		</div>
 	{/if}
 </dialog>
