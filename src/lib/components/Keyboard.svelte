@@ -11,11 +11,13 @@
 	 * under the finger before it commits.
 	 *
 	 * Answers are still graded on pitch class, so the flanking keys are the same
-	 * notes again: tapping either C is tapping C, and every pc-keyed state
-	 * (selected, given, reveal…) lights all of its copies, because pretending
-	 * two copies of one pitch class are different notes would be a lie about
-	 * how the grading works. Badges (root marker, order numbers) sit on the
-	 * home-octave copy only.
+	 * notes again: tapping either C is tapping C. States the APP asserts about a
+	 * pitch class — given, reveal, wrong, previous — light every copy, because
+	 * the claim is about the note, not a key. The learner's own SELECTION lights
+	 * only the copy that was actually tapped: two keys lighting under one finger
+	 * reads as two notes entered, and the point of showing a selection is to
+	 * echo the tap, not the theory. Badges (root marker, order numbers) sit on
+	 * the home-octave copy only.
 	 *
 	 * Input commits on RELEASE, not press: put a finger down, slide until the
 	 * bubble names the key you meant, let go. A keyboard-only user still gets
@@ -122,8 +124,13 @@
 		{ pc: 4, letter: 'E', home: false }
 	];
 
-	// `slot` is the index of the white key the black key sits after.
+	// `slot` is the index of the white key the black key sits after. slot -1 is
+	// the half F♯ clipped by the left edge: without it the leftmost G has no
+	// black key on its left and its silhouette reads as a C — the one thing a
+	// piano player navigates by is the black-key pattern, so the pattern has to
+	// be complete even where the keyboard is cut off.
 	const BLACK: { pc: number; slot: number; name: string; home: boolean }[] = [
+		{ pc: 6, slot: -1, name: 'F sharp / G flat', home: false },
 		{ pc: 8, slot: 0, name: 'G sharp / A flat', home: false },
 		{ pc: 10, slot: 1, name: 'A sharp / B flat', home: false },
 		{ pc: 1, slot: 3, name: 'C sharp / D flat', home: true },
@@ -165,9 +172,51 @@
 		11: 'B'
 	};
 
-	function toggle(pc: number) {
+	/**
+	 * Which physical copy each selected pitch class was tapped on, so the
+	 * selection fill can echo the tap instead of lighting every copy of the
+	 * note. Falls back to the home copy for a selection with no recorded tap
+	 * (a revisited chain step). Grading never sees this — it is display only.
+	 */
+	let origins = $state<Record<number, string>>({});
+
+	const HOME_ID: Record<number, string> = {};
+	for (const [i, k] of WHITE.entries()) if (k.home) HOME_ID[k.pc] = `w${i}`;
+	for (const [i, k] of BLACK.entries()) if (k.home) HOME_ID[k.pc] = `b${i}`;
+
+	// Selections the parent drops (deselect, FIFO eviction, a step change)
+	// take their tap record with them, so a later re-select defaults home.
+	$effect(() => {
+		const keep = new Set(selected);
+		if (Object.keys(origins).some((pc) => !keep.has(Number(pc)))) {
+			origins = Object.fromEntries(
+				Object.entries(origins).filter(([pc]) => keep.has(Number(pc)))
+			);
+		}
+	});
+
+	function toggle(pc: number, keyId?: string) {
 		if (disabled || blanked) return;
+		if (!selected.includes(pc) && keyId) origins = { ...origins, [pc]: keyId };
 		onselect?.(pc);
+	}
+
+	/** Whether THIS copy displays the selection of its pitch class. */
+	function selectedHere(pc: number, keyId: string): boolean {
+		return stateOf(pc) === 'selected' && (origins[pc] ?? HOME_ID[pc]) === keyId;
+	}
+
+	/**
+	 * The fill for one physical key. pc-level states that assert something
+	 * about the NOTE (reveal, wrong, given) light every copy; the selection
+	 * echoes the tap, so a selected pc's other copies fall through to whatever
+	 * else is true of them.
+	 */
+	function keyState(pc: number, keyId: string): string {
+		const s = stateOf(pc);
+		if (s !== 'selected') return s;
+		if (selectedHere(pc, keyId)) return 'selected';
+		return given.includes(pc) ? 'given' : '';
 	}
 
 	/**
@@ -213,7 +262,7 @@
 	let container = $state<HTMLDivElement | null>(null);
 	// The bubble, unlike the container, is genuinely reactive: track() reassigns
 	// it on every pointermove and the preview is drawn from it.
-	let bubble = $state<{ x: number; y: number; label: string; pc: number } | null>(null);
+	let bubble = $state<{ x: number; y: number; label: string; pc: number; keyId?: string } | null>(null);
 	/**
 	 * Every finger down, not just the first, each with where it last was. A
 	 * guide-tone pair is two keys and gets tapped as two keys: with only the
@@ -269,7 +318,10 @@
 		return best;
 	}
 
-	function keyAt(clientX: number, clientY: number): { pc: number; label: string } | null {
+	function keyAt(
+		clientX: number,
+		clientY: number
+	): { pc: number; keyId?: string; label: string } | null {
 		const hit = document.elementFromPoint(clientX, clientY);
 		// Outside the keyboard is genuinely nothing — dragging off the keys has to
 		// clear the bubble. Inside it, every point belongs to a key.
@@ -277,7 +329,7 @@
 		const el = hit.closest('[data-kb-pc]') ?? nearestKey(clientX, clientY);
 		if (!el) return null;
 		const pc = Number(el.getAttribute('data-kb-pc'));
-		return { pc, label: BUBBLE_NAME[pc] ?? '' };
+		return { pc, keyId: el.getAttribute('data-kb-key') ?? undefined, label: BUBBLE_NAME[pc] ?? '' };
 	}
 
 	function bubbleAt(clientX: number, clientY: number) {
@@ -288,7 +340,8 @@
 			x: Math.min(Math.max(clientX - rect.left, BUBBLE_INSET), rect.width - BUBBLE_INSET),
 			y: clientY - rect.top,
 			label: key.label,
-			pc: key.pc
+			pc: key.pc,
+			keyId: key.keyId
 		};
 	}
 
@@ -357,9 +410,12 @@
 		// neighbour with no move event in between. For the finger the bubble names
 		// that is the bubble, which is the promise; for any other finger it is its
 		// own last tracked position, which is the key its bubble would have named.
-		const pc = owner === e.pointerId && bubble ? bubble.pc : keyAt(at.x, at.y)?.pc;
+		const hit =
+			owner === e.pointerId && bubble
+				? { pc: bubble.pc, keyId: bubble.keyId }
+				: keyAt(at.x, at.y);
 		if (owner === e.pointerId || active.size === 0) rebubble();
-		if (pc !== undefined) toggle(pc);
+		if (hit && hit.pc !== undefined) toggle(hit.pc, hit.keyId);
 	}
 
 	function onPointerCancel(e: PointerEvent) {
@@ -372,8 +428,8 @@
 	 * detail 0. Pointer input is already committed on pointerup, so a click
 	 * with detail > 0 would be a double toggle and is ignored.
 	 */
-	function onKeyActivate(e: MouseEvent, pc: number) {
-		if (e.detail === 0) toggle(pc);
+	function onKeyActivate(e: MouseEvent, pc: number, keyId: string) {
+		if (e.detail === 0) toggle(pc, keyId);
 	}
 </script>
 
@@ -408,25 +464,26 @@
 	>
 		<div class="flex w-full gap-[2px]" style="height: {compact ? 140 : 190}px">
 			{#each WHITE as key, i (i)}
-				{@const s = stateOf(key.pc)}
+				{@const s = keyState(key.pc, `w${i}`)}
 				<button
 					type="button"
 					class="key-white relative min-w-0 flex-1 rounded-b-sm border border-line pb-2 text-center align-bottom text-xs font-semibold transition-colors"
 					class:is-flank={!key.home}
-					class:is-prev={previous.includes(key.pc) && s === ''}
+					class:is-prev={previous.includes(key.pc) && stateOf(key.pc) === ''}
 					class:is-selected={s === 'selected'}
 					class:is-given={s === 'given'}
 					class:is-reveal={s === 'reveal'}
 					class:is-wrong={s === 'wrong'}
 					data-kb-pc={key.pc}
+					data-kb-key={`w${i}`}
 					data-pc={key.home ? key.pc : undefined}
 					data-flank-pc={key.home ? undefined : key.pc}
 					data-state={s}
-					data-prev={previous.includes(key.pc) && s === ''}
-					aria-pressed={selected.includes(key.pc)}
+					data-prev={previous.includes(key.pc) && stateOf(key.pc) === ''}
+					aria-pressed={selectedHere(key.pc, `w${i}`)}
 					aria-label={keyLabel(key.letter, key.pc, key.home)}
 					{disabled}
-					onclick={(e) => onKeyActivate(e, key.pc)}
+					onclick={(e) => onKeyActivate(e, key.pc, `w${i}`)}
 				>
 					<!-- Badges sit above the letter, not at the top: the top half of a
 					     white key is covered by its neighbouring black keys. Home copy
@@ -447,26 +504,29 @@
 		</div>
 
 		{#each BLACK as key, i (i)}
-			{@const s = stateOf(key.pc)}
+			{@const s = keyState(key.pc, `b${i}`)}
 			<button
 				type="button"
 				class="key-black absolute top-0 rounded-b-sm border border-black transition-colors"
 				class:is-flank={!key.home}
-				class:is-prev={previous.includes(key.pc) && s === ''}
+				class:is-prev={previous.includes(key.pc) && stateOf(key.pc) === ''}
 				class:is-selected={s === 'selected'}
 				class:is-given={s === 'given'}
 				class:is-reveal={s === 'reveal'}
 				class:is-wrong={s === 'wrong'}
-				style="left: calc({seam(key.slot)} - {WHITE_WIDTH} * 0.34); width: calc({WHITE_WIDTH} * 0.68); height: {compact ? 87 : 118}px"
+				style="{key.slot < 0
+					? `left: 0; width: calc(${WHITE_WIDTH} * 0.34)`
+					: `left: calc(${seam(key.slot)} - ${WHITE_WIDTH} * 0.34); width: calc(${WHITE_WIDTH} * 0.68)`}; height: {compact ? 87 : 118}px"
 				data-kb-pc={key.pc}
+				data-kb-key={`b${i}`}
 				data-pc={key.home ? key.pc : undefined}
 				data-flank-pc={key.home ? undefined : key.pc}
 				data-state={s}
-				data-prev={previous.includes(key.pc) && s === ''}
-				aria-pressed={selected.includes(key.pc)}
+				data-prev={previous.includes(key.pc) && stateOf(key.pc) === ''}
+				aria-pressed={selectedHere(key.pc, `b${i}`)}
 				aria-label={keyLabel(key.name, key.pc, key.home)}
 				{disabled}
-				onclick={(e) => onKeyActivate(e, key.pc)}
+				onclick={(e) => onKeyActivate(e, key.pc, `b${i}`)}
 			>
 				{#if key.home && rootMarker === key.pc}
 					<!-- Inherits the key's ink: the root marker only appears on given keys,

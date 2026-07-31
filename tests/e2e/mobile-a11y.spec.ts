@@ -138,7 +138,7 @@ test.describe('mobile and accessibility', () => {
 		await noHorizontalScroll(page);
 
 		const flanks = page.locator('[data-testid="keyboard"] [data-flank-pc]');
-		await expect(flanks).toHaveCount(10);
+		await expect(flanks).toHaveCount(11);
 		// Both white: the black keys are rendered after all thirteen whites, so
 		// `flanks.last()` is an inset D♯ and would still fit if white E5 hung off
 		// the right edge — which is the failure this test exists for.

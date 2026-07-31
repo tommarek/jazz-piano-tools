@@ -641,12 +641,14 @@ test.describe('the keyboard', () => {
 		await expect(page.getByTestId('feedback')).toHaveAttribute('data-correct', 'true');
 	});
 
-	test('flanking copies light together with their home key', async ({ page }) => {
+	test('a selection lights only the copy that was tapped', async ({ page }) => {
+		// Grading is pitch-class, but the selection fill echoes the TAP: two keys
+		// lighting under one finger read as two notes entered.
 		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 3 });
 		await page.goto('/session');
 		await expect(page.getByTestId('card-title')).toBeVisible();
 
-		// Tap home G: the flanking G below is the same pitch class and says so.
+		// Tap home G: only the home copy shows it.
 		await tapKeys(page, [7]);
 		await expect(page.locator('[data-testid="keyboard"] [data-pc="7"]')).toHaveAttribute(
 			'data-state',
@@ -654,6 +656,36 @@ test.describe('the keyboard', () => {
 		);
 		await expect(
 			page.locator('[data-testid="keyboard"] [data-flank-pc="7"]')
+		).toHaveAttribute('data-state', '');
+
+		// Tap the low flanking A: only the flank copy shows it, and grading still
+		// receives the pitch class — both selections count toward the answer.
+		await page.locator('[data-testid="keyboard"] [data-flank-pc="9"]').click();
+		await expect(
+			page.locator('[data-testid="keyboard"] [data-flank-pc="9"]')
 		).toHaveAttribute('data-state', 'selected');
+		await expect(page.locator('[data-testid="keyboard"] [data-pc="9"]')).toHaveAttribute(
+			'data-state',
+			''
+		);
+		await expect(page.getByTestId('check-answer')).toBeEnabled();
+	});
+
+	test('the leftmost G keeps its black-key neighbour, clipped at the edge', async ({ page }) => {
+		// Without the half F♯ the edge G has a flat left side and reads as a C —
+		// the black-key pattern is the only landmark a player navigates by.
+		await reset(page, { activeCardTypes: ['gt'], newCardsPerDay: 3 });
+		await page.goto('/session');
+		await expect(page.getByTestId('card-title')).toBeVisible();
+
+		const half = page.locator('[data-testid="keyboard"] [data-flank-pc="6"]');
+		await expect(half).toHaveCount(1);
+		const box = (await half.boundingBox())!;
+		const kb = (await page.getByTestId('keyboard').boundingBox())!;
+		// Pinned to the left edge, half a black key wide, and still a real F♯.
+		expect(Math.abs(box.x - kb.x)).toBeLessThanOrEqual(1);
+		expect(box.width).toBeGreaterThan(4);
+		await half.click();
+		await expect(half).toHaveAttribute('data-state', 'selected');
 	});
 });

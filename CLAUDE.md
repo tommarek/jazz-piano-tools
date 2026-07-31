@@ -315,9 +315,12 @@ else belongs on the scale.
   line does. This code has been through a dozen adversarial review rounds; match
   the tone rather than adding narration.
 - Answers are graded on **pitch class**, not spelling. The keyboard is an
-  octave and a half (G–E, C home): flanking keys carry `data-flank-pc` and
-  mirror every pc state of their home copy, and only the home octave carries
-  `data-pc` — tests and badges key on that. Input commits on pointer RELEASE
+  octave and a half (G–E, C home) plus a half F♯ clipped at the left edge so
+  the outermost G keeps a piano's black-key pattern instead of reading as a C.
+  Flanking keys carry `data-flank-pc` and mirror the pc states the APP asserts
+  (given, reveal, wrong, previous); the learner's own selection lights only
+  the copy that was tapped (`origins` in Keyboard.svelte). Only the home
+  octave carries `data-pc` — tests and badges key on that. Input commits on pointer RELEASE
   with a drag bubble naming the key under the finger; keyboard-only activation
   still works via click detail 0. Keys are deliberately narrower than 44px
   (tall instead); the a11y specs assert fit, not width. Exceptions to
